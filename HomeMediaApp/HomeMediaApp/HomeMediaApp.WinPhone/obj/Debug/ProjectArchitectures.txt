@@ -1,0 +1,2 @@
+C:\Users\felix\Desktop\DHBW Horb\Semesterarbeit\Repository\HomeMediaApp\HomeMediaApp\HomeMediaApp.WinPhone\HomeMediaApp.WinPhone.csproj;neutral
+C:\Users\felix\Desktop\DHBW Horb\Semesterarbeit\Repository\HomeMediaApp\HomeMediaApp\HomeMediaApp\HomeMediaApp.csproj;neutral

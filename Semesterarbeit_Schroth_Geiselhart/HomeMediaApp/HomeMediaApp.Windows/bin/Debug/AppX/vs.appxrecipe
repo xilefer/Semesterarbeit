@@ -1,137 +1,137 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <Machine>DESKTOP-3PVB87S</Machine>
-    <WindowsUser>Felix</WindowsUser>
+    <Machine>DUKE</Machine>
+    <WindowsUser>felix</WindowsUser>
     <TargetPlatformIdentifier>Windows</TargetPlatformIdentifier>
     <TargetOsVersion>6.3</TargetOsVersion>
     <TargetOsDescription>Windows 8.1</TargetOsDescription>
     <SolutionConfiguration>Debug|AnyCPU</SolutionConfiguration>
     <PackageArchitecture>neutral</PackageArchitecture>
-    <PackageIdentityName>85930d70-750c-41a6-9b95-03faaed4159c</PackageIdentityName>
-    <PackageIdentityPublisher>CN=joaqu</PackageIdentityPublisher>
-    <IntermediateOutputPath>C:\Users\Felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\HomeMediaApp\HomeMediaApp.Windows\obj\Debug\</IntermediateOutputPath>
+    <PackageIdentityName>6e4cba78-0ede-46f8-a7c8-59d61a7aa588</PackageIdentityName>
+    <PackageIdentityPublisher>CN=felix</PackageIdentityPublisher>
+    <IntermediateOutputPath>C:\Users\felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\HomeMediaApp\HomeMediaApp.Windows\obj\Debug\</IntermediateOutputPath>
     <RemoteDeploymentType>
     </RemoteDeploymentType>
     <PackageRegistrationPath>
     </PackageRegistrationPath>
     <RemoveNonLayoutFiles>true</RemoveNonLayoutFiles>
-    <RegisteredManifestChecksum>4C9FF62013671273DFA93378F61ADAA6AAF946CE2D7C306982995F499AE23B59</RegisteredManifestChecksum>
-    <RegisteredPackageMoniker>85930d70-750c-41a6-9b95-03faaed4159c_1.0.0.0_neutral__nh7s0b45jarrj</RegisteredPackageMoniker>
-    <RegisteredUserModeAppID>85930d70-750c-41a6-9b95-03faaed4159c_nh7s0b45jarrj!App</RegisteredUserModeAppID>
-    <RegisteredPackageID>85930d70-750c-41a6-9b95-03faaed4159c</RegisteredPackageID>
-    <RegisteredPackagePublisher>CN=joaqu</RegisteredPackagePublisher>
+    <RegisteredManifestChecksum>08DB391A8A57945444FA577BD8BB2E487442F7CEEA6CBFF70E1D4005C3AD2258</RegisteredManifestChecksum>
+    <RegisteredPackageMoniker>6e4cba78-0ede-46f8-a7c8-59d61a7aa588_1.0.0.0_neutral__1jyr8yczd6x48</RegisteredPackageMoniker>
+    <RegisteredUserModeAppID>6e4cba78-0ede-46f8-a7c8-59d61a7aa588_1jyr8yczd6x48!App</RegisteredUserModeAppID>
+    <RegisteredPackageID>6e4cba78-0ede-46f8-a7c8-59d61a7aa588</RegisteredPackageID>
+    <RegisteredPackagePublisher>CN=felix</RegisteredPackagePublisher>
     <RegisteredVersion>1.0.0.0</RegisteredVersion>
     <JitOptimizationSuppressed>True</JitOptimizationSuppressed>
   </PropertyGroup>
   <ItemGroup>
-    <AppXManifest Include="C:\Users\Felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\HomeMediaApp\HomeMediaApp.Windows\bin\Debug\AppxManifest.xml">
+    <AppXManifest Include="C:\Users\felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\HomeMediaApp\HomeMediaApp.Windows\bin\Debug\AppxManifest.xml">
       <PackagePath>AppxManifest.xml</PackagePath>
       <ReRegisterAppIfChanged>true</ReRegisterAppIfChanged>
-      <Modified>2017-01-27T19:24:26.833</Modified>
+      <Modified>2017-01-29T12:02:55.556</Modified>
     </AppXManifest>
   </ItemGroup>
   <ItemGroup>
-    <AppxPackagedFile Include="C:\Users\Felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\HomeMediaApp\HomeMediaApp.Windows\bin\Debug\HomeMediaApp.Windows.exe">
+    <AppxPackagedFile Include="C:\Users\felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\HomeMediaApp\HomeMediaApp.Windows\bin\Debug\HomeMediaApp.Windows.exe">
       <PackagePath>HomeMediaApp.Windows.exe</PackagePath>
-      <Modified>2017-01-27T19:27:10.617</Modified>
+      <Modified>2017-01-29T15:22:15.869</Modified>
     </AppxPackagedFile>
-    <AppxPackagedFile Include="C:\Users\Felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\HomeMediaApp\HomeMediaApp\bin\Debug\HomeMediaApp.dll">
+    <AppxPackagedFile Include="C:\Users\felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\HomeMediaApp\HomeMediaApp\bin\Debug\HomeMediaApp.dll">
       <PackagePath>HomeMediaApp.dll</PackagePath>
-      <Modified>2017-01-27T19:27:09.559</Modified>
+      <Modified>2017-01-29T15:22:13.285</Modified>
     </AppxPackagedFile>
-    <AppxPackagedFile Include="C:\Users\Felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\packages\rda.SocketsForPCL.2.0.2\lib\win8\Sockets.Plugin.Abstractions.dll">
+    <AppxPackagedFile Include="C:\Users\felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\packages\rda.SocketsForPCL.2.0.2\lib\win8\Sockets.Plugin.Abstractions.dll">
       <PackagePath>Sockets.Plugin.Abstractions.dll</PackagePath>
       <Modified>2016-06-30T05:07:58.000</Modified>
     </AppxPackagedFile>
-    <AppxPackagedFile Include="C:\Users\Felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\packages\rda.SocketsForPCL.2.0.2\lib\win8\Sockets.Plugin.dll">
+    <AppxPackagedFile Include="C:\Users\felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\packages\rda.SocketsForPCL.2.0.2\lib\win8\Sockets.Plugin.dll">
       <PackagePath>Sockets.Plugin.dll</PackagePath>
       <Modified>2016-06-30T05:07:58.000</Modified>
     </AppxPackagedFile>
-    <AppxPackagedFile Include="C:\Users\Felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\packages\Xamarin.Forms.2.0.0.6482\lib\win81\Xamarin.Forms.Core.dll">
+    <AppxPackagedFile Include="C:\Users\felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\packages\Xamarin.Forms.2.3.3.180\lib\win81\Xamarin.Forms.Core.dll">
       <PackagePath>Xamarin.Forms.Core.dll</PackagePath>
-      <Modified>2015-11-17T06:31:56.000</Modified>
+      <Modified>2017-01-05T15:25:02.000</Modified>
     </AppxPackagedFile>
-    <AppxPackagedFile Include="C:\Users\Felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\packages\Xamarin.Forms.2.0.0.6482\lib\win81\Xamarin.Forms.Platform.dll">
+    <AppxPackagedFile Include="C:\Users\felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\packages\Xamarin.Forms.2.3.3.180\lib\win81\Xamarin.Forms.Platform.dll">
       <PackagePath>Xamarin.Forms.Platform.dll</PackagePath>
-      <Modified>2015-11-17T06:31:56.000</Modified>
+      <Modified>2017-01-05T15:25:02.000</Modified>
     </AppxPackagedFile>
-    <AppxPackagedFile Include="C:\Users\Felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\packages\Xamarin.Forms.2.0.0.6482\lib\win81\Xamarin.Forms.Platform.WinRT.dll">
+    <AppxPackagedFile Include="C:\Users\felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\packages\Xamarin.Forms.2.3.3.180\lib\win81\Xamarin.Forms.Platform.WinRT.dll">
       <PackagePath>Xamarin.Forms.Platform.WinRT.dll</PackagePath>
-      <Modified>2015-11-17T06:31:56.000</Modified>
+      <Modified>2017-01-05T15:25:02.000</Modified>
     </AppxPackagedFile>
-    <AppxPackagedFile Include="C:\Users\Felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\packages\Xamarin.Forms.2.0.0.6482\lib\win81\Xamarin.Forms.Platform.WinRT.Tablet.dll">
+    <AppxPackagedFile Include="C:\Users\felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\packages\Xamarin.Forms.2.3.3.180\lib\win81\Xamarin.Forms.Platform.WinRT.Tablet.dll">
       <PackagePath>Xamarin.Forms.Platform.WinRT.Tablet.dll</PackagePath>
-      <Modified>2015-11-17T06:31:56.000</Modified>
+      <Modified>2017-01-05T15:25:02.000</Modified>
     </AppxPackagedFile>
-    <AppxPackagedFile Include="C:\Users\Felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\packages\Xamarin.Forms.2.0.0.6482\lib\win81\Xamarin.Forms.Xaml.dll">
+    <AppxPackagedFile Include="C:\Users\felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\packages\Xamarin.Forms.2.3.3.180\lib\win81\Xamarin.Forms.Xaml.dll">
       <PackagePath>Xamarin.Forms.Xaml.dll</PackagePath>
-      <Modified>2015-11-17T06:31:56.000</Modified>
+      <Modified>2017-01-05T15:25:02.000</Modified>
     </AppxPackagedFile>
-    <AppxPackagedFile Include="C:\Users\Felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\HomeMediaApp\HomeMediaApp.Windows\Assets\Logo.scale-100.png">
+    <AppxPackagedFile Include="C:\Users\felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\HomeMediaApp\HomeMediaApp.Windows\Assets\Logo.scale-100.png">
       <PackagePath>Assets\Logo.scale-100.png</PackagePath>
       <ReRegisterAppIfChanged>true</ReRegisterAppIfChanged>
-      <Modified>2017-01-27T18:52:49.875</Modified>
+      <Modified>2017-01-29T11:51:42.883</Modified>
     </AppxPackagedFile>
-    <AppxPackagedFile Include="C:\Users\Felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\HomeMediaApp\HomeMediaApp.Windows\Assets\SmallLogo.scale-100.png">
+    <AppxPackagedFile Include="C:\Users\felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\HomeMediaApp\HomeMediaApp.Windows\Assets\SmallLogo.scale-100.png">
       <PackagePath>Assets\SmallLogo.scale-100.png</PackagePath>
       <ReRegisterAppIfChanged>true</ReRegisterAppIfChanged>
-      <Modified>2017-01-27T18:52:49.880</Modified>
+      <Modified>2017-01-29T11:51:42.888</Modified>
     </AppxPackagedFile>
-    <AppxPackagedFile Include="C:\Users\Felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\HomeMediaApp\HomeMediaApp.Windows\Assets\SplashScreen.scale-100.png">
+    <AppxPackagedFile Include="C:\Users\felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\HomeMediaApp\HomeMediaApp.Windows\Assets\SplashScreen.scale-100.png">
       <PackagePath>Assets\SplashScreen.scale-100.png</PackagePath>
       <ReRegisterAppIfChanged>true</ReRegisterAppIfChanged>
-      <Modified>2017-01-27T18:52:49.884</Modified>
+      <Modified>2017-01-29T11:51:42.892</Modified>
     </AppxPackagedFile>
-    <AppxPackagedFile Include="C:\Users\Felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\HomeMediaApp\HomeMediaApp.Windows\Assets\StoreLogo.scale-100.png">
+    <AppxPackagedFile Include="C:\Users\felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\HomeMediaApp\HomeMediaApp.Windows\Assets\StoreLogo.scale-100.png">
       <PackagePath>Assets\StoreLogo.scale-100.png</PackagePath>
       <ReRegisterAppIfChanged>true</ReRegisterAppIfChanged>
-      <Modified>2017-01-27T18:52:49.886</Modified>
+      <Modified>2017-01-29T11:51:42.895</Modified>
     </AppxPackagedFile>
-    <AppxPackagedFile Include="C:\Users\Felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\HomeMediaApp\HomeMediaApp.Windows\bin\Debug\HomeMediaApp.Windows.xr.xml">
+    <AppxPackagedFile Include="C:\Users\felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\HomeMediaApp\HomeMediaApp.Windows\bin\Debug\HomeMediaApp.Windows.xr.xml">
       <PackagePath>HomeMediaApp.Windows.xr.xml</PackagePath>
-      <Modified>2017-01-27T19:14:27.060</Modified>
+      <Modified>2017-01-29T12:00:16.000</Modified>
     </AppxPackagedFile>
-    <AppxPackagedFile Include="C:\Users\Felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\HomeMediaApp\HomeMediaApp.Windows\bin\Debug\App.xbf">
+    <AppxPackagedFile Include="C:\Users\felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\HomeMediaApp\HomeMediaApp.Windows\bin\Debug\App.xbf">
       <PackagePath>App.xbf</PackagePath>
-      <Modified>2017-01-27T19:15:23.812</Modified>
+      <Modified>2017-01-29T12:00:16.594</Modified>
     </AppxPackagedFile>
-    <AppxPackagedFile Include="C:\Users\Felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\HomeMediaApp\HomeMediaApp.Windows\bin\Debug\MainPage.xbf">
+    <AppxPackagedFile Include="C:\Users\felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\HomeMediaApp\HomeMediaApp.Windows\bin\Debug\MainPage.xbf">
       <PackagePath>MainPage.xbf</PackagePath>
-      <Modified>2017-01-27T19:15:23.812</Modified>
+      <Modified>2017-01-29T12:00:16.595</Modified>
     </AppxPackagedFile>
-    <AppxPackagedFile Include="C:\Users\Felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\packages\Xamarin.Forms.2.0.0.6482\lib\win81\Xamarin.Forms.Platform.WinRT\FormsTextBox.xbf">
-      <PackagePath>Xamarin.Forms.Platform.WinRT\FormsTextBox.xbf</PackagePath>
-      <Modified>2015-11-17T06:31:56.000</Modified>
-    </AppxPackagedFile>
-    <AppxPackagedFile Include="C:\Users\Felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\packages\Xamarin.Forms.2.0.0.6482\lib\win81\Xamarin.Forms.Platform.WinRT\PageControl.xbf">
+    <AppxPackagedFile Include="C:\Users\felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\packages\Xamarin.Forms.2.3.3.180\lib\win81\Xamarin.Forms.Platform.WinRT\PageControl.xbf">
       <PackagePath>Xamarin.Forms.Platform.WinRT\PageControl.xbf</PackagePath>
-      <Modified>2015-11-17T06:31:56.000</Modified>
+      <Modified>2017-01-05T15:25:02.000</Modified>
     </AppxPackagedFile>
-    <AppxPackagedFile Include="C:\Users\Felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\packages\Xamarin.Forms.2.0.0.6482\lib\win81\Xamarin.Forms.Platform.WinRT\StepperControl.xbf">
+    <AppxPackagedFile Include="C:\Users\felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\packages\Xamarin.Forms.2.3.3.180\lib\win81\Xamarin.Forms.Platform.WinRT\StepperControl.xbf">
       <PackagePath>Xamarin.Forms.Platform.WinRT\StepperControl.xbf</PackagePath>
-      <Modified>2015-11-17T06:31:56.000</Modified>
+      <Modified>2017-01-05T15:25:02.000</Modified>
     </AppxPackagedFile>
-    <AppxPackagedFile Include="C:\Users\Felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\packages\Xamarin.Forms.2.0.0.6482\lib\win81\Xamarin.Forms.Platform.WinRT\Xamarin.Forms.Platform.WinRT.xr.xml">
+    <AppxPackagedFile Include="C:\Users\felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\packages\Xamarin.Forms.2.3.3.180\lib\win81\Xamarin.Forms.Platform.WinRT\Xamarin.Forms.Platform.WinRT.xr.xml">
       <PackagePath>Xamarin.Forms.Platform.WinRT\Xamarin.Forms.Platform.WinRT.xr.xml</PackagePath>
-      <Modified>2015-11-17T06:31:56.000</Modified>
+      <Modified>2017-01-05T15:25:02.000</Modified>
     </AppxPackagedFile>
-    <AppxPackagedFile Include="C:\Users\Felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\packages\Xamarin.Forms.2.0.0.6482\lib\win81\Xamarin.Forms.Platform.WinRT.Tablet\Resources.xbf">
+    <AppxPackagedFile Include="C:\Users\felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\packages\Xamarin.Forms.2.3.3.180\lib\win81\Xamarin.Forms.Platform.WinRT.Tablet\FormsTextBoxStyle.xbf">
+      <PackagePath>Xamarin.Forms.Platform.WinRT.Tablet\FormsTextBoxStyle.xbf</PackagePath>
+      <Modified>2017-01-05T15:25:02.000</Modified>
+    </AppxPackagedFile>
+    <AppxPackagedFile Include="C:\Users\felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\packages\Xamarin.Forms.2.3.3.180\lib\win81\Xamarin.Forms.Platform.WinRT.Tablet\Resources.xbf">
       <PackagePath>Xamarin.Forms.Platform.WinRT.Tablet\Resources.xbf</PackagePath>
-      <Modified>2015-11-17T06:31:56.000</Modified>
+      <Modified>2017-01-05T15:25:02.000</Modified>
     </AppxPackagedFile>
-    <AppxPackagedFile Include="C:\Users\Felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\packages\Xamarin.Forms.2.0.0.6482\lib\win81\Xamarin.Forms.Platform.WinRT.Tablet\TabletResources.xbf">
+    <AppxPackagedFile Include="C:\Users\felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\packages\Xamarin.Forms.2.3.3.180\lib\win81\Xamarin.Forms.Platform.WinRT.Tablet\TabletResources.xbf">
       <PackagePath>Xamarin.Forms.Platform.WinRT.Tablet\TabletResources.xbf</PackagePath>
-      <Modified>2015-11-17T06:31:56.000</Modified>
+      <Modified>2017-01-05T15:25:02.000</Modified>
     </AppxPackagedFile>
-    <AppxPackagedFile Include="C:\Users\Felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\packages\Xamarin.Forms.2.0.0.6482\lib\win81\Xamarin.Forms.Platform.WinRT.Tablet\Xamarin.Forms.Platform.WinRT.Tablet.xr.xml">
+    <AppxPackagedFile Include="C:\Users\felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\packages\Xamarin.Forms.2.3.3.180\lib\win81\Xamarin.Forms.Platform.WinRT.Tablet\Xamarin.Forms.Platform.WinRT.Tablet.xr.xml">
       <PackagePath>Xamarin.Forms.Platform.WinRT.Tablet\Xamarin.Forms.Platform.WinRT.Tablet.xr.xml</PackagePath>
-      <Modified>2015-11-17T06:31:56.000</Modified>
+      <Modified>2017-01-05T15:25:02.000</Modified>
     </AppxPackagedFile>
-    <AppxPackagedFile Include="C:\Users\Felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\HomeMediaApp\HomeMediaApp.Windows\bin\Debug\resources.pri">
+    <AppxPackagedFile Include="C:\Users\felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\HomeMediaApp\HomeMediaApp.Windows\bin\Debug\resources.pri">
       <PackagePath>resources.pri</PackagePath>
       <ReRegisterAppIfChanged>true</ReRegisterAppIfChanged>
-      <Modified>2017-01-27T19:24:26.645</Modified>
+      <Modified>2017-01-29T15:22:16.541</Modified>
     </AppxPackagedFile>
   </ItemGroup>
   <ItemGroup>

@@ -13,7 +13,6 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-using HomeMediaLibrary;
 
 namespace HomeMediaApp.Windows
 {
@@ -22,10 +21,12 @@ namespace HomeMediaApp.Windows
         public MainPage()
         {
             this.InitializeComponent();
-            CSSPD oCsspd = new CSSPD();
+            //Test für die CSSDP-Klasse
+            HomeMediaApp.CSSPD oCsspd = new CSSPD();
+            //Das ReceivedXML-Event einhängen
             oCsspd.ReceivedXml += OCsspdOnReceivedXml;
+            //Den Suchprozess im Netzwerk starten
             oCsspd.StartSearch();
-
             LoadApplication(new HomeMediaApp.App());
         }
 

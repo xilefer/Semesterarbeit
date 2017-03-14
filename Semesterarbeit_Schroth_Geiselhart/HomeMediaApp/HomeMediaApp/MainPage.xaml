@@ -2,10 +2,26 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:HomeMediaApp"
-             x:Class="HomeMediaApp.MainPage">
+             x:Class="HomeMediaApp.MainPage"
+             x:Name="oContentPage">
+  <Grid x:Name="OuterGrid">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="5*"/>
+      <RowDefinition Height="90*"/>
+      <RowDefinition Height="5*"/>
+    </Grid.RowDefinitions>
 
-  <Label Text="Welcome to Xamarin Forms!"
-           VerticalOptions="Center"
-           HorizontalOptions="Center" />
+    <Grid x:Name="TopGrid" Grid.Row="0">
+      
+      <!--
+      <Button HorizontalOptions="Center">Zurück</Button>
+      <Label HorizontalOptions="Center" Grid.Column="1">Willkommen</Label>
+      <Button HorizontalOptions="Center" Grid.Column="2" Clicked="SettingsButton_OnClicked" >Einstellungen</Button>
+    -->
+    </Grid>
 
+    <ListView x:Name="ListView1" Grid.Row="1" BackgroundColor="Red">
+    </ListView>
+    <Label Grid.Row="2" VerticalOptions="Center" HorizontalOptions="Center" FontSize="20">Home Media App</Label>
+  </Grid>
 </ContentPage>

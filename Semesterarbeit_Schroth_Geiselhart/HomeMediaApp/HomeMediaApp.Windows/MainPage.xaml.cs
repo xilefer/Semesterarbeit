@@ -28,11 +28,14 @@ namespace HomeMediaApp.Windows
             //Den Suchprozess im Netzwerk starten
             oCsspd.StartSearch();
             LoadApplication(new HomeMediaApp.App());
+
         }
 
         private void OCsspdOnReceivedXml(XDocument oReceivedXml)
         {
             return;
         }
+
+
     }
 }

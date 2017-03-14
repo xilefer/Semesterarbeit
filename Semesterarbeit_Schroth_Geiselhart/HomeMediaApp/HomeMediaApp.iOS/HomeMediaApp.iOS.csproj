@@ -10,7 +10,7 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>HomeMediaApp.iOS</RootNamespace>
     <IPhoneResourcePrefix>Resources</IPhoneResourcePrefix>
-    <AssemblyName>HomeMediaApp.iOS</AssemblyName>
+    <AssemblyName>HomeMediaAppiOS</AssemblyName>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
   </PropertyGroup>

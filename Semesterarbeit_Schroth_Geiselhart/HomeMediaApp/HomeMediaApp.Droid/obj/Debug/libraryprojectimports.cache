@@ -2,16 +2,16 @@
 <Paths>
   <Jars></Jars>
   <ResolvedResourceDirectories>
-    <ResolvedResourceDirectory>C:\Users\felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\HomeMediaApp\HomeMediaApp.Droid\obj\Debug\__library_projects__\Xamarin.Forms.Platform.Android\library_project_imports\res</ResolvedResourceDirectory>
-    <ResolvedResourceDirectory>C:\Users\felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\HomeMediaApp\HomeMediaApp.Droid\obj\Debug\__library_projects__\Xamarin.Forms.Platform\library_project_imports\res</ResolvedResourceDirectory>
+    <ResolvedResourceDirectory>C:\Users\Felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\HomeMediaApp\HomeMediaApp.Droid\obj\Debug\__library_projects__\Xamarin.Forms.Platform.Android\library_project_imports\res</ResolvedResourceDirectory>
+    <ResolvedResourceDirectory>C:\Users\Felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\HomeMediaApp\HomeMediaApp.Droid\obj\Debug\__library_projects__\Xamarin.Forms.Platform\library_project_imports\res</ResolvedResourceDirectory>
   </ResolvedResourceDirectories>
   <ResolvedAssetDirectories>
-    <ResolvedAssetDirectory>obj\Debug\__library_projects__\Xamarin.Forms.Platform.Android\library_project_imports\assets</ResolvedAssetDirectory>
-    <ResolvedAssetDirectory>obj\Debug\__library_projects__\Xamarin.Forms.Platform\library_project_imports\assets</ResolvedAssetDirectory>
+    <ResolvedAssetDirectory>C:\Users\Felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\HomeMediaApp\HomeMediaApp.Droid\obj\Debug\__library_projects__\Xamarin.Forms.Platform.Android\library_project_imports\assets</ResolvedAssetDirectory>
+    <ResolvedAssetDirectory>C:\Users\Felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\HomeMediaApp\HomeMediaApp.Droid\obj\Debug\__library_projects__\Xamarin.Forms.Platform\library_project_imports\assets</ResolvedAssetDirectory>
   </ResolvedAssetDirectories>
   <ResolvedEnvironmentFiles />
   <ResolvedResourceDirectoryStamps>
-    <ResolvedResourceDirectoryStamp>C:\Users\felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\HomeMediaApp\HomeMediaApp.Droid\obj\Debug\__library_projects__\Xamarin.Forms.Platform.Android.stamp</ResolvedResourceDirectoryStamp>
-    <ResolvedResourceDirectoryStamp>C:\Users\felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\HomeMediaApp\HomeMediaApp.Droid\obj\Debug\__library_projects__\Xamarin.Forms.Platform.stamp</ResolvedResourceDirectoryStamp>
+    <ResolvedResourceDirectoryStamp>C:\Users\Felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\HomeMediaApp\HomeMediaApp.Droid\obj\Debug\__library_projects__\Xamarin.Forms.Platform.Android.stamp</ResolvedResourceDirectoryStamp>
+    <ResolvedResourceDirectoryStamp>C:\Users\Felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\HomeMediaApp\HomeMediaApp.Droid\obj\Debug\__library_projects__\Xamarin.Forms.Platform.stamp</ResolvedResourceDirectoryStamp>
   </ResolvedResourceDirectoryStamps>
 </Paths>

@@ -1,2 +1,2 @@
-C:\Users\felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\HomeMediaApp\HomeMediaApp.Windows\HomeMediaApp.Windows.csproj;neutral
-C:\Users\felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\HomeMediaApp\HomeMediaApp\HomeMediaApp.csproj;neutral
+C:\Users\Felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\HomeMediaApp\HomeMediaApp.Windows\HomeMediaApp.Windows.csproj;neutral
+C:\Users\Felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\HomeMediaApp\HomeMediaApp\HomeMediaApp.csproj;neutral

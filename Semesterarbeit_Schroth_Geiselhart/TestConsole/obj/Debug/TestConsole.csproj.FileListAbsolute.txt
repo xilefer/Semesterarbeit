@@ -4,9 +4,3 @@ C:\Users\felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit\TestCo
 C:\Users\felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit\TestConsole\obj\Debug\TestConsole.csprojResolveAssemblyReference.cache
 C:\Users\felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit\TestConsole\obj\Debug\TestConsole.exe
 C:\Users\felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit\TestConsole\obj\Debug\TestConsole.pdb
-C:\Users\Felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\TestConsole\bin\Debug\TestConsole.exe.config
-C:\Users\Felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\TestConsole\bin\Debug\TestConsole.exe
-C:\Users\Felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\TestConsole\bin\Debug\TestConsole.pdb
-C:\Users\Felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\TestConsole\obj\Debug\TestConsole.csprojResolveAssemblyReference.cache
-C:\Users\Felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\TestConsole\obj\Debug\TestConsole.exe
-C:\Users\Felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\TestConsole\obj\Debug\TestConsole.pdb

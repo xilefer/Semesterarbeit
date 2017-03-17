@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="HomeMediaApp.Pages.NavigationDetailPage"
+             Icon="/icons/settings_icon.png" Title="Home Media App">
+  <ListView x:Name="ListViewNavigationItems" VerticalOptions="FillAndExpand" SeparatorVisibility="None" BackgroundColor="Red">
+    <ListView.ItemTemplate>
+      <DataTemplate>
+        <ImageCell Text="{Binding Text}" Height="{Binding Height}" ImageSource="{Binding ImageSource}"/>
+      </DataTemplate>
+    </ListView.ItemTemplate>
+  </ListView>
+</ContentPage>

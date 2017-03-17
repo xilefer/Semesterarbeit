@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:HomeMediaApp"
+             x:Class="HomeMediaApp.Pages.MainPage"
+             x:Name="oContentPage">
+  <Grid x:Name="OuterGrid">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="10*"/>
+      <RowDefinition Height="90*"/>
+    </Grid.RowDefinitions>
+
+    <Grid x:Name="TopGrid" Grid.Row="0">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="30*"/>
+        <ColumnDefinition Width="40*"/>
+        <ColumnDefinition Width="30*"/>
+      </Grid.ColumnDefinitions>
+      <Button Text="Einstellungen" Clicked="SettingsButton_OnClicked" Grid.Column="2"></Button>
+      <Label Text="Willkommen" Grid.Column="1" HorizontalTextAlignment="Center" FontSize="20"></Label>
+      <!--
+      <Button HorizontalOptions="Center">Zurück</Button>
+      <Label HorizontalOptions="Center" Grid.Column="1">Willkommen</Label>
+      <Button HorizontalOptions="Center" Grid.Column="2" Clicked="SettingsButton_OnClicked" >Einstellungen</Button>
+    -->
+    </Grid>
+
+    <ListView x:Name="ListViewDevices" ItemsSource="{Binding Items}" Grid.Row="1" ItemTapped="ListViewDevices_OnItemTapped">
+    </ListView>
+  </Grid>
+</ContentPage>

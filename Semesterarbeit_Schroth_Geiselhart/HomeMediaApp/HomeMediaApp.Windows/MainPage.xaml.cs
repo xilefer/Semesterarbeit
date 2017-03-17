@@ -21,14 +21,7 @@ namespace HomeMediaApp.Windows
         public MainPage()
         {
             this.InitializeComponent();
-            //Test für die CSSDP-Klasse
-            HomeMediaApp.CSSPD oCsspd = new CSSPD();
-            //Das ReceivedXML-Event einhängen
-            oCsspd.ReceivedXml += OCsspdOnReceivedXml;
-            //Den Suchprozess im Netzwerk starten
-            oCsspd.StartSearch();
             LoadApplication(new HomeMediaApp.App());
-
         }
 
         private void OCsspdOnReceivedXml(XDocument oReceivedXml)

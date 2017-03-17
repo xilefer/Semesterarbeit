@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<MasterDetailPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="HomeMediaApp.Pages.MasterDetailPageHomeMediaApp"
+                  xmlns:pages="clr-namespace:HomeMediaApp.Pages;assembly=HomeMediaApp" MasterBehavior="Popover">
+  <MasterDetailPage.Master>
+    <pages:NavigationDetailPage x:Name="masterpage"/>
+  </MasterDetailPage.Master>
+  <MasterDetailPage.Detail>
+    <NavigationPage>
+      <x:Arguments>
+        <pages:MainPage/>
+      </x:Arguments>
+    </NavigationPage>
+  </MasterDetailPage.Detail>
+</MasterDetailPage>

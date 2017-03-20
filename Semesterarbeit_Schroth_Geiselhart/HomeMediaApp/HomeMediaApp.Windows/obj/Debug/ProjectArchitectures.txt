@@ -1,0 +1,2 @@
+C:\Users\Chris\Source\Repos\Semesterarbeit\Semesterarbeit_Schroth_Geiselhart\HomeMediaApp\HomeMediaApp.Windows\HomeMediaApp.Windows.csproj;neutral
+C:\Users\Chris\Source\Repos\Semesterarbeit\Semesterarbeit_Schroth_Geiselhart\HomeMediaApp\HomeMediaApp\HomeMediaApp.csproj;neutral

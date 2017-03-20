@@ -89,7 +89,20 @@ namespace HomeMediaApp.Pages
 
         private void ProcessDeviceItemTapped(string DeviceName)
         {
-            throw new NotImplementedException();
+            XDocument oConfiguration = null;
+            foreach(XDocument config in XMLConfigurations)
+            {
+                List<XElement> Elements = config.Root.Descendants().Where(e => e.Name.LocalName.ToLower() == "friendlyname").ToList();
+                if (Elements[0].Value == DeviceName)
+                {
+                    oConfiguration = config;
+                }
+            }
+            if (oConfiguration == null) return;
+            else
+            {
+                DisplayAlert("Daag", oConfiguration.ToString(), "Abbrecha");
+            }
         }
     }
 }

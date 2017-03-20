@@ -1,5 +1,6 @@
 <XamlCompilerSaveState>
   <ReferenceAssemblyList>
+    <ReferenceAssembly PathName="c:\users\felix\desktop\dhbw horb\semesterarbeit\repository\semesterarbeit_schroth_geiselhart\homemediaapp\homemediaapp\bin\debug\homemediaapp.dll" HashGuid="79987408-5c87-d3d8-66a2-535fe325c435" />
     <ReferenceAssembly PathName="c:\users\felix\desktop\dhbw horb\semesterarbeit\repository\semesterarbeit_schroth_geiselhart\packages\rda.socketsforpcl.2.0.2\lib\win8\sockets.plugin.abstractions.dll" HashGuid="0c5a18d5-eb77-e64f-cacd-1b039d05ae4e" />
     <ReferenceAssembly PathName="c:\users\felix\desktop\dhbw horb\semesterarbeit\repository\semesterarbeit_schroth_geiselhart\packages\rda.socketsforpcl.2.0.2\lib\win8\sockets.plugin.dll" HashGuid="d0d8ece7-787f-ebe3-b8dc-051db6496939" />
     <ReferenceAssembly PathName="c:\users\felix\desktop\dhbw horb\semesterarbeit\repository\semesterarbeit_schroth_geiselhart\packages\xamarin.forms.2.3.3.180\lib\win81\xamarin.forms.core.dll" HashGuid="c782f70f-077f-7e2d-5bd4-f6b5da067f8a" />

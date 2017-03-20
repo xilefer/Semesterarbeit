@@ -28,17 +28,17 @@
     <AppXManifest Include="C:\Users\felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\HomeMediaApp\HomeMediaApp.Windows\bin\Debug\AppxManifest.xml">
       <PackagePath>AppxManifest.xml</PackagePath>
       <ReRegisterAppIfChanged>true</ReRegisterAppIfChanged>
-      <Modified>2017-03-17T12:20:37.520</Modified>
+      <Modified>2017-03-20T12:20:32.902</Modified>
     </AppXManifest>
   </ItemGroup>
   <ItemGroup>
     <AppxPackagedFile Include="C:\Users\felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\HomeMediaApp\HomeMediaApp.Windows\bin\Debug\HomeMediaApp.Windows.exe">
       <PackagePath>HomeMediaApp.Windows.exe</PackagePath>
-      <Modified>2017-03-17T14:20:49.385</Modified>
+      <Modified>2017-03-20T12:33:25.384</Modified>
     </AppxPackagedFile>
     <AppxPackagedFile Include="C:\Users\felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\HomeMediaApp\HomeMediaApp\bin\Debug\HomeMediaApp.dll">
       <PackagePath>HomeMediaApp.dll</PackagePath>
-      <Modified>2017-03-17T14:20:46.749</Modified>
+      <Modified>2017-03-20T12:33:06.357</Modified>
     </AppxPackagedFile>
     <AppxPackagedFile Include="C:\Users\felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\packages\rda.SocketsForPCL.2.0.2\lib\win8\Sockets.Plugin.Abstractions.dll">
       <PackagePath>Sockets.Plugin.Abstractions.dll</PackagePath>
@@ -94,11 +94,11 @@
     </AppxPackagedFile>
     <AppxPackagedFile Include="C:\Users\felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\HomeMediaApp\HomeMediaApp.Windows\bin\Debug\App.xbf">
       <PackagePath>App.xbf</PackagePath>
-      <Modified>2017-03-16T18:04:09.418</Modified>
+      <Modified>2017-03-20T12:20:31.172</Modified>
     </AppxPackagedFile>
     <AppxPackagedFile Include="C:\Users\felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\HomeMediaApp\HomeMediaApp.Windows\bin\Debug\MainPage.xbf">
       <PackagePath>MainPage.xbf</PackagePath>
-      <Modified>2017-03-16T18:04:09.418</Modified>
+      <Modified>2017-03-20T12:20:31.175</Modified>
     </AppxPackagedFile>
     <AppxPackagedFile Include="C:\Users\felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\packages\Xamarin.Forms.2.3.3.180\lib\win81\Xamarin.Forms.Platform.WinRT\PageControl.xbf">
       <PackagePath>Xamarin.Forms.Platform.WinRT\PageControl.xbf</PackagePath>
@@ -131,7 +131,7 @@
     <AppxPackagedFile Include="C:\Users\felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit_Schroth_Geiselhart\HomeMediaApp\HomeMediaApp.Windows\bin\Debug\resources.pri">
       <PackagePath>resources.pri</PackagePath>
       <ReRegisterAppIfChanged>true</ReRegisterAppIfChanged>
-      <Modified>2017-03-17T12:20:36.384</Modified>
+      <Modified>2017-03-20T12:20:32.313</Modified>
     </AppxPackagedFile>
   </ItemGroup>
   <ItemGroup>

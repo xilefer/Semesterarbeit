@@ -35,13 +35,13 @@ namespace HomeMediaApp.Pages
             List<MasterPageItem> TempItems = new List<MasterPageItem>();
             TempItems.Add(new MasterPageItem()
             {
-                IconSource = ImageSource.FromResource("HomeMediaApp.Pages.home_icon.png"),
+                IconSource = ImageSource.FromResource("HomeMediaApp.Icons.home_icon.png"),
                 Title = "Startseite",
                 TargetType = typeof(MainPage)
             });
             TempItems.Add(new MasterPageItem()
             {
-                IconSource = ImageSource.FromResource("HomeMediaApp.Pages.settings_icon.png"),
+                IconSource = ImageSource.FromResource("HomeMediaApp.Icons.settings_icon.png"),
                 Title = "Einstellungen",
                 TargetType = typeof(SettingsPage)
             });

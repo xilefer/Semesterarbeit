@@ -20,7 +20,12 @@
       <Label Text="Willkommen" Grid.Column="1" HorizontalTextAlignment="Center" FontSize="20"></Label>
     </Grid>
 
-    <ListView x:Name="ListViewDevices" ItemsSource="{Binding Items}" Grid.Row="1" ItemTapped="ListViewDevices_OnItemTapped">
+    <ListView x:Name="ListViewDevices" ItemsSource="{Binding UPnPDeviceList}" Grid.Row="1" ItemTapped="ListViewDevices_OnItemTapped">
+      <ListView.ItemTemplate>
+        <DataTemplate>
+          <Label Text="{Binding DeviceName}"></Label>
+        </DataTemplate>
+      </ListView.ItemTemplate>
     </ListView>
   </Grid>
 </ContentPage>

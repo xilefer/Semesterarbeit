@@ -14,19 +14,21 @@ namespace HomeMediaApp.Pages
 {
     public partial class MainPage : ContentPage
     {
-        //private List<XDocument> XMLConfigurations = new List<XDocument>();
-        private List<UPnPDevice> UPnPDeviceList = new List<UPnPDevice>();
-        private ObservableCollection<string> mItems = new ObservableCollection<string>();
-        public ObservableCollection<string> Items {
-            get { return mItems; }
+        private ObservableCollection<UPnPDevice> mUPnPDeviceList = new ObservableCollection<UPnPDevice>();
+        public ObservableCollection<UPnPDevice> UPnPDeviceList
+        {
+            get
+            {
+                return mUPnPDeviceList;
+            }
             set
             {
-                if (mItems == value) return;
-                mItems = value;
+                if (mUPnPDeviceList == value) return;
+                mUPnPDeviceList = value;
                 OnPropertyChanged();
             }
         }
-
+        
         private CSSPD oDeviceSearcher = new CSSPD();
         public MainPage()
         {
@@ -34,7 +36,7 @@ namespace HomeMediaApp.Pages
             oDeviceSearcher.ReceivedXml += new ReceivedXml(OnReceivedXML);
             oDeviceSearcher.StartSearch();
             BindingContext = this;
-            Items.CollectionChanged += ItemsOnCollectionChanged;
+            UPnPDeviceList.CollectionChanged += ItemsOnCollectionChanged;
             Init();
         }
 
@@ -78,9 +80,7 @@ namespace HomeMediaApp.Pages
                 if (oOutputDevice.Type.ToLower() == "mediarenderer" || oOutputDevice.Type.ToLower() == "mediaserver")
                 {
                     UPnPDeviceList.Add(oOutputDevice);
-                    ObservableCollection<string> TempItems = Items;
-                    TempItems.Add(oOutputDevice.DeviceName);
-                    Items = TempItems;
+                    OnPropertyChanged("UPnPDeviceList");    // Damit die Oberfläche aktualisiert wird
                 }
             }
         }

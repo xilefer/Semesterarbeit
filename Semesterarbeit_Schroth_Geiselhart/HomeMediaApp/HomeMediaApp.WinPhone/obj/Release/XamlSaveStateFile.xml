@@ -1,6 +1,8 @@
 <XamlCompilerSaveState>
   <ReferenceAssemblyList>
     <ReferenceAssembly PathName="c:\users\felix\desktop\dhbw horb\semesterarbeit\repository\semesterarbeit_schroth_geiselhart\homemediaapp\homemediaapp\bin\release\homemediaapp.dll" HashGuid="3a470324-c1a0-cb84-2453-283b3474f1a2" />
+    <ReferenceAssembly PathName="c:\users\felix\desktop\dhbw horb\semesterarbeit\repository\semesterarbeit_schroth_geiselhart\packages\rda.socketsforpcl.2.0.2\lib\wpa81\sockets.plugin.abstractions.dll" HashGuid="0c5a18d5-eb77-e64f-cacd-1b039d05ae4e" />
+    <ReferenceAssembly PathName="c:\users\felix\desktop\dhbw horb\semesterarbeit\repository\semesterarbeit_schroth_geiselhart\packages\rda.socketsforpcl.2.0.2\lib\wpa81\sockets.plugin.dll" HashGuid="d0d8ece7-787f-ebe3-b8dc-051db6496939" />
     <ReferenceAssembly PathName="c:\users\felix\desktop\dhbw horb\semesterarbeit\repository\semesterarbeit_schroth_geiselhart\packages\xamarin.forms.2.3.3.180\lib\wpa81\xamarin.forms.core.dll" HashGuid="c782f70f-077f-7e2d-5bd4-f6b5da067f8a" />
     <ReferenceAssembly PathName="c:\users\felix\desktop\dhbw horb\semesterarbeit\repository\semesterarbeit_schroth_geiselhart\packages\xamarin.forms.2.3.3.180\lib\wpa81\xamarin.forms.platform.dll" HashGuid="6b938cd4-44c0-2618-7eb6-4caa3f482076" />
     <ReferenceAssembly PathName="c:\users\felix\desktop\dhbw horb\semesterarbeit\repository\semesterarbeit_schroth_geiselhart\packages\xamarin.forms.2.3.3.180\lib\wpa81\xamarin.forms.platform.winrt.dll" HashGuid="fe4acc44-27ba-0e4e-a08b-26ae7dccb678" />

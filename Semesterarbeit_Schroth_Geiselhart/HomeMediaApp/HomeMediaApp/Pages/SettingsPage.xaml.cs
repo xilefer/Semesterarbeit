@@ -27,7 +27,6 @@ namespace HomeMediaApp.Pages
         {
             InitializeComponent();
             MainText = "Einstellungen";
-            Title = "Einstellungen";
         }
     }
 }

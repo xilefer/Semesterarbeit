@@ -8,8 +8,8 @@ namespace HomeMediaApp.Classes
 {
     public class MasterPageItem
     {
-        public string Title = "";
-        public Xamarin.Forms.ImageSource IconSource = "";
-        public Type TargetType = null;
+        public string Title { get; set; } = "";
+        public Xamarin.Forms.ImageSource IconSource { get; set; } = "";
+        public Type TargetType { get; set; } = null;
     }
 }

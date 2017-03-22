@@ -32,7 +32,6 @@ namespace HomeMediaApp.Pages
             oDeviceSearcher.ReceivedXml += new ReceivedXml(OnReceivedXML);
             oDeviceSearcher.StartSearch();
             BindingContext = this;
-            Title = "Willkommen";
             Items.CollectionChanged += ItemsOnCollectionChanged;
             Init();
         }

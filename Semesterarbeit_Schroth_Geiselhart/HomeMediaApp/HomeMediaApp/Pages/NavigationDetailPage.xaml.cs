@@ -4,36 +4,63 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using HomeMediaApp.Classes;
-
 using Xamarin.Forms;
 
 namespace HomeMediaApp.Pages
 {
+    
     public partial class NavigationDetailPage : ContentPage
     {
-        private List<ImageCell> NavigationItems = new  List<ImageCell>();
-        
+        private List<MasterPageItem> mPageItems = new List<MasterPageItem>();
+
+        public ListView ListView { get { return listView; } }
+
+        private MasterDetailPageHomeMediaApp mParent = null;
+
+        public List<MasterPageItem> PageItems
+        {
+            get { return mPageItems; }
+            set
+            {
+                if (mPageItems == value) return;
+                mPageItems = value;
+                OnPropertyChanged();
+            }
+        }
 
         public NavigationDetailPage()
         {
             InitializeComponent();
-            
-            //ImageSource Temp = ImageSource.FromFile("Pages/settings_icon.png");
-            NavigationItems.Add(new ImageCell()
+            BindingContext = this;
+            List<MasterPageItem> TempItems = new List<MasterPageItem>();
+            TempItems.Add(new MasterPageItem()
             {
-                Text = "Startseite",
-                Height = 50,
-                ImageSource = ImageSource.FromResource("HomeMediaApp.Pages.settings_icon.png"),
+                IconSource = ImageSource.FromResource("HomeMediaApp.Pages.home_icon.png"),
+                Title = "Startseite",
+                TargetType = typeof(MainPage)
             });
-            
-            ListViewNavigationItems.ItemsSource = NavigationItems;
-            //masterPageItems.Add(new MasterPageItem
-            //{
-            //    Title = "Einstellungen",
-            //    IconSource = "todo.png",
-            //    TargetType = typeof(SettingsPage)
-            //});
-            //ListViewNavigationItems.ItemsSource = NavigationItems;
+            TempItems.Add(new MasterPageItem()
+            {
+                IconSource = ImageSource.FromResource("HomeMediaApp.Pages.settings_icon.png"),
+                Title = "Einstellungen",
+                TargetType = typeof(SettingsPage)
+            });
+            PageItems = TempItems;
+            listView.ItemsSource = PageItems;
+
+        }
+
+        public NavigationDetailPage(MasterDetailPageHomeMediaApp Parent) : this()
+        {
+            this.mParent = Parent;
+        }
+
+        private void ListView_OnItemSelected(object sender, SelectedItemChangedEventArgs e)
+        {
+            MasterPageItem temp = e.SelectedItem as MasterPageItem;
+            if (temp == null) return;
+            (Parent as MasterDetailPageHomeMediaApp).Detail = new NavigationPage((Page) Activator.CreateInstance(temp.TargetType));
+            (Parent as MasterDetailPageHomeMediaApp).IsPresented = false;
         }
     }
 }

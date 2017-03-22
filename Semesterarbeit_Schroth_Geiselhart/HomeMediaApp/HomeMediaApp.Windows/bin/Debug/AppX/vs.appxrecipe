@@ -34,11 +34,11 @@
   <ItemGroup>
     <AppxPackagedFile Include="C:\Users\Chris\Source\Repos\Semesterarbeit\Semesterarbeit_Schroth_Geiselhart\HomeMediaApp\HomeMediaApp.Windows\bin\Debug\HomeMediaApp.Windows.exe">
       <PackagePath>HomeMediaApp.Windows.exe</PackagePath>
-      <Modified>2017-03-20T13:18:57.127</Modified>
+      <Modified>2017-03-22T08:38:36.683</Modified>
     </AppxPackagedFile>
     <AppxPackagedFile Include="C:\Users\Chris\Source\Repos\Semesterarbeit\Semesterarbeit_Schroth_Geiselhart\HomeMediaApp\HomeMediaApp\bin\Debug\HomeMediaApp.dll">
       <PackagePath>HomeMediaApp.dll</PackagePath>
-      <Modified>2017-03-20T13:18:56.575</Modified>
+      <Modified>2017-03-22T08:38:36.129</Modified>
     </AppxPackagedFile>
     <AppxPackagedFile Include="C:\Users\Chris\Source\Repos\Semesterarbeit\Semesterarbeit_Schroth_Geiselhart\packages\rda.SocketsForPCL.2.0.2\lib\win8\Sockets.Plugin.Abstractions.dll">
       <PackagePath>Sockets.Plugin.Abstractions.dll</PackagePath>

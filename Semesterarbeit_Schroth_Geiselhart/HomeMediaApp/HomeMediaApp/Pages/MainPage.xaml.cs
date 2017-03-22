@@ -8,12 +8,14 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Xamarin.Forms;
+using HomeMediaApp.Classes;
 
 namespace HomeMediaApp.Pages
 {
     public partial class MainPage : ContentPage
     {
-        private List<XDocument> XMLConfigurations = new List<XDocument>();
+        //private List<XDocument> XMLConfigurations = new List<XDocument>();
+        private List<UPnPDevice> UPnPDeviceList = new List<UPnPDevice>();
         private ObservableCollection<string> mItems = new ObservableCollection<string>();
         public ObservableCollection<string> Items {
             get { return mItems; }
@@ -42,32 +44,53 @@ namespace HomeMediaApp.Pages
             OnPropertyChanged("Items");
         }
 
-        private void UpdateXMLConfigs(XDocument oReceivedXML)
+        private void UpdateXMLConfigs(XDocument oReceivedXML, Uri oDeviceAddress)
         {
             string sUDN = oReceivedXML.Descendants().Where(e => e.Name.LocalName == "UDN").ToList().Count > 0
                 ? oReceivedXML.Descendants().Where(e => e.Name.LocalName == "UDN").ToList()[0].Value
                 : null;
             if (sUDN == null) return;   // Konfiguration enthält keine UDN
-            // Ist UDN bereits vorhanden?
-            XDocument Result = XMLConfigurations.FirstOrDefault(e =>
+                                        // Ist UDN bereits vorhanden?
+
+            bool DocumentExists = false;
+            foreach(UPnPDevice Device in UPnPDeviceList)
             {
-                if (e.Descendants().Where(b => b.Name.LocalName == "UDN" && b.Value == sUDN).ToList().Count > 0) return true;
-                return false;
-            });
-            if (Result == null || XMLConfigurations.Count == 0)
+                foreach(XElement oConfigElement in Device.Config.Root.Elements())
+                {
+                    List<XElement> ElementList = oConfigElement.Elements().ToList();
+                    foreach(XElement oElement in ElementList)
+                    {
+                        if(oElement.Name.LocalName == "UDN" && oElement.Value == sUDN)
+                        {
+                            DocumentExists = true;
+                        }
+                    }
+                }
+            }
+       
+            if (DocumentExists == false || UPnPDeviceList.Count == 0)
             {   // Es wurde keine Element mit dem UDN gefunden!
-                XMLConfigurations.Add(oReceivedXML);
-                ObservableCollection<string> TempItems = Items;
-                TempItems.Add(oReceivedXML.Descendants().Where(e => e.Name.LocalName.ToLower() == "friendlyname").ToList()[0].Value);
-                Items = TempItems;
+                UPnPDevice oDevice = new UPnPDevice();
+                XMLParser oParser = new XMLParser();
+                oDevice.DeviceName = oReceivedXML.Descendants().Where(e => e.Name.LocalName.ToLower() == "friendlyname").ToList()[0].Value;
+                oDevice.Config = oReceivedXML;
+                oDevice.DeviceAddress = oDeviceAddress;
+                UPnPDevice oOutputDevice = oParser.Parse(oDevice);
+                if (oOutputDevice.Type.ToLower() == "mediarenderer" || oOutputDevice.Type.ToLower() == "mediaserver")
+                {
+                    UPnPDeviceList.Add(oOutputDevice);
+                    ObservableCollection<string> TempItems = Items;
+                    TempItems.Add(oOutputDevice.DeviceName);
+                    Items = TempItems;
+                }
             }
         }
 
-        private void OnReceivedXML(XDocument oXmlConfig)
+        private void OnReceivedXML(XDocument oXmlConfig, Uri oDeviceAddress)
         {
             Device.BeginInvokeOnMainThread(() =>
             {
-                UpdateXMLConfigs(oXmlConfig);
+                UpdateXMLConfigs(oXmlConfig,oDeviceAddress);
             });
         }
 
@@ -90,12 +113,12 @@ namespace HomeMediaApp.Pages
         private void ProcessDeviceItemTapped(string DeviceName)
         {
             XDocument oConfiguration = null;
-            foreach(XDocument config in XMLConfigurations)
+            foreach(UPnPDevice oDevice in UPnPDeviceList)
             {
-                List<XElement> Elements = config.Root.Descendants().Where(e => e.Name.LocalName.ToLower() == "friendlyname").ToList();
+                List<XElement> Elements = oDevice.Config.Root.Descendants().Where(e => e.Name.LocalName.ToLower() == "friendlyname").ToList();
                 if (Elements[0].Value == DeviceName)
                 {
-                    oConfiguration = config;
+                    oConfiguration = oDevice.Config;
                 }
             }
             if (oConfiguration == null) return;

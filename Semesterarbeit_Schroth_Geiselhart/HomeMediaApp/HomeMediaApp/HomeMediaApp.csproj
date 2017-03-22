@@ -39,7 +39,10 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="Classes\CSSPD.cs" />
+    <Compile Include="Classes\UPnPDevice.cs" />
     <Compile Include="Classes\MasterPageItem.cs" />
+    <Compile Include="Classes\UPnPService.cs" />
+    <Compile Include="Classes\XMLParser.cs" />
     <Compile Include="Pages\MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>

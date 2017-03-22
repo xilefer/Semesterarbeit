@@ -9,10 +9,12 @@ using System.Xml.Linq;
 using Sockets.Plugin;
 using Sockets.Plugin.Abstractions;
 using Xamarin.Forms.Xaml;
+using System.Xml;
+using HomeMediaApp.Classes;
 
 namespace HomeMediaApp
 {
-    public delegate void ReceivedXml(XDocument oReceivedXml);
+    public delegate void ReceivedXml(XDocument oReceivedXml, Uri oDeviceAddress);
 
     public class CSSDPState
     {
@@ -78,12 +80,13 @@ namespace HomeMediaApp
         {
             CSSDPState oState = (CSSDPState) oResult.AsyncState;
             HttpWebRequest oWebRequest = oState.oWebRequest;
+            
             oState.oWebResponse = (HttpWebResponse) oWebRequest.EndGetResponse(oResult);
             Stream oResponseStream = oState.oWebResponse.GetResponseStream();
             MemoryStream ms = new MemoryStream();
             oResponseStream.CopyTo(ms);
             string sResponse = Encoding.UTF8.GetString(ms.ToArray(), 0, (int)ms.Length);
-            ReceivedXml(XDocument.Parse(sResponse));
+            ReceivedXml(XDocument.Parse(sResponse), oState.oWebRequest.RequestUri);
         }
     }
 }

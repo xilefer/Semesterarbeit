@@ -73,6 +73,7 @@ namespace HomeMediaApp.Pages
             {   // Es wurde keine Element mit dem UDN gefunden!
                 UPnPDevice oDevice = new UPnPDevice();
                 XMLParser oParser = new XMLParser();
+                oParser.DeviceFinished += new DeviceFinished(OnDeviceFinished);
                 oDevice.DeviceName = oReceivedXML.Descendants().Where(e => e.Name.LocalName.ToLower() == "friendlyname").ToList()[0].Value;
                 oDevice.Config = oReceivedXML;
                 oDevice.DeviceAddress = oDeviceAddress;
@@ -91,6 +92,18 @@ namespace HomeMediaApp.Pages
             {
                 UpdateXMLConfigs(oXmlConfig, oDeviceAddress);
             });
+        }
+
+        private void OnDeviceFinished(UPnPDevice oDevice, UPnPService oService)
+        {
+            UPnPDevice oTempDevice = UPnPDeviceList.Where(e => e.DeviceName == oDevice.DeviceName).ToList()[0];
+            int i = UPnPDeviceList.IndexOf(oTempDevice);
+            UPnPDeviceList[i].DeviceMethods.Add(oService);
+            Device.BeginInvokeOnMainThread(() =>
+            {
+                OnPropertyChanged("UPnPDeviceList");
+            });
+
         }
 
         private void Init()

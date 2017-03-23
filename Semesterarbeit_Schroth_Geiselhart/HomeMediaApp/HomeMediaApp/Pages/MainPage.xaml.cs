@@ -28,7 +28,7 @@ namespace HomeMediaApp.Pages
                 OnPropertyChanged();
             }
         }
-        
+
         private CSSPD oDeviceSearcher = new CSSPD();
         public MainPage()
         {
@@ -54,21 +54,21 @@ namespace HomeMediaApp.Pages
                                         // Ist UDN bereits vorhanden?
 
             bool DocumentExists = false;
-            foreach(UPnPDevice Device in UPnPDeviceList)
+            foreach (UPnPDevice Device in UPnPDeviceList)
             {
-                foreach(XElement oConfigElement in Device.Config.Root.Elements())
+                foreach (XElement oConfigElement in Device.Config.Root.Elements())
                 {
                     List<XElement> ElementList = oConfigElement.Elements().ToList();
-                    foreach(XElement oElement in ElementList)
+                    foreach (XElement oElement in ElementList)
                     {
-                        if(oElement.Name.LocalName == "UDN" && oElement.Value == sUDN)
+                        if (oElement.Name.LocalName == "UDN" && oElement.Value == sUDN)
                         {
                             DocumentExists = true;
                         }
                     }
                 }
             }
-       
+
             if (DocumentExists == false || UPnPDeviceList.Count == 0)
             {   // Es wurde keine Element mit dem UDN gefunden!
                 UPnPDevice oDevice = new UPnPDevice();
@@ -89,42 +89,19 @@ namespace HomeMediaApp.Pages
         {
             Device.BeginInvokeOnMainThread(() =>
             {
-                UpdateXMLConfigs(oXmlConfig,oDeviceAddress);
+                UpdateXMLConfigs(oXmlConfig, oDeviceAddress);
             });
-        }
-
-        private async void SettingsButton_OnClicked(object sender, EventArgs e)
-        {
-            await Navigation.PushAsync(new SettingsPage());
         }
 
         private void Init()
         {
             OuterGrid.ForceLayout();
         }
-        
+
         private void ListViewDevices_OnItemTapped(object sender, ItemTappedEventArgs e)
         {
-            string Name = (e.Item as string);
-            if(Name != null) ProcessDeviceItemTapped(Name);
-        }
-
-        private void ProcessDeviceItemTapped(string DeviceName)
-        {
-            XDocument oConfiguration = null;
-            foreach(UPnPDevice oDevice in UPnPDeviceList)
-            {
-                List<XElement> Elements = oDevice.Config.Root.Descendants().Where(e => e.Name.LocalName.ToLower() == "friendlyname").ToList();
-                if (Elements[0].Value == DeviceName)
-                {
-                    oConfiguration = oDevice.Config;
-                }
-            }
-            if (oConfiguration == null) return;
-            else
-            {
-                DisplayAlert("Daag", oConfiguration.ToString(), "Abbrecha");
-            }
+            string Config = (e.Item as UPnPDevice).Config.ToString();
+            if (Config != null) DisplayAlert("Test", Config, "Abbrechen");
         }
     }
 }

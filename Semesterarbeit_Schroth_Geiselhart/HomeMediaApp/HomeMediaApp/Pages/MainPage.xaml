@@ -21,9 +21,9 @@
     </Grid>
 
     <ListView x:Name="ListViewDevices" ItemsSource="{Binding UPnPDeviceList}" Grid.Row="1" ItemTapped="ListViewDevices_OnItemTapped">
-      <ListView.ItemTemplate>
+     <ListView.ItemTemplate>
         <DataTemplate>
-          <Label Text="{Binding DeviceName}"></Label>
+          <TextCell Text="{Binding DeviceName}"></TextCell>
         </DataTemplate>
       </ListView.ItemTemplate>
     </ListView>

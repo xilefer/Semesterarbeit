@@ -1,6 +1,0 @@
-C:\Users\felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit\TestConsole\bin\Debug\TestConsole.exe.config
-C:\Users\felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit\TestConsole\bin\Debug\TestConsole.exe
-C:\Users\felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit\TestConsole\bin\Debug\TestConsole.pdb
-C:\Users\felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit\TestConsole\obj\Debug\TestConsole.csprojResolveAssemblyReference.cache
-C:\Users\felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit\TestConsole\obj\Debug\TestConsole.exe
-C:\Users\felix\Desktop\DHBW Horb\Semesterarbeit\Repository\Semesterarbeit\TestConsole\obj\Debug\TestConsole.pdb

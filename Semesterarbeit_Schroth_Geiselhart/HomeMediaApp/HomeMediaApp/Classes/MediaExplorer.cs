@@ -32,4 +32,44 @@ namespace HomeMediaApp.Classes
             base.IconSource = ImageSource.FromResource("HomeMediaApp.Icons.folder_icon.png");
         }
     }
+
+    public class MusicItem : FileExplorerItemBase
+    {
+        public MusicItem(string MusicName)
+        {
+            ItemType = FileExplorerItemType.MUSIC;
+            DisplayName = MusicName;
+            IconSource = ImageSource.FromResource("HomeMediaApp.Icons.music_icon.png");
+        }
+    }
+
+    public class PictureItem : FileExplorerItemBase
+    {
+        public PictureItem(string PictureName)
+        {
+            ItemType = FileExplorerItemType.PICTURE;
+            DisplayName = PictureName;
+            IconSource = ImageSource.FromResource("HomeMediaApp.Icons.picture_icon.png");
+        }
+    }
+
+    public class VideoItem : FileExplorerItemBase
+    {
+        public VideoItem(string VideoName)
+        {
+            ItemType = FileExplorerItemType.VIDEO;
+            DisplayName = VideoName;
+            IconSource = ImageSource.FromResource("HomeMediaApp.Icons.video_icon.png");
+        }
+    }
+
+    public class ElseItem : FileExplorerItemBase
+    {
+        public ElseItem(string ElseName)
+        {
+            ItemType = FileExplorerItemType.ELSE;
+            DisplayName = ElseName;
+            IconSource = ImageSource.FromResource("HomeMediaApp.Icons.else_icon.png");
+        }
+    }
 }

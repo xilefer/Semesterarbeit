@@ -130,6 +130,12 @@
   <ItemGroup>
     <EmbeddedResource Include="Icons\folder_icon.png" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Icons\picture_icon.png" />
+    <EmbeddedResource Include="Icons\else_icon.png" />
+    <EmbeddedResource Include="Icons\music_icon.png" />
+    <EmbeddedResource Include="Icons\video_icon.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\..\packages\Xamarin.Forms.2.3.3.180\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+Xamarin.iOS10+xamarinmac20\Xamarin.Forms.targets" Condition="Exists('..\..\packages\Xamarin.Forms.2.3.3.180\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+Xamarin.iOS10+xamarinmac20\Xamarin.Forms.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

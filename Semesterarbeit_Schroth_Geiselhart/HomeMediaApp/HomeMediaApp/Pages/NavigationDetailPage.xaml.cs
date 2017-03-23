@@ -45,6 +45,12 @@ namespace HomeMediaApp.Pages
                 Title = "Einstellungen",
                 TargetType = typeof(SettingsPage)
             });
+            TempItems.Add(new MasterPageItem()
+            {
+                IconSource = ImageSource.FromResource("HomeMediaApp.Icons.folder_icon.png"),
+                Title = "Explorer",
+                TargetType = typeof(FileExplorerPage)
+            });
             PageItems = TempItems;
             listView.ItemsSource = PageItems;
 

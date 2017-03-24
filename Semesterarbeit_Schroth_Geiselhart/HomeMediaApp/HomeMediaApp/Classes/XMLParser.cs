@@ -76,9 +76,32 @@ namespace HomeMediaApp.Classes
             oResponseStream.CopyTo(ms);
             string sResponse = Encoding.UTF8.GetString(ms.ToArray(), 0, (int)ms.Length);
             XDocument oActionDescription = XDocument.Parse(sResponse);
-            UPnPAction oAction = new UPnPAction();
-            oAction.ActionConfig = oActionDescription;
-            oState.oServiceCallback.ActionList.Add(oAction);
+            List<XElement> oActions = oActionDescription.Root.Elements().Where(e => e.Name.LocalName.ToLower() == "actionlist").ToList()[0].Elements().Where(e => e.Name.LocalName.ToLower() == "action").ToList();
+            List<XElement> oStateVariables = oActionDescription.Root.Elements().Where(e => e.Name.LocalName.ToLower() == "servicestatetable").ToList()[0].Elements().Where(e=>e.Name.LocalName.ToLower() == "statevariable").ToList();
+            foreach(XElement oXMLAction in oActions)
+            {
+                UPnPAction oAction = new UPnPAction();
+                oAction.ActionConfig = oXMLAction.Document;
+                oAction.ActionName = oXMLAction.Elements().Where(e => e.Name.LocalName.ToLower() == "name").ToList()[0].Value;
+                foreach(XElement oActionArgument in oXMLAction.Elements().Where(e=>e.Name.LocalName.ToLower()== "argumentlist").ToList()[0].Elements().Where(e=>e.Name.LocalName.ToLower() == "argument").ToList())
+                {
+                    UPnPActionArgument oArgument = new UPnPActionArgument();
+                    oArgument.Name = oActionArgument.Elements().Where(e => e.Name.LocalName.ToLower() == "name").ToList()[0].Value;
+                    oArgument.Direction = oActionArgument.Elements().Where(e => e.Name.LocalName.ToLower() == "direction").ToList()[0].Value;
+                    oArgument.RelatedStateVariable = oActionArgument.Elements().Where(e => e.Name.LocalName.ToLower() == "relatedstatevariable").ToList()[0].Value;
+                    oAction.ArgumentList.Add(oArgument);
+                }
+                oState.oServiceCallback.ActionList.Add(oAction);
+            }
+            foreach (XElement oXMLVariable in oStateVariables)
+            {
+                UPnPServiceState oServiceState = new UPnPServiceState();
+                if (oXMLVariable.Value.ToLower().Contains("yes")) oServiceState.SendEvents = true;
+                else oServiceState.SendEvents = false;
+                oServiceState.Name = oXMLVariable.Elements().Where(e => e.Name.LocalName.ToLower() == "name").ToList()[0].Value;
+                oServiceState.DataType = oXMLVariable.Elements().Where(e => e.Name.LocalName.ToLower() == "datatype").ToList()[0].Value;
+                oState.oServiceCallback.ServiceStateTable.Add(oServiceState);
+            }
             DeviceFinished(oState.oDevice, oState.oServiceCallback);
         }
 

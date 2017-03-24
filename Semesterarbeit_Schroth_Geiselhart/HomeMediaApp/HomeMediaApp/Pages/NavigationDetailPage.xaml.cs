@@ -65,7 +65,7 @@ namespace HomeMediaApp.Pages
         {
             MasterPageItem temp = e.SelectedItem as MasterPageItem;
             if (temp == null) return;
-            (Parent as MasterDetailPageHomeMediaApp).Detail = new NavigationPage((Page) Activator.CreateInstance(temp.TargetType));
+            (Parent as MasterDetailPageHomeMediaApp).Detail = new NavigationPage((Page)Activator.CreateInstance(temp.TargetType));
             (Parent as MasterDetailPageHomeMediaApp).IsPresented = false;
         }
     }

@@ -17,14 +17,27 @@ namespace HomeMediaApp.Pages
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class FileExplorerPage : ContentPage
     {
+        private FolderItem mMasterItem = new FolderItem("Master");
+        public FolderItem MasterItem
+        {
+            get { return mMasterItem; }
+            set
+            {
+                if (mMasterItem == value) return;
+                mMasterItem = value;
+                OnPropertyChanged();
+                OnPropertyChanged("ExplorerItems");
+            }
+        }
+
         private ObservableCollection<FileExplorerItemBase> mExplorerItems = new ObservableCollection<FileExplorerItemBase>();
         public ObservableCollection<FileExplorerItemBase> ExplorerItems
         {
-            get { return mExplorerItems; }
+            get { return mMasterItem.Childrens; }
             set
             {
-                if (mExplorerItems == value) return;
-                mExplorerItems = value;
+                if (mMasterItem.Childrens == value) return;
+                mMasterItem.Childrens = value;
                 OnPropertyChanged();
             }
         }
@@ -32,12 +45,22 @@ namespace HomeMediaApp.Pages
         public FileExplorerPage()
         {
             InitializeComponent();
+            FileImageSourceConverter FileConverter = new FileImageSourceConverter();
+            BackButtonImage.Source = ImageSource.FromResource("HomeMediaApp.Icons.folder_up_icon.png");
             BindingContext = this;
-            ExplorerItems.Add(new FolderItem("Ordner"));
-            ExplorerItems.Add(new MusicItem("Titel 1"));
-            ExplorerItems.Add(new PictureItem("Bild 1"));
-            ExplorerItems.Add(new VideoItem("Video 1"));
-            ExplorerItems.Add(new ElseItem("Nicht unterstützt"));
+            FolderItem MasterFolder = new FolderItem("MasterFolder");
+            FolderItem TempFolder = new FolderItem("Ordner")
+            {
+                Parent = MasterFolder
+            };
+            TempFolder.AddChild(new MusicItem("Titel 2") { Parent = TempFolder });
+            TempFolder.AddChild(new VideoItem("Video 2") { Parent = TempFolder });
+            MasterFolder.AddChild(TempFolder);
+            MasterFolder.AddChild(new MusicItem("Titel 1") {Parent = MasterFolder });
+            MasterFolder.AddChild(new PictureItem("Bild 1") {Parent = MasterFolder });
+            MasterFolder.AddChild(new VideoItem("Video 1") {Parent = MasterFolder });
+            MasterFolder.AddChild(new ElseItem("Nicht unterstützt") {Parent = MasterFolder });
+            MasterItem = MasterFolder;
         }
 
         private void FileListView_OnItemTapped(object sender, ItemTappedEventArgs e)
@@ -54,11 +77,20 @@ namespace HomeMediaApp.Pages
 
                     break;
                 case FileExplorerItemType.FOLDER:
-
+                    FolderItem Item = e.Item as FolderItem;
+                    MasterItem = Item;
                     break;
                 case FileExplorerItemType.ELSE:
 
                     break;
+            }
+        }
+
+        private void BackButton_OnClicked(object sender, EventArgs e)
+        {
+            if (MasterItem.Parent != null)
+            {
+                MasterItem = MasterItem.Parent;
             }
         }
     }

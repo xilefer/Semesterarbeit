@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Xamarin.Forms;
+using System.Collections.ObjectModel;
 
 namespace HomeMediaApp.Classes
 {
@@ -18,6 +19,7 @@ namespace HomeMediaApp.Classes
 
     public class FileExplorerItemBase
     {
+        public FolderItem Parent { get; set; } = null;
         public ImageSource IconSource { get; set; } = new FileImageSource();
         public string DisplayName { get; set; } = "";
         public FileExplorerItemType ItemType { get; set; } = FileExplorerItemType.ELSE;
@@ -25,11 +27,17 @@ namespace HomeMediaApp.Classes
 
     public class FolderItem : FileExplorerItemBase
     {
+        public ObservableCollection<FileExplorerItemBase> Childrens = new ObservableCollection<FileExplorerItemBase>();
         public FolderItem(string FolderName)
         {
-            base.ItemType = FileExplorerItemType.FOLDER;
-            base.DisplayName = FolderName;
-            base.IconSource = ImageSource.FromResource("HomeMediaApp.Icons.folder_icon.png");
+            ItemType = FileExplorerItemType.FOLDER;
+            DisplayName = FolderName;
+            IconSource = ImageSource.FromResource("HomeMediaApp.Icons.folder_icon.png");
+        }
+
+        public void AddChild(FileExplorerItemBase Child)
+        {
+            Childrens.Add(Child);
         }
     }
 

@@ -114,7 +114,41 @@ namespace HomeMediaApp.Pages
         private void ListViewDevices_OnItemTapped(object sender, ItemTappedEventArgs e)
         {
             string Config = (e.Item as UPnPDevice).Config.ToString();
+            UPnPDevice oDevice = (e.Item as UPnPDevice);
+
+            //Methode für das event übergeben.
+            //UPnPAction oAction = oDevice.DeviceMethods.Where(x => x.ServiceID == "ContentDirectory").ToList()[0].ActionList.Where(x => x.ActionName == "Browse").ToList()[0];
+            //oAction.OnResponseReceived += OnResponseReceived;
+
+
+            //Request URI muss wie folgt aussehen wobei das nach dem Port = Service.ControlURL ist
+            //string RequestURI = @"http://129.144.51.89:49000/MediaServer/ContentDirectory/Control";
+
+            //Beispiel Tupel für die in Arguments der Action bspw aus Action.Argumentlist.Name
+
+            //List<Tuple<string,string>> args = new List<Tuple<string, string>>();
+            //args.Add(new Tuple<string, string>("ObjectID", "0"));
+            //args.Add(new Tuple<string, string>("BrowseFlag", "BrowseDirectChildren"));
+            //args.Add(new Tuple<string, string>("Filter", "*"));
+            //args.Add(new Tuple<string, string>("StartingIndex", "0"));
+            //args.Add(new Tuple<string, string>("RequestCount", "10"));
+            //args.Add(new Tuple<string, string>("SortCriteria", "*"));
+            
+            //Execute brauch die ControlURL und die ServiceID des Services und die Argumentlist der Action
+            //oAction.Execute(RequestURI,"ContentDirectory", args);
+
+
             if (Config != null) DisplayAlert("Test", Config, "Abbrechen");
+        }
+
+        //Test zum Anzeigen der Response einer Action
+
+        private void OnResponseReceived(XDocument oResponseDocument, ActionState oState)
+        {
+            Device.BeginInvokeOnMainThread(() =>
+            {
+                DisplayAlert("Test", oResponseDocument.ToString(), "Abbrechen");
+            });
         }
     }
 }

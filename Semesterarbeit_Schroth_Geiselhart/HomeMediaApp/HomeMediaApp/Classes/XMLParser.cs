@@ -39,6 +39,10 @@ namespace HomeMediaApp.Classes
                 {
                     UPnPService oService = new UPnPService();
                     oService.ControlURL = oDeviceService.Elements().Where(e => e.Name.LocalName.ToLower() == "controlurl").ToList()[0].Value.ToString();
+                    if(!oService.ControlURL.StartsWith(@"/"))
+                    {
+                        oService.ControlURL = @"/" + oService.ControlURL;
+                    }
                     oService.ServiceType = oDeviceService.Elements().Where(e => e.Name.LocalName.ToLower() == "servicetype").ToList()[0].Value.ToString().Split(':')[3];
                     oService.ServiceID = oDeviceService.Elements().Where(e => e.Name.LocalName.ToLower() == "serviceid").ToList()[0].Value.ToString().Split(':')[3];
                     oService.SCPDURL = oDeviceService.Elements().Where(e => e.Name.LocalName.ToLower() == "scpdurl").ToList()[0].Value.ToString();

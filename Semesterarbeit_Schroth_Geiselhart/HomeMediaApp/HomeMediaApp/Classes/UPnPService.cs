@@ -5,9 +5,20 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net;
 using System.Xml.Linq;
+using System.IO;
 
 namespace HomeMediaApp.Classes
 {
+    public delegate void ResponseReceived(XDocument oResponseDocument, ActionState oState);
+
+    public class ActionState
+    {
+        public HttpWebRequest oWebRequest;
+        public HttpWebResponse oWebResponse;
+        public string ActionName;
+        public byte[] RequestBody;
+    }
+
     public class UPnPService
     {
         public string ServiceType { get; set; }
@@ -24,9 +35,59 @@ namespace HomeMediaApp.Classes
         public string ActionName { get; set; }
         public List<UPnPActionArgument> ArgumentList { get; set; } = new List<UPnPActionArgument>();
         public XDocument ActionConfig { get; set; }
-        public bool Execute()
+
+        public event ResponseReceived OnResponseReceived;
+        public void Execute(string ControlURL,string ServiceName,List<Tuple<string,string>> args)
         {
-            return true;
+            XDocument oResponseDocument = new XDocument();
+            HttpWebRequest httpRequest = (HttpWebRequest)WebRequest.Create(ControlURL);
+            httpRequest.Method = "POST";
+            httpRequest.ContentType = "text/xml; charset=\"utf-8\"";
+            httpRequest.Accept = "text/xml";
+            httpRequest.UseDefaultCredentials = true;
+            httpRequest.Headers["SOAPACTION"] = "\"urn:schemas-upnp-org:service:"+ ServiceName + ":1#" + this.ActionName +"\"";
+            StringBuilder soapRequest =
+            new StringBuilder(
+                       @"<?xml version=""1.0"" encoding=""utf-8""?> 
+                        <s:Envelope xmlns:s=""http://schemas.xmlsoap.org/soap/envelope/"" s:encodingStyle=""http://schemas.xmlsoap.org/soap/encoding/""> 
+                            <s:Body>");
+            soapRequest.AppendLine("<u:" + this.ActionName + " xmlns:u=\"urn:schemas-upnp-org:service:" + ServiceName + ":1\">");
+            foreach(Tuple<string,string> item in args)
+            {
+                soapRequest.AppendLine("<" + item.Item1 + ">" + item.Item2 + "</" + item.Item1 + ">");
+            }
+            soapRequest.AppendLine("</u:" + this.ActionName + ">");
+            soapRequest.AppendLine("</s:Body>");
+            soapRequest.AppendLine("</s:Envelope>");
+            byte[] bytes = Encoding.UTF8.GetBytes(soapRequest.ToString());
+            ActionState oState = new ActionState()
+            {
+                oWebRequest = httpRequest,
+                ActionName = this.ActionName,
+                RequestBody = bytes
+            };
+            httpRequest.BeginGetRequestStream(RequestCallback, oState);
+        }
+
+        private void RequestCallback(IAsyncResult oResult)
+        {
+            ActionState oState = (ActionState)oResult.AsyncState;
+            byte[] bytes = oState.RequestBody;
+            Stream oResponseStream = oState.oWebRequest.EndGetRequestStream(oResult);
+            oResponseStream.Write(bytes, 0, bytes.Length);
+            oState.oWebRequest.BeginGetResponse(ResponseCallback, oState);
+            
+        }
+
+        private void ResponseCallback(IAsyncResult oResult)
+        {
+            ActionState oState = (ActionState)oResult.AsyncState;
+            oState.oWebResponse = (HttpWebResponse)oState.oWebRequest.EndGetResponse(oResult);
+            Stream st = oState.oWebResponse.GetResponseStream();
+            MemoryStream ms = new MemoryStream();
+            st.CopyTo(ms);
+            string oResponse = Encoding.UTF8.GetString(ms.ToArray(), 0, (int)ms.Length);
+            OnResponseReceived(XDocument.Parse(oResponse), oState);
         }
     }
 

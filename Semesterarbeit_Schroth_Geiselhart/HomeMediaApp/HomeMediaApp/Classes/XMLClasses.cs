@@ -29,6 +29,27 @@ namespace HomeMediaApp.Classes
 
     public class UPnPContainer : UPnPObject
     {
+        public static UPnPContainer GenerateContainer(XElement ContainerElement)
+        {
+            UPnPContainer ReturnContainer = new UPnPContainer();
+            List<XAttribute> ContainerAttributes = ContainerElement.Attributes().ToList();
+            ReturnContainer.id = ContainerAttributes.Find(Attrib => Attrib.Name.LocalName.ToLower() == "id").Value;
+            ReturnContainer.parentID = ContainerAttributes.Find(e => e.Name.LocalName.ToLower() == "parentid").Value;
+            ReturnContainer.restricted = Boolean.Parse(ContainerAttributes.Find(e => e.Name.LocalName.ToLower() == "restricted").Value);
+            ReturnContainer.Title = ContainerElement.Elements().Where(e => e.Name.LocalName.ToLower() == "title").ToList()[0].Value;
+            ReturnContainer.Class = ContainerElement.Elements().Where(e => e.Name.LocalName.ToLower() == "class").ToList()[0].Value;
+            XAttribute Value = ContainerAttributes.Find(e => e.Name.LocalName.ToLower() == "searchable");
+            if (Value != null) ReturnContainer.Searchable = Boolean.Parse(Value.Value);
+            Value = ContainerAttributes.Find(e => e.Name.LocalName.ToLower() == "childcount");
+            if (Value != null) ReturnContainer.ChildCount = int.Parse(Value.Value);
+            Value = ContainerAttributes.Find(e => e.Name.LocalName.ToLower() == "createclass");
+            if (Value != null) ReturnContainer.CreateClass = Value.Value;
+            Value = ContainerAttributes.Find(e => e.Name.LocalName.ToLower() == "searchclass");
+            if (Value != null) ReturnContainer.SearchClass = Value.Value;
+
+            return ReturnContainer;
+        }
+
         public static UPnPContainer GenerateRootContainer(XDocument MetaDocument)
         {
             List<XElement> ResultNodes = MetaDocument.Descendants().Where(Node => Node.Name.LocalName.ToLower() == "result").ToList();
@@ -101,11 +122,37 @@ namespace HomeMediaApp.Classes
 
     public class UPnPMusicTrack : UPnPAudioItem
     {
+        public static UPnPMusicTrack CreateTrack(XElement MusicElement)
+        {
+            UPnPMusicTrack ReturnTrack = new UPnPMusicTrack();
+            List<XAttribute> Attributes = MusicElement.Attributes().ToList();
+            ReturnTrack.id = Attributes.Find(e => e.Name.LocalName.ToLower() == "id").Value;
+            ReturnTrack.parentID = Attributes.Find(e => e.Name.LocalName.ToLower() == "parentid").Value;
+            ReturnTrack.restricted = Boolean.Parse(Attributes.Find(e => e.Name.LocalName.ToLower() == "restricted").Value);
+            ReturnTrack.Title = MusicElement.Elements().Where(e => e.Name.LocalName.ToLower() == "title").ToList()[0].Value;
+            ReturnTrack.Class = MusicElement.Elements().Where(e => e.Name.LocalName.ToLower() == "class").ToList()[0].Value;
+            // Nicht notwendige Properties
+            List<XElement> Descendants = MusicElement.Descendants().ToList();
+            XElement Value = Descendants.Find(e => e.Name.LocalName.ToLower() == "artist");
+            if (Value != null) ReturnTrack.Artist = Value.Value;
+            Value = Descendants.Find(e => e.Name.LocalName.ToLower() == "album");
+            if (Value != null) ReturnTrack.Album = Value.Value;
+            Value = Descendants.Find(e => e.Name.LocalName.ToLower() == "originaltracknumber");
+            if (Value != null) ReturnTrack.OriginalTrackNumber = Value.Value;
+            Value = Descendants.Find(e => e.Name.LocalName.ToLower() == "playlist");
+            if (Value != null) ReturnTrack.PlayList = Value.Value;
+            Value = Descendants.Find(e => e.Name.LocalName.ToLower() == "storagemedium");
+            if (Value != null) ReturnTrack.StorageMedium = Value.Value;
+            Value = Descendants.Find(e => e.Name.LocalName.ToLower() == "res");
+            if (Value != null) ReturnTrack.Res = Value.Value;
+            return ReturnTrack;
+        }
         public string Artist = "";
         public string Album = "";
         public string OriginalTrackNumber = "";
         public string PlayList = "";
         public string StorageMedium = "";
+        public string Res = "";
     }
 
     public class UPnPVideoItem : UPnPItem

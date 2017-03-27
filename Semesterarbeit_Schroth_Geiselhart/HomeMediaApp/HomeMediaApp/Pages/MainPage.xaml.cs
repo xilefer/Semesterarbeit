@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -120,6 +121,46 @@ namespace HomeMediaApp.Pages
         {
             string Config = (e.Item as UPnPDevice).Config.ToString();
             UPnPDevice oDevice = (e.Item as UPnPDevice);
+            UPnPAction BrowseAction = oDevice.DeviceMethods.Where(y => y.ServiceType.ToLower() == "contentdirectory").ToList()[0].ActionList.Where(x => x.ActionName.ToLower() == "browse").ToList()[0];
+            BrowseAction.OnResponseReceived += new ResponseReceived(OnResponseReceived);
+
+            List<UPnPActionArgument> InArgs = new List<UPnPActionArgument>();
+            foreach (UPnPActionArgument oArg in BrowseAction.ArgumentList)
+            {
+                if (oArg.Direction == "in")
+                {
+                    InArgs.Add(oArg);
+                }
+            }
+            UPnPStateVariables.A_ARG_TYPE_BrowseFlag = UPnPBrowseFlag.BrowseMetadata;
+            UPnPStateVariables.A_ARG_TYPE_Count = "100";
+            UPnPStateVariables.A_ARG_TYPE_Index = "0";
+            UPnPStateVariables.A_ARG_TYPE_ObjectID = "0";
+            UPnPStateVariables.A_ARG_TYPE_SortCriteria = "+upnp:artist";
+            Type TypeInfo = typeof(UPnPStateVariables);
+            List<Tuple<string, string>> ArgList = new List<Tuple<string, string>>();
+            foreach (UPnPActionArgument Arg in InArgs)
+            {
+                PropertyInfo ResultProperty = TypeInfo.GetRuntimeProperty(Arg.RelatedStateVariable);
+                if (ResultProperty != null)
+                {
+                    ArgList.Add(new Tuple<string, string>(Arg.Name, ResultProperty.GetValue(null).ToString()));
+                }
+                else
+                {
+                    throw new Exception("Die Funktion konnte nicht ausgeführt werden!");
+                }
+            }
+            string sRequestURI = oDevice.Config.Root.Descendants().Where(Node => Node.Name.LocalName.ToLower() == "urlbase").ToList()
+                        [0].Value;
+            if (sRequestURI.Length == 0)
+            {
+                throw new Exception("Die Funktion konnte nicht ausgeführt werden!");
+            }
+            if (sRequestURI.EndsWith("/")) sRequestURI = sRequestURI.Substring(0, sRequestURI.Length - 1); // Schrägstrich entfernen
+            if (!oDevice.DeviceMethods.Where(x => x.ServiceID == "ContentDirectory").ToList()[0].ControlURL.StartsWith("/")) sRequestURI += "/";
+            sRequestURI += oDevice.DeviceMethods.Where(x => x.ServiceID == "ContentDirectory").ToList()[0].ControlURL;
+            BrowseAction.Execute(sRequestURI, "ContentDirectory", ArgList);
 
             //Methode für das event übergeben.
             //UPnPAction oAction = oDevice.DeviceMethods.Where(x => x.ServiceID == "ContentDirectory").ToList()[0].ActionList.Where(x => x.ActionName == "Browse").ToList()[0];
@@ -138,12 +179,12 @@ namespace HomeMediaApp.Pages
             //args.Add(new Tuple<string, string>("StartingIndex", "0"));
             //args.Add(new Tuple<string, string>("RequestCount", "10"));
             //args.Add(new Tuple<string, string>("SortCriteria", "*"));
-            
+
             //Execute brauch die ControlURL und die ServiceID des Services und die Argumentlist der Action
             //oAction.Execute(RequestURI,"ContentDirectory", args);
 
 
-            if (Config != null) DisplayAlert("Test", Config, "Abbrechen");
+            //if (Config != null) DisplayAlert("Test", Config, "Abbrechen");
         }
 
         //Test zum Anzeigen der Response einer Action
@@ -152,7 +193,21 @@ namespace HomeMediaApp.Pages
         {
             Device.BeginInvokeOnMainThread(() =>
             {
-                DisplayAlert("Test", oResponseDocument.ToString(), "Abbrechen");
+                if (oState.ActionName.ToLower() == "browse")
+                {
+                    FileExplorerPage oExplorerPage = new FileExplorerPage();
+                    UPnPContainer RootContainer = UPnPContainer.GenerateRootContainer(oResponseDocument);
+                    FolderItem MasterItem = new FolderItem(RootContainer.Title);
+                    FolderItem RootItem = new FolderItem(RootContainer.Title);
+                    MasterItem.RelatedContainer = RootContainer;
+                    RootItem.RelatedContainer = RootContainer;
+                    RootItem.AddChild(MasterItem);
+                    oExplorerPage.CurrentDevice = ListViewDevices.SelectedItem as UPnPDevice;
+                    oExplorerPage.MasterItem = RootItem;
+                    (Parent.Parent as MasterDetailPageHomeMediaApp).IsPresented = false;
+                    (Parent.Parent as MasterDetailPageHomeMediaApp).Detail = new NavigationPage(oExplorerPage);
+                    (ListViewDevices.SelectedItem as UPnPDevice).DeviceMethods.Where(y => y.ServiceType.ToLower() == "contentdirectory").ToList()[0].ActionList.Where(x => x.ActionName.ToLower() == "browse").ToList()[0].OnResponseReceived -= OnResponseReceived;
+                }
             });
         }
     }

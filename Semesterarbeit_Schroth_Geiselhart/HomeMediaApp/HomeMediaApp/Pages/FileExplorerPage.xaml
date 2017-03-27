@@ -10,7 +10,7 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <StackLayout Orientation="Horizontal">
-                <Label Text="{Binding CurrentDirectory}" />
+                <Label TextColor="Black" FontSize="20" Text="{Binding CurrentDirectory}" />
                 <Image x:Name="BackButtonImage">
                     <Image.GestureRecognizers>
                         <TapGestureRecognizer Tapped="BackButton_OnClicked"/>

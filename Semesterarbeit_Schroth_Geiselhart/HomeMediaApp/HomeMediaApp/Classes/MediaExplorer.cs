@@ -22,7 +22,7 @@ namespace HomeMediaApp.Classes
     {
         public FolderItem Parent { get; set; } = null;
         public ImageSource IconSource { get; set; } = new FileImageSource();
-        public string DisplayName { get; set; } = "";
+        public virtual string DisplayName { get; set; } = "";
         public FileExplorerItemType ItemType { get; set; } = FileExplorerItemType.ELSE;
     }
 
@@ -39,7 +39,16 @@ namespace HomeMediaApp.Classes
             return new FolderItem("");
         }
 
-        public UPnPContainer RelatedContainer;
+        private UPnPContainer mRelatedContainer;
+        public UPnPContainer RelatedContainer
+        {
+            get { return mRelatedContainer; }
+            set
+            {
+                mRelatedContainer = value;
+                DisplayName = mRelatedContainer.Title;
+            }
+        }
 
         public ObservableCollection<FileExplorerItemBase> Childrens = new ObservableCollection<FileExplorerItemBase>();
         public FolderItem(string FolderName)
@@ -63,6 +72,21 @@ namespace HomeMediaApp.Classes
             DisplayName = MusicName;
             IconSource = ImageSource.FromResource("HomeMediaApp.Icons.music_icon.png");
         }
+
+        private UPnPMusicTrack mRelatedTrack { get; set; }
+        public UPnPMusicTrack RelatedTrack
+        {
+            get { return mRelatedTrack; }
+            set
+            {
+                if (mRelatedTrack == value) return;
+                mRelatedTrack = value;
+                DisplayName = mRelatedTrack.Title + Environment.NewLine + "Album: " + mRelatedTrack.Album +
+                           Environment.NewLine + "Interpret: " + mRelatedTrack.Artist;
+            }
+        }
+
+        public override string DisplayName { get; set; }
     }
 
     public class PictureItem : FileExplorerItemBase

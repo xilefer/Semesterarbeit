@@ -60,6 +60,42 @@ namespace HomeMediaApp.Pages
         public void OnResponeReceived(XDocument oResponseDocument, ActionState oState)
         {
             XDocument ResultXML = XDocument.Parse(oResponseDocument.Root.Descendants().Where(e => e.Name.LocalName.ToLower() == "result").ToList()[0].Value);
+            List<XElement> Nodes = ResultXML.Root.Elements().ToList();
+            Device.BeginInvokeOnMainThread(() => MasterItem.Childrens.Clear());
+            // In Nodes sind jetzt alle Kinder "Container, Music usw." drin
+            foreach (XElement Node in Nodes)
+            {
+                string Name = Node.Name.LocalName.ToLower();
+                if (Name == "container")
+                {
+                    UPnPContainer Container = UPnPContainer.GenerateContainer(Node);
+                    FolderItem ContainerFolder = new FolderItem(Container.Title);
+                    ContainerFolder.Parent = MasterItem;
+                    ContainerFolder.RelatedContainer = Container;
+                    Device.BeginInvokeOnMainThread(() => MasterItem.Childrens.Add(ContainerFolder));
+                }
+                else if(Name == "item")
+                {
+                    string UPnPClass = Node.Elements().Where(e => e.Name.LocalName.ToLower() == "class").ToList()[0].Value;
+                    string[] ClassDecomposed = UPnPClass.Split('.');
+                    if (ClassDecomposed[ClassDecomposed.Length - 1].ToLower() == "musictrack")
+                    {
+                        UPnPMusicTrack MusicTrack = UPnPMusicTrack.CreateTrack(Node);
+                        MusicItem MusicItem = new MusicItem(MusicTrack.Title);
+                        MusicItem.Parent = MasterItem;
+                        MusicItem.RelatedTrack = MusicTrack;
+                        Device.BeginInvokeOnMainThread(() => MasterItem.AddChild(MusicItem));
+                    }
+                    else if (ClassDecomposed[ClassDecomposed.Length - 1].ToLower() == "")
+                    {
+                        
+                    }
+                }
+            }
+            Device.BeginInvokeOnMainThread(() =>
+            {
+                CurrentDevice.DeviceMethods.Where(e => e.ServiceType.ToLower() == "contentdirectory").ToList()[0].ActionList.Where(x => x.ActionName.ToLower() == "browse").ToList()[0].OnResponseReceived -= OnResponeReceived;
+            });
         }
 
         public void BrowseChildrens(FolderItem FolderItem)
@@ -110,7 +146,16 @@ namespace HomeMediaApp.Pages
             switch ((e.Item as FileExplorerItemBase).ItemType)
             {
                 case FileExplorerItemType.MUSIC:
-
+                    MusicItem MusicItem = e.Item as MusicItem;
+                    List<string> MediaRenderer = new List<string>();
+                    foreach (UPnPDevice upnPMediaServer in GlobalVariables.UPnPMediaRenderer)
+                    {
+                        MediaRenderer.Add(upnPMediaServer.DeviceName);
+                    }
+                    //Popup anzeigen
+                    Task<string> SelectedMediaRenderer = DisplayActionSheet("Wiedergabe auf?", "Abbrechen", null, MediaRenderer.ToArray());
+                    SelectedMediaRenderer.Wait();
+                    string Result = SelectedMediaRenderer.Result;
                     break;
                 case FileExplorerItemType.PICTURE:
 

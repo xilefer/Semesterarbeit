@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using System.Xml.Linq;
 using HomeMediaApp.Classes;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
@@ -27,8 +29,11 @@ namespace HomeMediaApp.Pages
                 mMasterItem = value;
                 OnPropertyChanged();
                 OnPropertyChanged("ExplorerItems");
+                OnPropertyChanged("CurrentDirectory");
             }
         }
+
+        public string CurrentDirectory { get { return MasterItem.DisplayName; } }
 
         private ObservableCollection<FileExplorerItemBase> mExplorerItems = new ObservableCollection<FileExplorerItemBase>();
         public ObservableCollection<FileExplorerItemBase> ExplorerItems
@@ -42,25 +47,62 @@ namespace HomeMediaApp.Pages
             }
         }
 
+        
+        public UPnPDevice CurrentDevice { get; set; }
+
         public FileExplorerPage()
         {
             InitializeComponent();
-            FileImageSourceConverter FileConverter = new FileImageSourceConverter();
             BackButtonImage.Source = ImageSource.FromResource("HomeMediaApp.Icons.folder_up_icon.png");
             BindingContext = this;
-            FolderItem MasterFolder = new FolderItem("MasterFolder");
-            FolderItem TempFolder = new FolderItem("Ordner")
+        }
+
+        public void OnResponeReceived(XDocument oResponseDocument, ActionState oState)
+        {
+            XDocument ResultXML = XDocument.Parse(oResponseDocument.Root.Descendants().Where(e => e.Name.LocalName.ToLower() == "result").ToList()[0].Value);
+        }
+
+        public void BrowseChildrens(FolderItem FolderItem)
+        {
+            UPnPAction BrowseAction =  CurrentDevice.DeviceMethods.Where(e => e.ServiceType.ToLower() == "contentdirectory").ToList()[0].ActionList.Where(x => x.ActionName.ToLower() == "browse").ToList()[0];
+            BrowseAction.OnResponseReceived += new ResponseReceived(OnResponeReceived);
+            List<UPnPActionArgument> InArgs = new List<UPnPActionArgument>();
+            foreach (UPnPActionArgument oArg in BrowseAction.ArgumentList)
             {
-                Parent = MasterFolder
-            };
-            TempFolder.AddChild(new MusicItem("Titel 2") { Parent = TempFolder });
-            TempFolder.AddChild(new VideoItem("Video 2") { Parent = TempFolder });
-            MasterFolder.AddChild(TempFolder);
-            MasterFolder.AddChild(new MusicItem("Titel 1") {Parent = MasterFolder });
-            MasterFolder.AddChild(new PictureItem("Bild 1") {Parent = MasterFolder });
-            MasterFolder.AddChild(new VideoItem("Video 1") {Parent = MasterFolder });
-            MasterFolder.AddChild(new ElseItem("Nicht unterstützt") {Parent = MasterFolder });
-            MasterItem = MasterFolder;
+                if (oArg.Direction == "in")
+                {
+                    InArgs.Add(oArg);
+                }
+            }
+            UPnPStateVariables.A_ARG_TYPE_BrowseFlag = UPnPBrowseFlag.BrowseDirectChildren;
+            UPnPStateVariables.A_ARG_TYPE_Count = "100";
+            UPnPStateVariables.A_ARG_TYPE_Index = "0";
+            UPnPStateVariables.A_ARG_TYPE_ObjectID = FolderItem.RelatedContainer.id;
+            UPnPStateVariables.A_ARG_TYPE_SortCriteria = "+upnp:artist";
+            Type TypeInfo = typeof(UPnPStateVariables);
+            List<Tuple<string, string>> ArgList = new List<Tuple<string, string>>();
+            foreach (UPnPActionArgument Arg in InArgs)
+            {
+                PropertyInfo ResultProperty = TypeInfo.GetRuntimeProperty(Arg.RelatedStateVariable);
+                if (ResultProperty != null)
+                {
+                    ArgList.Add(new Tuple<string, string>(Arg.Name, ResultProperty.GetValue(null).ToString()));
+                }
+                else
+                {
+                    throw new Exception("Die Funktion konnte nicht ausgeführt werden!");
+                }
+            }
+            string sRequestURI = CurrentDevice.Config.Root.Descendants().Where(Node => Node.Name.LocalName.ToLower() == "urlbase").ToList()
+                        [0].Value;
+            if (sRequestURI.Length == 0)
+            {
+                throw new Exception("Die Funktion konnte nicht ausgeführt werden!");
+            }
+            if (sRequestURI.EndsWith("/")) sRequestURI = sRequestURI.Substring(0, sRequestURI.Length - 1); // Schrägstrich entfernen
+            if (!CurrentDevice.DeviceMethods.Where(x => x.ServiceID == "ContentDirectory").ToList()[0].ControlURL.StartsWith("/")) sRequestURI += "/";
+            sRequestURI += CurrentDevice.DeviceMethods.Where(x => x.ServiceID == "ContentDirectory").ToList()[0].ControlURL;
+            BrowseAction.Execute(sRequestURI, "ContentDirectory", ArgList);
         }
 
         private void FileListView_OnItemTapped(object sender, ItemTappedEventArgs e)
@@ -79,6 +121,7 @@ namespace HomeMediaApp.Pages
                 case FileExplorerItemType.FOLDER:
                     FolderItem Item = e.Item as FolderItem;
                     MasterItem = Item;
+                    BrowseChildrens(MasterItem);
                     break;
                 case FileExplorerItemType.ELSE:
 

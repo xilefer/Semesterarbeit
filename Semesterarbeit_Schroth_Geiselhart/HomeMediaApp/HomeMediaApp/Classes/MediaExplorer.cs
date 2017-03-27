@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Xamarin.Forms;
 using System.Collections.ObjectModel;
+using System.Xml.Linq;
 
 namespace HomeMediaApp.Classes
 {
@@ -27,6 +28,19 @@ namespace HomeMediaApp.Classes
 
     public class FolderItem : FileExplorerItemBase
     {
+        /// <summary>
+        /// Parst die Response XML in ein Folder Object
+        /// </summary>
+        /// <param name="Response"></param>
+        /// <returns></returns>
+        public static FolderItem CreateFolderItemFromXML(XDocument Response)
+        {
+            List<XElement> ContainerElements = Response.Descendants().Where(e => e.Name.LocalName == "container").ToList();
+            return new FolderItem("");
+        }
+
+        public UPnPContainer RelatedContainer;
+
         public ObservableCollection<FileExplorerItemBase> Childrens = new ObservableCollection<FileExplorerItemBase>();
         public FolderItem(string FolderName)
         {

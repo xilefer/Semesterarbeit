@@ -9,11 +9,14 @@
                 <RowDefinition Height="50"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <Image x:Name="BackButtonImage">
-                <Image.GestureRecognizers>
-                    <TapGestureRecognizer Tapped="BackButton_OnClicked"/>
-                </Image.GestureRecognizers>
-            </Image>
+            <StackLayout Orientation="Horizontal">
+                <Label Text="{Binding CurrentDirectory}" />
+                <Image x:Name="BackButtonImage">
+                    <Image.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="BackButton_OnClicked"/>
+                    </Image.GestureRecognizers>
+                </Image>
+            </StackLayout>
             <ListView Grid.Row="1" x:Name="FileListView" ItemsSource="{Binding ExplorerItems}" BackgroundColor="White" ItemTapped="FileListView_OnItemTapped">
                 <ListView.ItemTemplate>
                     <DataTemplate>

@@ -15,17 +15,27 @@ namespace HomeMediaApp.Pages
 {
     public partial class MainPage : ContentPage
     {
-        private ObservableCollection<UPnPDevice> mUPnPDeviceList = new ObservableCollection<UPnPDevice>();
-        public ObservableCollection<UPnPDevice> UPnPDeviceList
+        public ObservableCollection<UPnPDevice> UPnPServerList
         {
             get
             {
-                return mUPnPDeviceList;
+                return GlobalVariables.UPnPMediaServers;
             }
             set
             {
-                if (mUPnPDeviceList == value) return;
-                mUPnPDeviceList = value;
+                if (GlobalVariables.UPnPMediaServers == value) return;
+                GlobalVariables.UPnPMediaServers = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ObservableCollection<UPnPDevice> UPnPMediaRendererList
+        {
+            get { return GlobalVariables.UPnPMediaRenderer; }
+            set
+            {
+                if(GlobalVariables.UPnPMediaRenderer == value) return;
+                GlobalVariables.UPnPMediaRenderer = value;
                 OnPropertyChanged();
             }
         }
@@ -37,7 +47,7 @@ namespace HomeMediaApp.Pages
             oDeviceSearcher.ReceivedXml += new ReceivedXml(OnReceivedXML);
             oDeviceSearcher.StartSearch();
             BindingContext = this;
-            UPnPDeviceList.CollectionChanged += ItemsOnCollectionChanged;
+            UPnPServerList.CollectionChanged += ItemsOnCollectionChanged;
             Init();
         }
 
@@ -55,7 +65,7 @@ namespace HomeMediaApp.Pages
                                         // Ist UDN bereits vorhanden?
 
             bool DocumentExists = false;
-            foreach (UPnPDevice Device in UPnPDeviceList)
+            foreach (UPnPDevice Device in UPnPServerList)
             {
                 foreach (XElement oConfigElement in Device.Config.Root.Elements())
                 {
@@ -69,8 +79,21 @@ namespace HomeMediaApp.Pages
                     }
                 }
             }
-
-            if (DocumentExists == false || UPnPDeviceList.Count == 0)
+            foreach (UPnPDevice Device in UPnPMediaRendererList)
+            {
+                foreach (XElement oConfigElement in Device.Config.Root.Elements())
+                {
+                    List<XElement> ElementList = oConfigElement.Elements().ToList();
+                    foreach (XElement oElement in ElementList)
+                    {
+                        if (oElement.Name.LocalName == "UDN" && oElement.Value == sUDN)
+                        {
+                            DocumentExists = true;
+                        }
+                    }
+                }
+            }
+            if (DocumentExists == false || UPnPServerList.Count == 0)
             {   // Es wurde keine Element mit dem UDN gefunden!
                 UPnPDevice oDevice = new UPnPDevice();
                 XMLParser oParser = new XMLParser();
@@ -79,10 +102,16 @@ namespace HomeMediaApp.Pages
                 oDevice.Config = oReceivedXML;
                 oDevice.DeviceAddress = oDeviceAddress;
                 UPnPDevice oOutputDevice = oParser.Parse(oDevice);
-                if (oOutputDevice.Type.ToLower() == "mediarenderer" || oOutputDevice.Type.ToLower() == "mediaserver")
+                // Jetzt wird zwischen mediaserver und Mediarenderer unterschieden (Wägs dr oberfläch)
+                if (oOutputDevice.Type.ToLower() == "mediaserver") 
                 {
-                    UPnPDeviceList.Add(oOutputDevice);
-                    OnPropertyChanged("UPnPDeviceList");    // Damit die Oberfläche aktualisiert wird
+                    UPnPServerList.Add(oOutputDevice);
+                    OnPropertyChanged("UPnPServerList");    // Damit die Oberfläche aktualisiert wird
+                }
+                else if (oOutputDevice.Type.ToLower() == "mediarenderer")
+                {
+                    UPnPMediaRendererList.Add(oOutputDevice);
+                    OnPropertyChanged("UPnPMediaRenererList");
                 }
             }
         }
@@ -100,14 +129,24 @@ namespace HomeMediaApp.Pages
             List<UPnPDevice> TempList = new List<UPnPDevice>();
             do
             {
-                TempList = UPnPDeviceList.Where(e => e.DeviceName == oDevice.DeviceName).ToList();
+                if(oDevice.Type.ToLower() =="mediaserver") TempList = UPnPServerList.Where(e => e.DeviceName == oDevice.DeviceName).ToList();
+                else if (oDevice.Type.ToLower() == "mediarenderer") TempList = UPnPServerList.Where(e => e.DeviceName == oDevice.DeviceName).ToList();
             } while (TempList.Count == 0);
             UPnPDevice oTempDevice = TempList[0];
-            int i = UPnPDeviceList.IndexOf(oTempDevice);
-            UPnPDeviceList[i].DeviceMethods.Add(oService);
+            // Ebenfalls zwischen renderer und Server unterscheiden
+            if (oDevice.Type.ToLower() == "mediaserver")
+            {
+                int i = UPnPServerList.IndexOf(oTempDevice);
+                UPnPServerList[i].DeviceMethods.Add(oService);
+            }
+            else if (oDevice.Type.ToLower() == "mediarenderer")
+            {
+                int i = UPnPMediaRendererList.IndexOf(oTempDevice);
+                UPnPMediaRendererList[i].DeviceMethods.Add(oService);
+            }
             Device.BeginInvokeOnMainThread(() =>
             {
-                OnPropertyChanged("UPnPDeviceList");
+                OnPropertyChanged("UPnPServerList");
             });
 
         }

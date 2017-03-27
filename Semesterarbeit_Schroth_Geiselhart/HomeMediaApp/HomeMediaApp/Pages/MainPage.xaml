@@ -5,27 +5,39 @@
              x:Class="HomeMediaApp.Pages.MainPage"
              x:Name="oContentPage"
              Title="Startseite">
-  <Grid x:Name="OuterGrid">
-    <Grid.RowDefinitions>
-      <RowDefinition Height="10*"/>
-      <RowDefinition Height="90*"/>
-    </Grid.RowDefinitions>
+    <Grid x:Name="OuterGrid">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="10*"/>
+            <RowDefinition Height="90*"/>
+        </Grid.RowDefinitions>
 
-    <Grid x:Name="TopGrid" Grid.Row="0">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="30*"/>
-        <ColumnDefinition Width="40*"/>
-        <ColumnDefinition Width="30*"/>
-      </Grid.ColumnDefinitions>
-      <Label Text="Willkommen" Grid.Column="1" HorizontalTextAlignment="Center" FontSize="20"></Label>
+        <Grid x:Name="TopGrid" Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="30*"/>
+                <ColumnDefinition Width="40*"/>
+                <ColumnDefinition Width="30*"/>
+            </Grid.ColumnDefinitions>
+            <Label Text="Willkommen" Grid.Column="1" HorizontalTextAlignment="Center" FontSize="20"></Label>
+        </Grid>
+
+        <StackLayout Orientation="Vertical" Grid.Row="1">
+            <Label >Medienquellen:</Label>
+            <ListView x:Name="ListViewDevices" ItemsSource="{Binding UPnPDeviceList}" VerticalOptions="FillAndExpand" ItemTapped="ListViewDevices_OnItemTapped">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <TextCell Text="{Binding DeviceName}"></TextCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            <Label >Ausgabegeräte:</Label>
+            <ListView x:Name="ListViewRenderer" ItemsSource="{Binding UPnPMediaRendererList}" VerticalOptions="FillAndExpand" ItemTapped="ListViewDevices_OnItemTapped">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <TextCell Text="{Binding DeviceName}"></TextCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+
+        </StackLayout>
     </Grid>
-
-    <ListView x:Name="ListViewDevices" ItemsSource="{Binding UPnPDeviceList}" Grid.Row="1" ItemTapped="ListViewDevices_OnItemTapped">
-      <ListView.ItemTemplate>
-        <DataTemplate>
-          <TextCell Text="{Binding DeviceName}"></TextCell>
-        </DataTemplate>
-      </ListView.ItemTemplate>
-    </ListView>
-  </Grid>
 </ContentPage>

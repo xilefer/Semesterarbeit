@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -80,7 +78,6 @@ namespace HomeMediaApp.Pages
                 oDevice.Config = oReceivedXML;
                 oDevice.DeviceAddress = oDeviceAddress;
                 UPnPDevice oOutputDevice = oParser.Parse(oDevice);
-                Debug.WriteLine(oOutputDevice.Type);
                 if (oOutputDevice.Type.ToLower() == "mediarenderer" || oOutputDevice.Type.ToLower() == "mediaserver")
                 {
                     UPnPDeviceList.Add(oOutputDevice);
@@ -99,8 +96,12 @@ namespace HomeMediaApp.Pages
 
         private void OnDeviceFinished(UPnPDevice oDevice, UPnPService oService)
         {
-            if (UPnPDeviceList.Count == 0) { int j = 0;}
-            UPnPDevice oTempDevice = UPnPDeviceList.Where(e => e.DeviceName == oDevice.DeviceName).ToList()[0];
+            List<UPnPDevice> TempList = new List<UPnPDevice>();
+            do
+            {
+                TempList = UPnPDeviceList.Where(e => e.DeviceName == oDevice.DeviceName).ToList();
+            } while (TempList.Count == 0);
+            UPnPDevice oTempDevice = TempList[0];
             int i = UPnPDeviceList.IndexOf(oTempDevice);
             UPnPDeviceList[i].DeviceMethods.Add(oService);
             Device.BeginInvokeOnMainThread(() =>
@@ -119,72 +120,30 @@ namespace HomeMediaApp.Pages
         {
             string Config = (e.Item as UPnPDevice).Config.ToString();
             UPnPDevice oDevice = (e.Item as UPnPDevice);
-            try
-            {
-                //Methode für das event übergeben.
-                UPnPAction oAction =
-                    oDevice.DeviceMethods.Where(x => x.ServiceID == "ContentDirectory").ToList()[0].ActionList.Where(
-                        x => x.ActionName == "Browse").ToList()[0];
-                oAction.OnResponseReceived += OnResponseReceived;
-                List<UPnPActionArgument> InArgs = new List<UPnPActionArgument>();
-                foreach (UPnPActionArgument Arg in oAction.ArgumentList)
-                {
-                    if (Arg.Direction.ToLower() == "in")
-                    {
-                        InArgs.Add(Arg);
-                    }
-                }
-                UPnPStateVariables.A_ARG_TYPE_BrowseFlag = UPnPBrowseFlag.BrowseMetadata;
-                UPnPStateVariables.A_ARG_TYPE_Count = "100";
-                UPnPStateVariables.A_ARG_TYPE_Index = "0";
-                UPnPStateVariables.A_ARG_TYPE_ObjectID = "0";
-                UPnPStateVariables.A_ARG_TYPE_SortCriteria = "+upnp:artist";
-                Type TypeInfo = typeof(UPnPStateVariables);
-                List<Tuple<string, string>> ArgList = new List<Tuple<string, string>>();
-                foreach (UPnPActionArgument Arg in InArgs)
-                {
-                    PropertyInfo ResultProperty = TypeInfo.GetRuntimeProperty(Arg.RelatedStateVariable);
-                    if (ResultProperty != null)
-                    {
-                        ArgList.Add(new Tuple<string, string>(Arg.Name, ResultProperty.GetValue(null).ToString()));
-                    }
-                    else
-                    {
-                        throw new Exception("Die Funktion konnte nicht ausgeführt werden!");
-                    }
-                }
-                string sRequestURI =
-                    oDevice.Config.Root.Descendants().Where(Node => Node.Name.LocalName.ToLower() == "urlbase").ToList()
-                        [0].Value;
-                if (sRequestURI.Length == 0)
-                {
-                    throw new Exception("Die Funktion konnte nicht ausgeführt werden!");
-                }
-                if (sRequestURI.EndsWith("/")) sRequestURI = sRequestURI.Substring(0, sRequestURI.Length - 1); // Schrägstrich entfernen
-                if (!oDevice.DeviceMethods.Where(x => x.ServiceID == "ContentDirectory").ToList()[0].ControlURL.StartsWith("/")) sRequestURI += "/";
-                sRequestURI += oDevice.DeviceMethods.Where(x => x.ServiceID == "ContentDirectory").ToList()[0].ControlURL;
-                oAction.Execute(sRequestURI, "ContentDirectory", ArgList);
-                //Request URI muss wie folgt aussehen wobei das nach dem Port = Service.ControlURL ist
-                //string RequestURI = @"http://129.144.51.89:49000/MediaServer/ContentDirectory/Control";
 
-                //Beispiel Tupel für die in Arguments der Action bspw aus Action.Argumentlist.Name
+            //Methode für das event übergeben.
+            //UPnPAction oAction = oDevice.DeviceMethods.Where(x => x.ServiceID == "ContentDirectory").ToList()[0].ActionList.Where(x => x.ActionName == "Browse").ToList()[0];
+            //oAction.OnResponseReceived += OnResponseReceived;
 
-                //List<Tuple<string,string>> args = new List<Tuple<string, string>>();
-                //args.Add(new Tuple<string, string>("ObjectID", "0"));
-                //args.Add(new Tuple<string, string>("BrowseFlag", "BrowseDirectChildren"));
-                //args.Add(new Tuple<string, string>("Filter", "*"));
-                //args.Add(new Tuple<string, string>("StartingIndex", "0"));
-                //args.Add(new Tuple<string, string>("RequestCount", "10"));
-                //args.Add(new Tuple<string, string>("SortCriteria", "*"));
 
-                //Execute brauch die ControlURL und die ServiceID des Services und die Argumentlist der Action
-                //oAction.Execute(RequestURI,"ContentDirectory", args);
+            //Request URI muss wie folgt aussehen wobei das nach dem Port = Service.ControlURL ist
+            //string RequestURI = @"http://129.144.51.89:49000/MediaServer/ContentDirectory/Control";
 
-            }
-            catch (Exception gEx)
-            {
-                DisplayAlert(Title, gEx.Message, "OK");
-            }
+            //Beispiel Tupel für die in Arguments der Action bspw aus Action.Argumentlist.Name
+
+            //List<Tuple<string,string>> args = new List<Tuple<string, string>>();
+            //args.Add(new Tuple<string, string>("ObjectID", "0"));
+            //args.Add(new Tuple<string, string>("BrowseFlag", "BrowseDirectChildren"));
+            //args.Add(new Tuple<string, string>("Filter", "*"));
+            //args.Add(new Tuple<string, string>("StartingIndex", "0"));
+            //args.Add(new Tuple<string, string>("RequestCount", "10"));
+            //args.Add(new Tuple<string, string>("SortCriteria", "*"));
+            
+            //Execute brauch die ControlURL und die ServiceID des Services und die Argumentlist der Action
+            //oAction.Execute(RequestURI,"ContentDirectory", args);
+
+
+            if (Config != null) DisplayAlert("Test", Config, "Abbrechen");
         }
 
         //Test zum Anzeigen der Response einer Action
@@ -193,25 +152,7 @@ namespace HomeMediaApp.Pages
         {
             Device.BeginInvokeOnMainThread(() =>
             {
-                if (oState.ActionName == "Browse")
-                {
-
-                    UPnPContainer Container = UPnPContainer.GenerateRootContainer(oResponseDocument);
-                    FolderItem RootFolderItem = new FolderItem("DUMMY");
-                    FolderItem StartFolderItem = new FolderItem(Container.Title);
-                    StartFolderItem.RelatedContainer = Container;
-                    RootFolderItem.Childrens.Add(StartFolderItem);
-                    RootFolderItem.RelatedContainer = Container;
-                    // Jetzt zum Explorer wechseln
-                    FileExplorerPage ExplorerPage = new FileExplorerPage();
-                    ExplorerPage.MasterItem = RootFolderItem;
-                    ExplorerPage.CurrentDevice = ListViewDevices.SelectedItem as UPnPDevice;
-                    (Parent.Parent as MasterDetailPageHomeMediaApp).IsPresented = false;
-                    (Parent.Parent as MasterDetailPageHomeMediaApp).Detail = new NavigationPage(ExplorerPage);
-                    UPnPDevice oDevice = ListViewDevices.SelectedItem as UPnPDevice;
-                    UPnPAction oAction = oDevice.DeviceMethods.Where(x => x.ServiceID == "ContentDirectory").ToList()[0].ActionList.Where(x => x.ActionName == "Browse").ToList()[0];
-                    oAction.OnResponseReceived -= OnResponseReceived;
-                }
+                DisplayAlert("Test", oResponseDocument.ToString(), "Abbrechen");
             });
         }
     }

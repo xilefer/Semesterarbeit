@@ -96,7 +96,12 @@ namespace HomeMediaApp.Pages
 
         private void OnDeviceFinished(UPnPDevice oDevice, UPnPService oService)
         {
-            UPnPDevice oTempDevice = UPnPDeviceList.Where(e => e.DeviceName == oDevice.DeviceName).ToList()[0];
+            List<UPnPDevice> TempList = new List<UPnPDevice>();
+            do
+            {
+                TempList = UPnPDeviceList.Where(e => e.DeviceName == oDevice.DeviceName).ToList();
+            } while (TempList.Count == 0);
+            UPnPDevice oTempDevice = TempList[0];
             int i = UPnPDeviceList.IndexOf(oTempDevice);
             UPnPDeviceList[i].DeviceMethods.Add(oService);
             Device.BeginInvokeOnMainThread(() =>

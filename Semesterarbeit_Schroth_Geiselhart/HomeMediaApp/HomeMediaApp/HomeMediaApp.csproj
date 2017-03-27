@@ -43,6 +43,7 @@
     <Compile Include="Classes\UPnPDevice.cs" />
     <Compile Include="Classes\MasterPageItem.cs" />
     <Compile Include="Classes\UPnPService.cs" />
+    <Compile Include="Classes\WebServer.cs" />
     <Compile Include="Classes\XMLParser.cs" />
     <Compile Include="Pages\FileExplorerPage.xaml.cs">
       <DependentUpon>FileExplorerPage.xaml</DependentUpon>

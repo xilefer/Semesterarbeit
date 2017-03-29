@@ -21,15 +21,15 @@
         </Grid>
 
         <StackLayout Orientation="Vertical" Grid.Row="1">
-            <Label >Medienquellen:</Label>
-            <ListView x:Name="ListViewDevices" ItemsSource="{Binding UPnPDeviceList}" VerticalOptions="FillAndExpand" ItemTapped="ListViewDevices_OnItemTapped">
+            <Label FontSize="20">Medienquellen:</Label>
+            <ListView x:Name="ListViewDevices" ItemsSource="{Binding UPnPServerList}" VerticalOptions="FillAndExpand" ItemTapped="ListViewDevices_OnItemTapped">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <TextCell Text="{Binding DeviceName}"></TextCell>
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
-            <Label >Ausgabegeräte:</Label>
+            <Label FontSize="20">Ausgabegeräte:</Label>
             <ListView x:Name="ListViewRenderer" ItemsSource="{Binding UPnPMediaRendererList}" VerticalOptions="FillAndExpand" ItemTapped="ListViewDevices_OnItemTapped">
                 <ListView.ItemTemplate>
                     <DataTemplate>

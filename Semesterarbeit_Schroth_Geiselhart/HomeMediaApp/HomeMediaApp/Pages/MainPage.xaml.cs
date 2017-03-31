@@ -151,7 +151,7 @@ namespace HomeMediaApp.Pages
 
         }
 
-        private void Init()
+        private async void Init()
         {
             OuterGrid.ForceLayout();
         }

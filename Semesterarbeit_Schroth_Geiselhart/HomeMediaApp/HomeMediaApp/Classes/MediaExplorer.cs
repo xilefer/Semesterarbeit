@@ -83,6 +83,15 @@ namespace HomeMediaApp.Classes
                 mRelatedTrack = value;
                 DisplayName = mRelatedTrack.Title + Environment.NewLine + "Album: " + mRelatedTrack.Album +
                            Environment.NewLine + "Interpret: " + mRelatedTrack.Artist;
+                UpdateImageUri();
+            }
+        }
+
+        private void UpdateImageUri()
+        {
+            if (mRelatedTrack.AlbumArtURI != null && mRelatedTrack.AlbumArtURI.Length > 0)
+            {
+                IconSource = ImageSource.FromUri(new Uri(mRelatedTrack.AlbumArtURI));
             }
         }
 
@@ -91,11 +100,31 @@ namespace HomeMediaApp.Classes
 
     public class PictureItem : FileExplorerItemBase
     {
+        private UPnPPhoto mRelatedTrack { get; set; }
+        public UPnPPhoto RelatedTrack
+        {
+            get { return mRelatedTrack; }
+            set
+            {
+                if (mRelatedTrack == value) return;
+                mRelatedTrack = value;
+                DisplayName = mRelatedTrack.Title + Environment.NewLine + "Album: " + mRelatedTrack.Album;
+                UpdateImageURI();
+            }
+        }
         public PictureItem(string PictureName)
         {
             ItemType = FileExplorerItemType.PICTURE;
             DisplayName = PictureName;
             IconSource = ImageSource.FromResource("HomeMediaApp.Icons.picture_icon.png");
+        }
+
+        private void UpdateImageURI()
+        {
+            if (mRelatedTrack.AlbumArtURI != null && mRelatedTrack.AlbumArtURI.Length > 0)
+            {
+                IconSource = ImageSource.FromUri(new Uri(mRelatedTrack.AlbumArtURI));
+            }
         }
     }
 

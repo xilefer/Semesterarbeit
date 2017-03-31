@@ -145,6 +145,8 @@ namespace HomeMediaApp.Classes
             if (Value != null) ReturnTrack.StorageMedium = Value.Value;
             Value = Descendants.Find(e => e.Name.LocalName.ToLower() == "res");
             if (Value != null) ReturnTrack.Res = Value.Value;
+            Value = Descendants.Find(e => e.Name.LocalName.ToLower() == "albumarturi");
+            if (Value != null) ReturnTrack.AlbumArtURI = Value.Value;
             return ReturnTrack;
         }
         public string Artist = "";
@@ -153,6 +155,7 @@ namespace HomeMediaApp.Classes
         public string PlayList = "";
         public string StorageMedium = "";
         public string Res = "";
+        public string AlbumArtURI = "";
     }
 
     public class UPnPVideoItem : UPnPItem
@@ -183,7 +186,22 @@ namespace HomeMediaApp.Classes
 
     public class UPnPPhoto : UPnPImageItem
     {
+        public static UPnPPhoto CreatePhoto(XElement PhotoElement)
+        {
+            UPnPPhoto ReturnPhoto = new UPnPPhoto();
+            List<XAttribute> Attributes = PhotoElement.Attributes().ToList();
+            ReturnPhoto.id = Attributes.Find(e => e.Name.LocalName.ToLower() == "id").Value;
+            ReturnPhoto.parentID = Attributes.Find(e => e.Name.LocalName.ToLower() == "parentid").Value;
+            ReturnPhoto.restricted = Boolean.Parse(Attributes.Find(e => e.Name.LocalName.ToLower() == "restricted").Value);
+            ReturnPhoto.Title = PhotoElement.Elements().Where(e => e.Name.LocalName.ToLower() == "title").ToList()[0].Value;
+            ReturnPhoto.Class = PhotoElement.Elements().Where(e => e.Name.LocalName.ToLower() == "class").ToList()[0].Value;
+            List<XElement> Descendants = PhotoElement.Descendants().ToList();
+            XElement value = Descendants.Find(e => e.Name.LocalName.ToLower() == "albumarturi");
+            if (value != null) ReturnPhoto.AlbumArtURI = value.Value;
+            return ReturnPhoto;
+        }
         public string Album = "";
+        public string AlbumArtURI = "";
     }
 
     public class UPnPStorageFolder : UPnPContainer

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -12,6 +13,7 @@ using System.Xml.Linq;
 using HomeMediaApp.Classes;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
+using HomeMediaApp.Interfaces;
 
 namespace HomeMediaApp.Pages
 {
@@ -19,6 +21,7 @@ namespace HomeMediaApp.Pages
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class FileExplorerPage : ContentPage
     {
+
         private FolderItem mMasterItem = new FolderItem("Master");
         public FolderItem MasterItem
         {
@@ -47,7 +50,7 @@ namespace HomeMediaApp.Pages
             }
         }
 
-        
+
         public UPnPDevice CurrentDevice { get; set; }
 
         public FileExplorerPage()
@@ -55,6 +58,13 @@ namespace HomeMediaApp.Pages
             InitializeComponent();
             BackButtonImage.Source = ImageSource.FromResource("HomeMediaApp.Icons.folder_up_icon.png");
             BindingContext = this;
+            List<string> MediaRenderer = new List<string>() { "Item 1", "Item 2" };
+            Device.BeginInvokeOnMainThread(async () =>
+            {
+                var Action = await DisplayActionSheet("Wiedergabegerät auswählen", "Wiedergabe Abbrechen",
+                    "Destroy", MediaRenderer.ToArray());
+                DisplayAlert("Title", Action, "Okay");
+            });
         }
 
         public void OnResponeReceived(XDocument oResponseDocument, ActionState oState)
@@ -74,7 +84,7 @@ namespace HomeMediaApp.Pages
                     ContainerFolder.RelatedContainer = Container;
                     Device.BeginInvokeOnMainThread(() => MasterItem.Childrens.Add(ContainerFolder));
                 }
-                else if(Name == "item")
+                else if (Name == "item")
                 {
                     string UPnPClass = Node.Elements().Where(e => e.Name.LocalName.ToLower() == "class").ToList()[0].Value;
                     string[] ClassDecomposed = UPnPClass.Split('.');
@@ -86,9 +96,17 @@ namespace HomeMediaApp.Pages
                         MusicItem.RelatedTrack = MusicTrack;
                         Device.BeginInvokeOnMainThread(() => MasterItem.AddChild(MusicItem));
                     }
-                    else if (ClassDecomposed[ClassDecomposed.Length - 1].ToLower() == "")
+                    else if (ClassDecomposed[ClassDecomposed.Length - 1].ToLower() == "photo")
                     {
-                        
+                        UPnPPhoto Photo = UPnPPhoto.CreatePhoto(Node);
+                        PictureItem PictureItem = new PictureItem(Photo.Title);
+                        PictureItem.Parent = MasterItem;
+                        PictureItem.RelatedTrack = Photo;
+                        Device.BeginInvokeOnMainThread(() => MasterItem.AddChild(PictureItem));
+                    }
+                    else
+                    {
+
                     }
                 }
             }
@@ -100,7 +118,7 @@ namespace HomeMediaApp.Pages
 
         public void BrowseChildrens(FolderItem FolderItem)
         {
-            UPnPAction BrowseAction =  CurrentDevice.DeviceMethods.Where(e => e.ServiceType.ToLower() == "contentdirectory").ToList()[0].ActionList.Where(x => x.ActionName.ToLower() == "browse").ToList()[0];
+            UPnPAction BrowseAction = CurrentDevice.DeviceMethods.Where(e => e.ServiceType.ToLower() == "contentdirectory").ToList()[0].ActionList.Where(x => x.ActionName.ToLower() == "browse").ToList()[0];
             BrowseAction.OnResponseReceived += new ResponseReceived(OnResponeReceived);
             List<UPnPActionArgument> InArgs = new List<UPnPActionArgument>();
             foreach (UPnPActionArgument oArg in BrowseAction.ArgumentList)
@@ -152,10 +170,15 @@ namespace HomeMediaApp.Pages
                     {
                         MediaRenderer.Add(upnPMediaServer.DeviceName);
                     }
+                    MediaRenderer.Add("Dieses Gerät");
                     //Popup anzeigen
-                    Task<string> SelectedMediaRenderer = DisplayActionSheet("Wiedergabe auf?", "Abbrechen", null, MediaRenderer.ToArray());
-                    SelectedMediaRenderer.Wait();
-                    string Result = SelectedMediaRenderer.Result;
+                    string SelectedRenderer = null;
+                    Device.BeginInvokeOnMainThread(async () =>
+                    {
+                        SelectedRenderer = await DisplayActionSheet("Wiedergabegerät auswählen", "Wiedergabe Abbrechen", null, MediaRenderer.ToArray());
+                        PlayDeviceSelected(SelectedRenderer, MusicItem);
+                    });
+
                     break;
                 case FileExplorerItemType.PICTURE:
 
@@ -171,6 +194,65 @@ namespace HomeMediaApp.Pages
                 case FileExplorerItemType.ELSE:
 
                     break;
+            }
+        }
+
+        private void PlayDeviceSelected(string SelectedRenderer, MusicItem MusicItem)
+        {
+            if (SelectedRenderer != null && SelectedRenderer == "Wiedergabe Abbrechen")
+            {   // Keine Wiedergabe starten
+
+            }
+            else if (SelectedRenderer != null)
+            {   // Wiedergabe starten
+                if (SelectedRenderer == "Dieses Gerät")
+                {   // Auf diesem Gerät wiedergeben
+                    GlobalVariables.GlobalMediaPlayerDevice = DependencyService.Get<IMediaPlayer>();
+                    if (GlobalVariables.GlobalMediaPlayerDevice.PlayFromUri(new Uri(MusicItem.RelatedTrack.Res)))
+                    {
+                        Device.BeginInvokeOnMainThread(async () =>
+                        {
+                            bool Answer = await DisplayAlert("Wiedergabe", "Möchten sie die Wiedergabe sofort starten?", "Ja", "Nein");
+                            if (Answer)
+                            {
+                                try
+                                {
+                                    (Parent.Parent as MasterDetailPageHomeMediaApp).Detail = new NavigationPage(GlobalVariables.GlobalMediaPlayerDevice as Page);
+                                }
+                                catch (Exception e)
+                                {
+                                    Debug.WriteLine(e);
+                                    throw;
+                                }
+                                GlobalVariables.GlobalMediaPlayerDevice.Play();
+                            }
+                        });
+                    }
+                }
+                else
+                {
+                    List<UPnPDevice> SelectedRendererList = GlobalVariables.UPnPMediaRenderer.Where(Renderer => Renderer.DeviceName == SelectedRenderer).ToList();
+                    if (SelectedRendererList.Count == 0)
+                    {   // Keinen Renderer gefunden
+                        DisplayAlert("Warnung", "Die Wiedergabe konnte nicht gestartet werden." + Environment.NewLine + "Das Ausgabegerät konnte nicht gefunden werden!", "OK");
+                        return;
+                    }
+                    else
+                    {
+                        MediaObject Song = new MediaObject()
+                        {
+                            Index = 0,
+                            // TODO: Metadaten definieren
+                            MetaData = MusicItem.RelatedTrack.Res,
+                            Path = MusicItem.RelatedTrack.Res
+                        };
+                        GlobalVariables.GlobalPlayerControl = MediaPlayer.Play(Song, SelectedRendererList[0]);
+                    }
+                }
+            }
+            else
+            {   // SelectedRenderer ist null!
+
             }
         }
 

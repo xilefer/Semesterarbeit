@@ -3,27 +3,27 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="HomeMediaApp.Pages.FileExplorerPage"
              Title="Dateiexplorer" BackgroundColor="White">
-    <ContentPage.Content>
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="50"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <StackLayout Orientation="Horizontal">
-                <Label TextColor="Black" FontSize="20" Text="{Binding CurrentDirectory}" />
-                <Image x:Name="BackButtonImage">
-                    <Image.GestureRecognizers>
-                        <TapGestureRecognizer Tapped="BackButton_OnClicked"/>
-                    </Image.GestureRecognizers>
-                </Image>
-            </StackLayout>
-            <ListView Grid.Row="1" x:Name="FileListView" ItemsSource="{Binding ExplorerItems}" BackgroundColor="White" ItemTapped="FileListView_OnItemTapped">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <ImageCell Text="{Binding DisplayName}" ImageSource="{Binding IconSource}" TextColor="Black"></ImageCell>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-        </Grid>
-    </ContentPage.Content>
+  <ContentPage.Content>
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="50"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+      <StackLayout Orientation="Horizontal">
+        <Label TextColor="Black" FontSize="20" Text="{Binding CurrentDirectory}" />
+        <Image x:Name="BackButtonImage">
+          <Image.GestureRecognizers>
+            <TapGestureRecognizer Tapped="BackButton_OnClicked"/>
+          </Image.GestureRecognizers>
+        </Image>
+      </StackLayout>
+      <ListView Grid.Row="1" x:Name="FileListView" ItemsSource="{Binding ExplorerItems}" BackgroundColor="White" ItemTapped="FileListView_OnItemTapped">
+        <ListView.ItemTemplate>
+          <DataTemplate>
+            <ImageCell Text="{Binding DisplayName}" ImageSource="{Binding IconSource}" TextColor="Black"></ImageCell>
+          </DataTemplate>
+        </ListView.ItemTemplate>
+      </ListView>
+    </Grid>
+  </ContentPage.Content>
 </ContentPage>

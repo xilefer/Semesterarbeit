@@ -215,15 +215,15 @@ namespace HomeMediaApp.Pages
                             bool Answer = await DisplayAlert("Wiedergabe", "Möchten sie die Wiedergabe sofort starten?", "Ja", "Nein");
                             if (Answer)
                             {
-                                try
-                                {
-                                    (Parent.Parent as MasterDetailPageHomeMediaApp).Detail = new NavigationPage(GlobalVariables.GlobalMediaPlayerDevice as Page);
-                                }
-                                catch (Exception e)
-                                {
-                                    Debug.WriteLine(e);
-                                    throw;
-                                }
+                                //try
+                                //{
+                                //    (Parent.Parent as MasterDetailPageHomeMediaApp).Detail = new NavigationPage(GlobalVariables.GlobalMediaPlayerDevice as Page);
+                                //}
+                                //catch (Exception e)
+                                //{
+                                //    Debug.WriteLine(e);
+                                //    throw;
+                                //}
                                 GlobalVariables.GlobalMediaPlayerDevice.Play();
                             }
                         });

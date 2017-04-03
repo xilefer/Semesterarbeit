@@ -3,36 +3,34 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.UI.Xaml.Controls;
 using HomeMediaApp.Interfaces;
 using HomeMediaApp.Windows.Pages;
 using Xamarin.Forms;
-using System.Diagnostics;
-using Windows.UI.Xaml.Controls;
+using Xamarin.Forms.Platform.WinRT;
 
-
+[assembly: Dependency(typeof(MediaControlView))]
 namespace HomeMediaApp.Windows.Pages
 {
-    public partial class PlayerPage : ContentPage, IMediaPlayer
+    public partial class MediaControlView : ContentView, IMediaPlayerControl
     {
-        MediaElement MediaPlayer = new MediaElement();
-        public PlayerPage()
+        MediaElement MediaElementControl = new MediaElement();
+
+        public MediaControlView()
         {
             InitializeComponent();
+            MediaElementControl.AreTransportControlsEnabled = true;
+            MediaElementControl.AutoPlay = false;
+            StackLayoutContent.Children.Clear();
+            StackLayoutContent.Children.Add(MediaElementControl);
+            this.Content = MediaElementControl.ToView();
         }
 
         public bool PlayFromUri(Uri FileUri)
         {
-            bool ReturnValue = false;
-            try
-            {
-                MediaPlayer.Source = FileUri;
-                ReturnValue = true;
-            }
-            catch (Exception exception)
-            {
-                Debug.WriteLine(exception);
-            }
-            return ReturnValue;
+
+            MediaElementControl.Source = FileUri;
+            return true;
         }
 
         public bool PlayFromFile(string FilePath)
@@ -47,14 +45,7 @@ namespace HomeMediaApp.Windows.Pages
 
         public void Play()
         {
-            try
-            {
-                MediaPlayer.Play();
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine(e);
-            }
+            MediaElementControl.Play();
         }
 
         public Action OnFinishedPlaying { get; set; }

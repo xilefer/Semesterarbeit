@@ -58,13 +58,11 @@ namespace HomeMediaApp.Pages
             InitializeComponent();
             BackButtonImage.Source = ImageSource.FromResource("HomeMediaApp.Icons.folder_up_icon.png");
             BindingContext = this;
-            List<string> MediaRenderer = new List<string>() { "Item 1", "Item 2" };
-            Device.BeginInvokeOnMainThread(async () =>
-            {
-                var Action = await DisplayActionSheet("Wiedergabegerät auswählen", "Wiedergabe Abbrechen",
-                    "Destroy", MediaRenderer.ToArray());
-                DisplayAlert("Title", Action, "Okay");
-            });
+            GlobalVariables.GlobalMediaPlayerDevice = DependencyService.Get<IMediaPlayerControl>() as ContentView;
+            ContentView PlayerControlPage = GlobalVariables.GlobalMediaPlayerDevice;
+            PlayerStackLayout.Children.Clear();
+            PlayerStackLayout.Children.Add(PlayerControlPage);
+            PlayerStackLayout.ForceLayout();
         }
 
         public void OnResponeReceived(XDocument oResponseDocument, ActionState oState)
@@ -207,8 +205,7 @@ namespace HomeMediaApp.Pages
             {   // Wiedergabe starten
                 if (SelectedRenderer == "Dieses Gerät")
                 {   // Auf diesem Gerät wiedergeben
-                    GlobalVariables.GlobalMediaPlayerDevice = DependencyService.Get<IMediaPlayer>();
-                    if (GlobalVariables.GlobalMediaPlayerDevice.PlayFromUri(new Uri(MusicItem.RelatedTrack.Res)))
+                    if ((GlobalVariables.GlobalMediaPlayerDevice as IMediaPlayerControl).PlayFromUri(new Uri(MusicItem.RelatedTrack.Res)))
                     {
                         Device.BeginInvokeOnMainThread(async () =>
                         {
@@ -224,7 +221,7 @@ namespace HomeMediaApp.Pages
                                 //    Debug.WriteLine(e);
                                 //    throw;
                                 //}
-                                GlobalVariables.GlobalMediaPlayerDevice.Play();
+                                GlobalVariables.GlobalMediaPlayerControl.Play();
                             }
                         });
                     }

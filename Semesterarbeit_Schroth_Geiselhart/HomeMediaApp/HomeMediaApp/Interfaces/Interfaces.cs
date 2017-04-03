@@ -14,4 +14,9 @@ namespace HomeMediaApp.Interfaces
         void Play();
         Action OnFinishedPlaying { get; set; }
     }
+
+    public interface IMediaPlayerControl : IMediaPlayer
+    {
+        
+    }
 }

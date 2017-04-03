@@ -1,30 +1,26 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Android.Content;
+using System.Threading.Tasks;
 using Android.Media;
-using Android.OS;
-using Android.Runtime;
-using Android.Views;
-using Android.Widget;
-using HomeMediaApp.Droid.Classes;
+using HomeMediaApp.Droid.Pages;
 using HomeMediaApp.Interfaces;
-using Java.IO;
 using Xamarin.Forms;
 using Application = Android.App.Application;
 
-[assembly: Dependency(typeof(AndroidMusicPlayer))]
-namespace HomeMediaApp.Droid.Classes
+[assembly: Dependency(typeof(AndroidMediaPlayerControl))]
+namespace HomeMediaApp.Droid.Pages
 {
-    public class AndroidMusicPlayer : IMediaPlayer
+    public partial class AndroidMediaPlayerControl : ContentView, IMediaPlayerControl
     {
         MediaPlayer AndroidMediaPlayer = new MediaPlayer();
         private bool Prepared = false;
-
-        public AndroidMusicPlayer()
+        public AndroidMediaPlayerControl()
         {
+            InitializeComponent();
             AndroidMediaPlayer.Prepared += AndroidMediaPlayerOnPrepared;
+
         }
 
         private void AndroidMediaPlayerOnPrepared(object sender, EventArgs eventArgs)
@@ -34,7 +30,7 @@ namespace HomeMediaApp.Droid.Classes
 
         public bool PlayFromUri(Uri FileUri)
         {
-            if(AndroidMediaPlayer.IsPlaying) AndroidMediaPlayer.Stop();
+            if (AndroidMediaPlayer.IsPlaying) AndroidMediaPlayer.Stop();
             AndroidMediaPlayer.SetAudioStreamType(Stream.Music);
             AndroidMediaPlayer.SetDataSource(Application.Context, Android.Net.Uri.Parse(FileUri.ToString()));
             AndroidMediaPlayer.Prepare();
@@ -43,7 +39,7 @@ namespace HomeMediaApp.Droid.Classes
 
         public bool PlayFromFile(string FilePath)
         {
-            if(AndroidMediaPlayer.IsPlaying) AndroidMediaPlayer.Stop();
+            if (AndroidMediaPlayer.IsPlaying) AndroidMediaPlayer.Stop();
             AndroidMediaPlayer.SetAudioStreamType(Stream.Music);
             var fd = global::Android.App.Application.Context.Assets.OpenFd(FilePath);
             AndroidMediaPlayer.SetDataSource(fd);

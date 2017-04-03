@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using HomeMediaApp.Interfaces;
+using Xamarin.Forms;
 
 namespace HomeMediaApp.Classes
 {
@@ -16,6 +17,11 @@ namespace HomeMediaApp.Classes
 
         public static PlayerControl GlobalPlayerControl = null;
 
-        public static IMediaPlayer GlobalMediaPlayerDevice = null;
+        public static ContentView GlobalMediaPlayerDevice = null;
+
+        public static IMediaPlayerControl GlobalMediaPlayerControl
+        {
+            get { return  GlobalMediaPlayerDevice as IMediaPlayerControl; }
+        }
     }
 }

@@ -151,7 +151,7 @@ namespace HomeMediaApp.Pages
 
         }
 
-        private async void Init()
+        private void Init()
         {
             OuterGrid.ForceLayout();
         }
@@ -244,7 +244,7 @@ namespace HomeMediaApp.Pages
                     oExplorerPage.CurrentDevice = ListViewDevices.SelectedItem as UPnPDevice;
                     oExplorerPage.MasterItem = RootItem;
                     (Parent.Parent as MasterDetailPageHomeMediaApp).IsPresented = false;
-                    (Parent.Parent as MasterDetailPageHomeMediaApp).Detail = new NavigationPage(oExplorerPage);
+                    (Parent.Parent as MasterDetailPageHomeMediaApp).Detail = oExplorerPage;
                     (ListViewDevices.SelectedItem as UPnPDevice).DeviceMethods.Where(y => y.ServiceType.ToLower() == "contentdirectory").ToList()[0].ActionList.Where(x => x.ActionName.ToLower() == "browse").ToList()[0].OnResponseReceived -= OnResponseReceived;
                 }
             });

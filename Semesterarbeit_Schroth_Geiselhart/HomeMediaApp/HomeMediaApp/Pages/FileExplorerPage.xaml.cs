@@ -76,7 +76,8 @@ namespace HomeMediaApp.Pages
                 string Name = Node.Name.LocalName.ToLower();
                 if (Name == "container")
                 {
-                    UPnPContainer Container = UPnPContainer.GenerateContainer(Node);
+                    UPnPContainer Container = new UPnPContainer();
+                    Container = Container.Create(Node, Container);
                     FolderItem ContainerFolder = new FolderItem(Container.Title);
                     ContainerFolder.Parent = MasterItem;
                     ContainerFolder.RelatedContainer = Container;
@@ -88,7 +89,9 @@ namespace HomeMediaApp.Pages
                     string[] ClassDecomposed = UPnPClass.Split('.');
                     if (ClassDecomposed[ClassDecomposed.Length - 1].ToLower() == "musictrack")
                     {
-                        UPnPMusicTrack MusicTrack = UPnPMusicTrack.CreateTrack(Node);
+                        //UPnPMusicTrack MusicTrack = UPnPMusicTrack.CreateTrack(Node);
+                        UPnPMusicTrack MusicTrack = new UPnPMusicTrack();
+                        MusicTrack = MusicTrack.Create(Node, MusicTrack);
                         MusicItem MusicItem = new MusicItem(MusicTrack.Title);
                         MusicItem.Parent = MasterItem;
                         MusicItem.RelatedTrack = MusicTrack;
@@ -96,10 +99,11 @@ namespace HomeMediaApp.Pages
                     }
                     else if (ClassDecomposed[ClassDecomposed.Length - 1].ToLower() == "photo")
                     {
-                        UPnPPhoto Photo = UPnPPhoto.CreatePhoto(Node);
+                        UPnPPhoto Photo = new UPnPPhoto();
+                        Photo = Photo.Create(Node, Photo);
                         PictureItem PictureItem = new PictureItem(Photo.Title);
                         PictureItem.Parent = MasterItem;
-                        PictureItem.RelatedTrack = Photo;
+                        PictureItem.RelatedPhoto = Photo;
                         Device.BeginInvokeOnMainThread(() => MasterItem.AddChild(PictureItem));
                     }
                     else
@@ -159,30 +163,40 @@ namespace HomeMediaApp.Pages
 
         private void FileListView_OnItemTapped(object sender, ItemTappedEventArgs e)
         {
+            if (e.Item as FileExplorerItemBase == null) return;
+            List<string> MediaRenderer = new List<string>();
+            foreach (UPnPDevice upnPMediaServer in GlobalVariables.UPnPMediaRenderer)
+            {
+                MediaRenderer.Add(upnPMediaServer.DeviceName);
+            }
+            string SelectedRenderer = null;
+            MediaRenderer.Add("Dieses Gerät");
             switch ((e.Item as FileExplorerItemBase).ItemType)
             {
                 case FileExplorerItemType.MUSIC:
                     MusicItem MusicItem = e.Item as MusicItem;
-                    List<string> MediaRenderer = new List<string>();
-                    foreach (UPnPDevice upnPMediaServer in GlobalVariables.UPnPMediaRenderer)
-                    {
-                        MediaRenderer.Add(upnPMediaServer.DeviceName);
-                    }
-                    MediaRenderer.Add("Dieses Gerät");
                     //Popup anzeigen
-                    string SelectedRenderer = null;
                     Device.BeginInvokeOnMainThread(async () =>
                     {
                         SelectedRenderer = await DisplayActionSheet("Wiedergabegerät auswählen", "Wiedergabe Abbrechen", null, MediaRenderer.ToArray());
                         PlayDeviceSelected(SelectedRenderer, MusicItem);
                     });
-
                     break;
                 case FileExplorerItemType.PICTURE:
-
+                    PictureItem PictureItem = e.Item as PictureItem;
+                    Device.BeginInvokeOnMainThread(async () =>
+                    {
+                        SelectedRenderer = await DisplayActionSheet("Wiedergabegerät auswählen", "Wiedergabe Abbrechen", null, MediaRenderer.ToArray());
+                        PictureDeviceSelected(SelectedRenderer, PictureItem);
+                    });
                     break;
                 case FileExplorerItemType.VIDEO:
-
+                    VideoItem VideoItem = e.Item as VideoItem;
+                    Device.BeginInvokeOnMainThread(async () =>
+                    {
+                        SelectedRenderer = await DisplayActionSheet("Wiedergabegerät auswählen", "Wiedergabe Abbrechen", null, MediaRenderer.ToArray());
+                        VideoDeviceSelected(SelectedRenderer, VideoItem);
+                    });
                     break;
                 case FileExplorerItemType.FOLDER:
                     FolderItem Item = e.Item as FolderItem;
@@ -253,12 +267,40 @@ namespace HomeMediaApp.Pages
             }
         }
 
+        private void PictureDeviceSelected(string SelectedRenderer, PictureItem PictureItem)
+        {
+            if (SelectedRenderer == null) return;
+            if (SelectedRenderer == "Dieses Gerät")
+            {
+                IPhotoViewer PhotoViewer = DependencyService.Get<IPhotoViewer>();
+                PhotoViewer.ShowPhotoFromUri(new Uri(PictureItem.RelatedPhoto.Res));
+                ContentPage PhotoViewerPage = PhotoViewer as ContentPage;
+                (Parent as MasterDetailPageHomeMediaApp).Detail = PhotoViewerPage;
+            }
+            else
+            {
+                
+            }
+            //throw new NotImplementedException();
+        }
+
+        private void VideoDeviceSelected(string SelectedRenderer, VideoItem VideoItem)
+        {
+            throw new NotImplementedException();
+        }
+
         private void BackButton_OnClicked(object sender, EventArgs e)
         {
             if (MasterItem.Parent != null)
             {
                 MasterItem = MasterItem.Parent;
             }
+        }
+
+        protected override bool OnBackButtonPressed()
+        {
+            BackButton_OnClicked(this, null);
+            return true;
         }
     }
 }

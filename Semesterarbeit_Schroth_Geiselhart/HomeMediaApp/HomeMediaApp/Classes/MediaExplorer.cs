@@ -100,15 +100,15 @@ namespace HomeMediaApp.Classes
 
     public class PictureItem : FileExplorerItemBase
     {
-        private UPnPPhoto mRelatedTrack { get; set; }
-        public UPnPPhoto RelatedTrack
+        private UPnPPhoto mRelatedPhoto { get; set; }
+        public UPnPPhoto RelatedPhoto
         {
-            get { return mRelatedTrack; }
+            get { return mRelatedPhoto; }
             set
             {
-                if (mRelatedTrack == value) return;
-                mRelatedTrack = value;
-                DisplayName = mRelatedTrack.Title + Environment.NewLine + "Album: " + mRelatedTrack.Album;
+                if (mRelatedPhoto== value) return;
+                mRelatedPhoto = value;
+                DisplayName = mRelatedPhoto.Title + Environment.NewLine + "Album: " + mRelatedPhoto.Album;
                 UpdateImageURI();
             }
         }
@@ -121,9 +121,9 @@ namespace HomeMediaApp.Classes
 
         private void UpdateImageURI()
         {
-            if (mRelatedTrack.AlbumArtURI != null && mRelatedTrack.AlbumArtURI.Length > 0)
+            if (mRelatedPhoto.AlbumArtURI != null && mRelatedPhoto.AlbumArtURI.Length > 0)
             {
-                IconSource = ImageSource.FromUri(new Uri(mRelatedTrack.AlbumArtURI));
+                IconSource = ImageSource.FromUri(new Uri(mRelatedPhoto.AlbumArtURI));
             }
         }
     }

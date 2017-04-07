@@ -19,4 +19,15 @@ namespace HomeMediaApp.Interfaces
     {
         
     }
+
+    public interface ICloseApplication
+    {
+        void Close();
+    }
+
+    public interface IPhotoViewer
+    {
+        void ShowPhotoFromUri(Uri FileURI);
+        void ShowPhoto(string FilePath);
+    }
 }

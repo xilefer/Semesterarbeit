@@ -115,6 +115,9 @@
     <Compile Include="Pages\MediaControlView.xaml.cs">
       <DependentUpon>MediaControlView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Pages\PhotoViewer.xaml.cs">
+      <DependentUpon>PhotoViewer.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -140,6 +143,10 @@
       <SubType>Designer</SubType>
     </Page>
     <EmbeddedResource Include="Pages\MediaControlView.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Pages\PhotoViewer.xaml">
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
       <SubType>Designer</SubType>
     </EmbeddedResource>

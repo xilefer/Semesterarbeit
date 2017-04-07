@@ -73,10 +73,11 @@ namespace HomeMediaApp.Classes
         {
             ActionState oState = (ActionState)oResult.AsyncState;
             byte[] bytes = oState.RequestBody;
-            Stream oResponseStream = oState.oWebRequest.EndGetRequestStream(oResult);
-            oResponseStream.Write(bytes, 0, bytes.Length);
-            oState.oWebRequest.BeginGetResponse(ResponseCallback, oState);
-            
+            using (Stream oResponseStream = oState.oWebRequest.EndGetRequestStream(oResult))
+            {
+                oResponseStream.Write(bytes, 0, bytes.Length);
+            }
+            oState.oWebRequest.BeginGetResponse(ResponseCallback, oState);  
         }
 
         private void ResponseCallback(IAsyncResult oResult)

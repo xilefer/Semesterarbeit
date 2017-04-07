@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Xml.Linq;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Threading;
 using Xamarin.Forms;
 using HomeMediaApp.Pages;
@@ -18,7 +19,14 @@ namespace HomeMediaApp
         {
             InitializeComponent();
             // Startseite als NavigationPage starten
-            MainPage = new MasterDetailPageHomeMediaApp();
+            try
+            {
+                MainPage = new MasterDetailPageHomeMediaApp();
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e);
+            }
         }
 
 

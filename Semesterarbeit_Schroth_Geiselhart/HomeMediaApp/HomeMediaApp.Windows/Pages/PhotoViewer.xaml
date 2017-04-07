@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="HomeMediaApp.Windows.Pages.PhotoViewer">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Button Margin="50,0,0,0" Clicked="Button_OnClicked">Zurück</Button>
+        <Image Grid.Row="1" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" x:Name="ImageControl">
+
+        </Image>
+    </Grid>
+
+</ContentPage>

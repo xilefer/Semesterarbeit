@@ -267,7 +267,7 @@ namespace HomeMediaApp.Pages
             }
         }
 
-        private void PictureDeviceSelected(string SelectedRenderer, PictureItem PictureItem)
+        private async void PictureDeviceSelected(string SelectedRenderer, PictureItem PictureItem)
         {
             if (SelectedRenderer == null) return;
             if (SelectedRenderer == "Dieses Gerät")
@@ -275,13 +275,12 @@ namespace HomeMediaApp.Pages
                 IPhotoViewer PhotoViewer = DependencyService.Get<IPhotoViewer>();
                 PhotoViewer.ShowPhotoFromUri(new Uri(PictureItem.RelatedPhoto.Res));
                 ContentPage PhotoViewerPage = PhotoViewer as ContentPage;
-                (Parent as MasterDetailPageHomeMediaApp).Detail = PhotoViewerPage;
+                await Navigation.PushAsync(PhotoViewerPage);
             }
             else
             {
-                
+                throw new NotImplementedException();
             }
-            //throw new NotImplementedException();
         }
 
         private void VideoDeviceSelected(string SelectedRenderer, VideoItem VideoItem)

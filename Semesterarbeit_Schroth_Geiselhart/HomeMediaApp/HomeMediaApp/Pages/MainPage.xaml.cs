@@ -19,6 +19,20 @@ namespace HomeMediaApp.Pages
         {
             get
             {
+                if (GlobalVariables.UPnPMediaServers.Count == 0)
+                {
+                    return new ObservableCollection<UPnPDevice>()
+                    {
+                        new UPnPDevice()
+                        {
+                            Config = null,
+                            DeviceAddress = null,
+                            DeviceMethods = null,
+                            DeviceName = "Keine Medienserver gefunden!",
+                            Type = "DUMMY"
+                        }
+                    };
+                }
                 return GlobalVariables.UPnPMediaServers;
             }
             set
@@ -31,7 +45,24 @@ namespace HomeMediaApp.Pages
 
         public ObservableCollection<UPnPDevice> UPnPMediaRendererList
         {
-            get { return GlobalVariables.UPnPMediaRenderer; }
+            get
+            {
+                if (GlobalVariables.UPnPMediaRenderer.Count == 0)
+                {
+                    return new ObservableCollection<UPnPDevice>()
+                    {
+                        new UPnPDevice()
+                        {
+                            Config = null,
+                            DeviceAddress = null,
+                            DeviceMethods = null,
+                            DeviceName = "Keine Ausgabegeräte gefunden!",
+                            Type = "DUMMY"
+                        }
+                    };
+                }
+                return GlobalVariables.UPnPMediaRenderer;
+            }
             set
             {
                 if(GlobalVariables.UPnPMediaRenderer == value) return;
@@ -65,7 +96,7 @@ namespace HomeMediaApp.Pages
                                         // Ist UDN bereits vorhanden?
 
             bool DocumentExists = false;
-            foreach (UPnPDevice Device in UPnPServerList)
+            foreach (UPnPDevice Device in GlobalVariables.UPnPMediaServers)
             {
                 foreach (XElement oConfigElement in Device.Config.Root.Elements())
                 {
@@ -79,7 +110,7 @@ namespace HomeMediaApp.Pages
                     }
                 }
             }
-            foreach (UPnPDevice Device in UPnPMediaRendererList)
+            foreach (UPnPDevice Device in GlobalVariables.UPnPMediaRenderer)
             {
                 foreach (XElement oConfigElement in Device.Config.Root.Elements())
                 {
@@ -93,7 +124,7 @@ namespace HomeMediaApp.Pages
                     }
                 }
             }
-            if (DocumentExists == false || UPnPServerList.Count == 0)
+            if (DocumentExists == false || GlobalVariables.UPnPMediaServers.Count == 0)
             {   // Es wurde keine Element mit dem UDN gefunden!
                 UPnPDevice oDevice = new UPnPDevice();
                 XMLParser oParser = new XMLParser();
@@ -105,13 +136,13 @@ namespace HomeMediaApp.Pages
                 // Jetzt wird zwischen mediaserver und Mediarenderer unterschieden (Wägs dr oberfläch)
                 if (oOutputDevice.Type.ToLower() == "mediaserver") 
                 {
-                    UPnPServerList.Add(oOutputDevice);
+                    GlobalVariables.UPnPMediaServers.Add(oOutputDevice);
                     OnPropertyChanged("UPnPServerList");    // Damit die Oberfläche aktualisiert wird
                 }
                 else if (oOutputDevice.Type.ToLower() == "mediarenderer")
                 {
-                    UPnPMediaRendererList.Add(oOutputDevice);
-                    OnPropertyChanged("UPnPMediaRenererList");
+                    GlobalVariables.UPnPMediaRenderer.Add(oOutputDevice);
+                    OnPropertyChanged("UPnPMediaRendererList");
                 }
             }
         }
@@ -158,6 +189,7 @@ namespace HomeMediaApp.Pages
 
         private void ListViewDevices_OnItemTapped(object sender, ItemTappedEventArgs e)
         {
+            if ((e.Item as UPnPDevice).Type == "DUMMY") return;
             string Config = (e.Item as UPnPDevice).Config.ToString();
             UPnPDevice oDevice = (e.Item as UPnPDevice);
             UPnPAction BrowseAction = oDevice.DeviceMethods.Where(y => y.ServiceType.ToLower() == "contentdirectory").ToList()[0].ActionList.Where(x => x.ActionName.ToLower() == "browse").ToList()[0];
@@ -244,7 +276,7 @@ namespace HomeMediaApp.Pages
                     oExplorerPage.CurrentDevice = ListViewDevices.SelectedItem as UPnPDevice;
                     oExplorerPage.MasterItem = RootItem;
                     (Parent.Parent as MasterDetailPageHomeMediaApp).IsPresented = false;
-                    (Parent.Parent as MasterDetailPageHomeMediaApp).Detail = oExplorerPage;
+                    (Parent.Parent as MasterDetailPageHomeMediaApp).Detail = new NavigationPage(oExplorerPage);
                     (ListViewDevices.SelectedItem as UPnPDevice).DeviceMethods.Where(y => y.ServiceType.ToLower() == "contentdirectory").ToList()[0].ActionList.Where(x => x.ActionName.ToLower() == "browse").ToList()[0].OnResponseReceived -= OnResponseReceived;
                 }
             });

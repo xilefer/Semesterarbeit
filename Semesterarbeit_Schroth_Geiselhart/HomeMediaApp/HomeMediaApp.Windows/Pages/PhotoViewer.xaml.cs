@@ -32,7 +32,7 @@ namespace HomeMediaApp.Windows.Pages
 
         private void Button_OnClicked(object sender, EventArgs e)
         {
-            
+            Navigation.PopAsync(true);
         }
     }
 }

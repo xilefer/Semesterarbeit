@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -15,6 +16,7 @@ namespace HomeMediaApp.Pages
 {
     public partial class MainPage : ContentPage
     {
+        
         public ObservableCollection<UPnPDevice> UPnPServerList
         {
             get
@@ -134,6 +136,7 @@ namespace HomeMediaApp.Pages
                 oDevice.DeviceAddress = oDeviceAddress;
                 UPnPDevice oOutputDevice = oParser.Parse(oDevice);
                 // Jetzt wird zwischen mediaserver und Mediarenderer unterschieden (Wägs dr oberfläch)
+                Debug.WriteLine(oOutputDevice.Type);
                 if (oOutputDevice.Type.ToLower() == "mediaserver") 
                 {
                     GlobalVariables.UPnPMediaServers.Add(oOutputDevice);
@@ -280,6 +283,13 @@ namespace HomeMediaApp.Pages
                     (ListViewDevices.SelectedItem as UPnPDevice).DeviceMethods.Where(y => y.ServiceType.ToLower() == "contentdirectory").ToList()[0].ActionList.Where(x => x.ActionName.ToLower() == "browse").ToList()[0].OnResponseReceived -= OnResponseReceived;
                 }
             });
+        }
+
+        private void Button_OnClicked(object sender, EventArgs e)
+        {
+            oDeviceSearcher = new CSSPD();
+            oDeviceSearcher.ReceivedXml += new ReceivedXml(OnReceivedXML);
+            oDeviceSearcher.StartSearch();
         }
     }
 }

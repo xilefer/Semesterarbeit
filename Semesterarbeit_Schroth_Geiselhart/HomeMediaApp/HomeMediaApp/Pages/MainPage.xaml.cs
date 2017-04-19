@@ -11,12 +11,13 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using Xamarin.Forms;
 using HomeMediaApp.Classes;
+using HomeMediaApp.Interfaces;
 
 namespace HomeMediaApp.Pages
 {
     public partial class MainPage : ContentPage
     {
-        
+
         public ObservableCollection<UPnPDevice> UPnPServerList
         {
             get
@@ -67,7 +68,7 @@ namespace HomeMediaApp.Pages
             }
             set
             {
-                if(GlobalVariables.UPnPMediaRenderer == value) return;
+                if (GlobalVariables.UPnPMediaRenderer == value) return;
                 GlobalVariables.UPnPMediaRenderer = value;
                 OnPropertyChanged();
             }
@@ -136,16 +137,18 @@ namespace HomeMediaApp.Pages
                 oDevice.DeviceAddress = oDeviceAddress;
                 UPnPDevice oOutputDevice = oParser.Parse(oDevice);
                 // Jetzt wird zwischen mediaserver und Mediarenderer unterschieden (Wägs dr oberfläch)
-                Debug.WriteLine(oOutputDevice.Type);
-                if (oOutputDevice.Type.ToLower() == "mediaserver") 
+                Debug.WriteLine(oOutputDevice.DeviceName);
+                if (oOutputDevice.Type.ToLower() == "mediaserver")
                 {
                     GlobalVariables.UPnPMediaServers.Add(oOutputDevice);
                     OnPropertyChanged("UPnPServerList");    // Damit die Oberfläche aktualisiert wird
+                    ForceLayout();
                 }
                 else if (oOutputDevice.Type.ToLower() == "mediarenderer")
                 {
                     GlobalVariables.UPnPMediaRenderer.Add(oOutputDevice);
                     OnPropertyChanged("UPnPMediaRendererList");
+                    ForceLayout();
                 }
             }
         }
@@ -163,7 +166,7 @@ namespace HomeMediaApp.Pages
             List<UPnPDevice> TempList = new List<UPnPDevice>();
             do
             {
-                if(oDevice.Type.ToLower() =="mediaserver") TempList = UPnPServerList.Where(e => e.DeviceName == oDevice.DeviceName).ToList();
+                if (oDevice.Type.ToLower() == "mediaserver") TempList = UPnPServerList.Where(e => e.DeviceName == oDevice.DeviceName).ToList();
                 else if (oDevice.Type.ToLower() == "mediarenderer") TempList = UPnPServerList.Where(e => e.DeviceName == oDevice.DeviceName).ToList();
             } while (TempList.Count == 0);
             UPnPDevice oTempDevice = TempList[0];
@@ -285,11 +288,17 @@ namespace HomeMediaApp.Pages
             });
         }
 
-        private void Button_OnClicked(object sender, EventArgs e)
+        private async void Button_OnClicked(object sender, EventArgs e)
         {
+            IPhotoViewer PhotoViewer = DependencyService.Get<IPhotoViewer>();
+            PhotoViewer.ShowPhotoFromUri(new Uri("http://nightlife-malsch.de/wp-content/uploads/online.jpg"));
+            ContentPage PhotoViewerPage = PhotoViewer as ContentPage;
+            await Navigation.PushAsync(PhotoViewerPage);
+            /*
             oDeviceSearcher = new CSSPD();
             oDeviceSearcher.ReceivedXml += new ReceivedXml(OnReceivedXML);
             oDeviceSearcher.StartSearch();
+            */
         }
     }
 }

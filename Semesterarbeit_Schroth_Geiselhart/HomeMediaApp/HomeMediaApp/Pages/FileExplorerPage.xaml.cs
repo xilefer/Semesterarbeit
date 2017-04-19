@@ -272,10 +272,18 @@ namespace HomeMediaApp.Pages
             if (SelectedRenderer == null) return;
             if (SelectedRenderer == "Dieses Gerät")
             {
-                IPhotoViewer PhotoViewer = DependencyService.Get<IPhotoViewer>();
-                PhotoViewer.ShowPhotoFromUri(new Uri(PictureItem.RelatedPhoto.Res));
-                ContentPage PhotoViewerPage = PhotoViewer as ContentPage;
-                await Navigation.PushAsync(PhotoViewerPage);
+                try
+                {
+                    IPhotoViewer PhotoViewer = DependencyService.Get<IPhotoViewer>();
+                    PhotoViewer.ShowPhotoFromUri(new Uri(PictureItem.RelatedPhoto.Res));
+                    ContentPage PhotoViewerPage = PhotoViewer as ContentPage;
+                    await Navigation.PushAsync(PhotoViewerPage);
+
+                }
+                catch (Exception gEx)
+                {
+                    throw gEx;
+                }
             }
             else
             {

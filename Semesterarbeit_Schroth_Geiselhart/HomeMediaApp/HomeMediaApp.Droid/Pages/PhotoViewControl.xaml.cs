@@ -8,10 +8,13 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Android.Graphics;
+using Android.Widget;
 using HomeMediaApp.Droid.Pages;
 using HomeMediaApp.Interfaces;
 using Xamarin.Forms;
+using Xamarin.Forms.Platform.Android;
 using Xamarin.Forms.Xaml;
+using Application = Android.App.Application;
 
 [assembly: Xamarin.Forms.Dependency(typeof(PhotoViewControl))]
 namespace HomeMediaApp.Droid.Pages
@@ -19,9 +22,13 @@ namespace HomeMediaApp.Droid.Pages
 
     public partial class PhotoViewControl : ContentPage, IPhotoViewer
     {
+        ImageView ImageViewControl = new ImageView(Application.Context);
         public PhotoViewControl()
         {
             InitializeComponent();
+            StackLayoutControl.Children.Clear();
+            StackLayoutControl.Children.Add(ImageViewControl.ToView());
+            this.Content = ImageViewControl.ToView();
             BindingContext = this;
         }
 
@@ -33,7 +40,7 @@ namespace HomeMediaApp.Droid.Pages
 
         public void ShowPhoto(string FilePath)
         {
-            
+
         }
 
         private Bitmap GetBitmaptFromURI(Uri FileURI)

@@ -2,11 +2,12 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:widget="clr-namespace:Android.Widget;assembly=Mono.Android"
+             xmlns:xamarin="clr-namespace:Xamarin;assembly=Xamarin.Forms.Xaml"         
              x:Class="HomeMediaApp.Droid.Pages.PhotoViewControl"
              Title="PhotoViewControl">
-  <ScrollView>
-        <widget:ImageView x:Name="ImageViewControl">
-            
-        </widget:ImageView>
-  </ScrollView>
+  <ContentView>
+    <StackLayout x:Name="StackLayoutControl">
+      <Label></Label>
+    </StackLayout>
+  </ContentView>
 </ContentPage>

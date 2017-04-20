@@ -46,11 +46,10 @@ namespace HomeMediaApp.Classes
             httpRequest.Accept = "text/xml";
             httpRequest.UseDefaultCredentials = true;
             httpRequest.Headers["SOAPACTION"] = "\"urn:schemas-upnp-org:service:"+ ServiceName + ":1#" + this.ActionName +"\"";
-            StringBuilder soapRequest =
-            new StringBuilder(
-                       @"<?xml version=""1.0"" encoding=""utf-8""?> 
-                        <s:Envelope xmlns:s=""http://schemas.xmlsoap.org/soap/envelope/"" s:encodingStyle=""http://schemas.xmlsoap.org/soap/encoding/""> 
-                            <s:Body>");
+            StringBuilder soapRequest = new StringBuilder();
+            soapRequest.AppendLine(@"<?xml version=""1.0"" encoding=""utf-8""?>");
+            soapRequest.AppendLine(@"<s:Envelope xmlns:s=""http://schemas.xmlsoap.org/soap/envelope/"" s:encodingStyle=""http://schemas.xmlsoap.org/soap/encoding/"">");
+            soapRequest.AppendLine(@"<s:Body>");
             soapRequest.AppendLine("<u:" + this.ActionName + " xmlns:u=\"urn:schemas-upnp-org:service:" + ServiceName + ":1\">");
             foreach(Tuple<string,string> item in args)
             {

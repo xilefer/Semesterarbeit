@@ -162,8 +162,7 @@ namespace HomeMediaApp.Pages
                     throw new Exception("Die Funktion konnte nicht ausgeführt werden!");
                 }
             }
-            string sRequestURI = CurrentDevice.Config.Root.Descendants().Where(Node => Node.Name.LocalName.ToLower() == "urlbase").ToList()
-                        [0].Value;
+            string sRequestURI = CurrentDevice.DeviceAddress.Scheme + "://" + CurrentDevice.DeviceAddress.Authority;
             if (sRequestURI.Length == 0)
             {
                 throw new Exception("Die Funktion konnte nicht ausgeführt werden!");
@@ -180,6 +179,7 @@ namespace HomeMediaApp.Pages
             List<string> MediaRenderer = new List<string>();
             foreach (UPnPDevice upnPMediaServer in GlobalVariables.UPnPMediaRenderer)
             {
+                if(upnPMediaServer.Type == "DUMMY") continue;
                 MediaRenderer.Add(upnPMediaServer.DeviceName);
             }
             string SelectedRenderer = null;
@@ -282,7 +282,7 @@ namespace HomeMediaApp.Pages
 
         private async void PictureDeviceSelected(string SelectedRenderer, PictureItem PictureItem)
         {
-            if (SelectedRenderer == null) return;
+            if (SelectedRenderer == null || SelectedRenderer == "Wiedergabe Abbrechen") return;
             if (SelectedRenderer == "Dieses Gerät")
             {
                 try

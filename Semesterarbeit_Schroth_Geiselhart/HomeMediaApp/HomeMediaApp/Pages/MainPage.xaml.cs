@@ -22,20 +22,6 @@ namespace HomeMediaApp.Pages
         {
             get
             {
-                /*if (GlobalVariables.UPnPMediaServers.Count == 0)
-                {
-                    return new ObservableCollection<UPnPDevice>()
-                    {
-                        new UPnPDevice()
-                        {
-                            Config = null,
-                            DeviceAddress = null,
-                            DeviceMethods = null,
-                            DeviceName = "Keine Medienserver gefunden!",
-                            Type = "DUMMY"
-                        }
-                    };
-                }*/
                 return GlobalVariables.UPnPMediaServers;
             }
             set
@@ -50,20 +36,6 @@ namespace HomeMediaApp.Pages
         {
             get
             {
-                if (GlobalVariables.UPnPMediaRenderer.Count == 0)
-                {
-                    return new ObservableCollection<UPnPDevice>()
-                    {
-                        new UPnPDevice()
-                        {
-                            Config = null,
-                            DeviceAddress = null,
-                            DeviceMethods = null,
-                            DeviceName = "Keine Ausgabegeräte gefunden!",
-                            Type = "DUMMY"
-                        }
-                    };
-                }
                 return GlobalVariables.UPnPMediaRenderer;
             }
             set
@@ -101,6 +73,7 @@ namespace HomeMediaApp.Pages
             bool DocumentExists = false;
             foreach (UPnPDevice Device in GlobalVariables.UPnPMediaServers)
             {
+                if (Device.Type == "DUMMY") continue; 
                 foreach (XElement oConfigElement in Device.Config.Root.Elements())
                 {
                     List<XElement> ElementList = oConfigElement.Elements().ToList();
@@ -115,6 +88,7 @@ namespace HomeMediaApp.Pages
             }
             foreach (UPnPDevice Device in GlobalVariables.UPnPMediaRenderer)
             {
+                if (Device.Type == "DUMMY") continue;
                 foreach (XElement oConfigElement in Device.Config.Root.Elements())
                 {
                     List<XElement> ElementList = oConfigElement.Elements().ToList();
@@ -140,12 +114,24 @@ namespace HomeMediaApp.Pages
                 Debug.WriteLine(oOutputDevice.DeviceName);
                 if (oOutputDevice.Type.ToLower() == "mediaserver")
                 {
+                    bool ClearCollection = false;
+                    foreach (var upnPMediaServer in GlobalVariables.UPnPMediaServers)
+                    {
+                        if (upnPMediaServer.Type == "DUMMY") ClearCollection = true;
+                    }
+                    if(ClearCollection) GlobalVariables.UPnPMediaServers.Clear();
                     GlobalVariables.UPnPMediaServers.Add(oOutputDevice);
                     OnPropertyChanged("UPnPServerList");    // Damit die Oberfläche aktualisiert wird
                     ForceLayout();
                 }
                 else if (oOutputDevice.Type.ToLower() == "mediarenderer")
                 {
+                    bool ClearCollection = false;
+                    foreach (var upnPDevice in GlobalVariables.UPnPMediaRenderer)
+                    {
+                        if (upnPDevice.Type == "DUMMY") ClearCollection = true;
+                    }
+                    if(ClearCollection) GlobalVariables.UPnPMediaRenderer.Clear();
                     GlobalVariables.UPnPMediaRenderer.Add(oOutputDevice);
                     OnPropertyChanged("UPnPMediaRendererList");
                     ForceLayout();

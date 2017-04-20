@@ -20,7 +20,9 @@ namespace HomeMediaApp.Windows.Pages
 
         public void ShowPhotoFromUri(Uri FileURI)
         {
-            ImageControl.Aspect = Aspect.Fill;
+            ImageControl.Aspect = Aspect.AspectFit;
+            ImageControl.HorizontalOptions = LayoutOptions.CenterAndExpand;
+            ImageControl.VerticalOptions = LayoutOptions.CenterAndExpand;
             ImageControl.Source = ImageSource.FromUri(FileURI);
             //throw new NotImplementedException();
         }

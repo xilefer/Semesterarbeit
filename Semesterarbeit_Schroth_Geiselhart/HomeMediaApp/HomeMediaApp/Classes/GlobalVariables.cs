@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using HomeMediaApp.Interfaces;
 using Xamarin.Forms;
 
@@ -11,9 +12,29 @@ namespace HomeMediaApp.Classes
 {
     public static class GlobalVariables
     {
-        public static ObservableCollection<UPnPDevice> UPnPMediaServers = new ObservableCollection<UPnPDevice>();
+        public static ObservableCollection<UPnPDevice> UPnPMediaServers = new ObservableCollection<UPnPDevice>()
+        {
+            new UPnPDevice()
+            {
+                Config = null,
+                DeviceAddress = null,
+                DeviceMethods = null,
+                DeviceName = "Keine Medienserver gefunden!",
+                Type = "DUMMY"
+            }
+        };
 
-        public static ObservableCollection<UPnPDevice> UPnPMediaRenderer = new ObservableCollection<UPnPDevice>();
+        public static ObservableCollection<UPnPDevice> UPnPMediaRenderer = new ObservableCollection<UPnPDevice>()
+        {
+            new UPnPDevice()
+            {
+                Config = null,
+                DeviceAddress = null,
+                DeviceMethods = null,
+                DeviceName = "Keine Ausgabegeräte gefunden!",
+                Type = "DUMMY"
+            }
+        };
 
         public static PlayerControl GlobalPlayerControl = null;
 
@@ -21,7 +42,7 @@ namespace HomeMediaApp.Classes
 
         public static IMediaPlayerControl GlobalMediaPlayerControl
         {
-            get { return  GlobalMediaPlayerDevice as IMediaPlayerControl; }
+            get { return GlobalMediaPlayerDevice as IMediaPlayerControl; }
         }
     }
 }

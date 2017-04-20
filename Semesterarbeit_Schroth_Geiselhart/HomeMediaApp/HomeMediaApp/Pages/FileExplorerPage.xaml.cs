@@ -166,6 +166,7 @@ namespace HomeMediaApp.Pages
             List<string> MediaRenderer = new List<string>();
             foreach (UPnPDevice upnPMediaServer in GlobalVariables.UPnPMediaRenderer)
             {
+                if(upnPMediaServer.Type == "DUMMY") continue;
                 MediaRenderer.Add(upnPMediaServer.DeviceName);
             }
             string SelectedRenderer = null;
@@ -268,7 +269,7 @@ namespace HomeMediaApp.Pages
 
         private async void PictureDeviceSelected(string SelectedRenderer, PictureItem PictureItem)
         {
-            if (SelectedRenderer == null) return;
+            if (SelectedRenderer == null || SelectedRenderer == "Wiedergabe Abbrechen") return;
             if (SelectedRenderer == "Dieses Gerät")
             {
                 try

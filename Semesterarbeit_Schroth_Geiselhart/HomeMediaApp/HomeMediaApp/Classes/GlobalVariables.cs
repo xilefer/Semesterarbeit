@@ -19,9 +19,16 @@ namespace HomeMediaApp.Classes
 
         public static ContentView GlobalMediaPlayerDevice = null;
 
+        public static ContentView GlobalVideoViewerDevice = null;
+
         public static IMediaPlayerControl GlobalMediaPlayerControl
         {
             get { return  GlobalMediaPlayerDevice as IMediaPlayerControl; }
+        }
+
+        public static IVideoViewer GlobalVideoViewer
+        {
+            get { return GlobalVideoViewerDevice as IVideoViewer; }
         }
     }
 }

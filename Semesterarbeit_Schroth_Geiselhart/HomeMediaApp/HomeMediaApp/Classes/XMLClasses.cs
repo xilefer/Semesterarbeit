@@ -230,11 +230,13 @@ namespace HomeMediaApp.Classes
         public string Rating = "";
         public string Actor = "";
         public string Director = "";
+        public string Res = "";
 
         public new T Create<T>(XElement Element, T ReturnElement) where T : UPnPVideoItem
         {
             ReturnElement = base.Create(Element, ReturnElement);
             List<XAttribute> ElementAttributes = Element.Attributes().ToList();
+            List<XElement> Descendants = Element.Descendants().ToList();
             XAttribute Val = ElementAttributes.Find(Attrib => Attrib.Name.LocalName.ToLower() == "genre");
             if (Val != null) ReturnElement.Genre = Val.Value;
             Val = ElementAttributes.Find(Attrib => Attrib.Name.LocalName.ToLower() == "longdescription");
@@ -247,6 +249,8 @@ namespace HomeMediaApp.Classes
             if (Val != null) ReturnElement.Actor = Val.Value;
             Val = ElementAttributes.Find(Attrib => Attrib.Name.LocalName.ToLower() == "director");
             if (Val != null) ReturnElement.Director = Val.Value;
+            XElement Value = Descendants.Find(e => e.Name.LocalName.ToLower() == "res");
+            if (Value != null) ReturnElement.Res = Value.Value;
             return ReturnElement;
         }
     }

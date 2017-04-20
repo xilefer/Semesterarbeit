@@ -51,6 +51,9 @@ namespace HomeMediaApp.Pages
         }
 
 
+        ContentView PlayerControlPage = GlobalVariables.GlobalMediaPlayerDevice;
+
+
         public UPnPDevice CurrentDevice { get; set; }
 
         public FileExplorerPage()
@@ -59,7 +62,8 @@ namespace HomeMediaApp.Pages
             BackButtonImage.Source = ImageSource.FromResource("HomeMediaApp.Icons.folder_up_icon.png");
             BindingContext = this;
             GlobalVariables.GlobalMediaPlayerDevice = DependencyService.Get<IMediaPlayerControl>() as ContentView;
-            ContentView PlayerControlPage = GlobalVariables.GlobalMediaPlayerDevice;
+            GlobalVariables.GlobalVideoViewerDevice = DependencyService.Get<IVideoViewer>() as ContentView;
+            PlayerControlPage = GlobalVariables.GlobalMediaPlayerDevice;
             PlayerStackLayout.Children.Clear();
             PlayerStackLayout.Children.Add(PlayerControlPage);
             PlayerStackLayout.ForceLayout();
@@ -106,9 +110,18 @@ namespace HomeMediaApp.Pages
                         PictureItem.RelatedPhoto = Photo;
                         Device.BeginInvokeOnMainThread(() => MasterItem.AddChild(PictureItem));
                     }
+                    else if (ClassDecomposed[ClassDecomposed.Length - 1].ToLower() == "videoitem")
+                    {
+                        UPnPVideoItem Video = new UPnPVideoItem();
+                        Video = Video.Create(Node, Video);
+                        VideoItem VideoItem1 = new VideoItem(Video.Title);
+                        VideoItem1.Parent = MasterItem;
+                        VideoItem1.RelatedVideo = Video;
+                        Device.BeginInvokeOnMainThread(() => MasterItem.AddChild(VideoItem1));
+                    }
                     else
                     {
-
+                        
                     }
                 }
             }
@@ -293,7 +306,26 @@ namespace HomeMediaApp.Pages
 
         private void VideoDeviceSelected(string SelectedRenderer, VideoItem VideoItem)
         {
-            throw new NotImplementedException();
+            if (SelectedRenderer == null) return;
+            else if (SelectedRenderer == "Dieses Gerät")
+            {
+                PlayerControlPage = GlobalVariables.GlobalVideoViewerDevice;
+                GlobalVariables.GlobalVideoViewer.ShowVideoFromUri(new Uri(VideoItem.RelatedVideo.Res));
+                GlobalVariables.GlobalVideoViewer.Play();
+                //try
+                //{
+                //    IVideoViewer videoViewer = DependencyService.Get<IVideoViewer>();
+                //    videoViewer.ShowVideoFromUri(new Uri(VideoItem.RelatedVideo.Res));
+                //}
+                //catch (Exception e)
+                //{
+                //    DisplayAlert("", e.ToString(), "OK");
+                //}
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
         }
 
         private void BackButton_OnClicked(object sender, EventArgs e)

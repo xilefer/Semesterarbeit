@@ -118,6 +118,9 @@
     <Compile Include="Pages\PhotoViewer.xaml.cs">
       <DependentUpon>PhotoViewer.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Pages\VideoViewer.xaml.cs">
+      <DependentUpon>VideoViewer.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -147,6 +150,10 @@
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Pages\PhotoViewer.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Pages\VideoViewer.xaml">
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
       <SubType>Designer</SubType>
     </EmbeddedResource>

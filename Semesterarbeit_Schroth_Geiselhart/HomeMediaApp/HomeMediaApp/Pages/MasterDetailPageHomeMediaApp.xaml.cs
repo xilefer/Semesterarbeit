@@ -20,12 +20,12 @@ namespace HomeMediaApp.Pages
             InitializeComponent();
         }
 
-        protected override bool OnBackButtonPressed()
-        {
-            CloseApplication();
-            return true;
-            //return base.OnBackButtonPressed();
-        }
+        //protected override bool OnBackButtonPressed()
+        //{
+        //    CloseApplication();
+        //    return true;
+        //    //return base.OnBackButtonPressed();
+        //}
 
         private async void CloseApplication()
         {

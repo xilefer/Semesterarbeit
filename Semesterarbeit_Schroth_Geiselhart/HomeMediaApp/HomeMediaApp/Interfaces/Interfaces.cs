@@ -30,4 +30,12 @@ namespace HomeMediaApp.Interfaces
         void ShowPhotoFromUri(Uri FileURI);
         void ShowPhoto(string FilePath);
     }
+
+    public interface IVideoViewer
+    {
+        void ShowVideoFromUri(Uri FileUri);
+        void ShwoVideoFromPath(string FilePath);
+        void Play();
+
+    }
 }

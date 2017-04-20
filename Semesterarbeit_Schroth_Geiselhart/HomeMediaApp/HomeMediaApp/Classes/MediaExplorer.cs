@@ -130,6 +130,13 @@ namespace HomeMediaApp.Classes
 
     public class VideoItem : FileExplorerItemBase
     {
+        private UPnPVideoItem mRelatedVideo { get; set; }
+
+        public UPnPVideoItem RelatedVideo
+        {
+            get { return mRelatedVideo;}
+            set { mRelatedVideo = value; }
+        }
         public VideoItem(string VideoName)
         {
             ItemType = FileExplorerItemType.VIDEO;

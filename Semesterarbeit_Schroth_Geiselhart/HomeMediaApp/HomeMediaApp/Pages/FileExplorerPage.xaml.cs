@@ -236,6 +236,9 @@ namespace HomeMediaApp.Pages
                     {
                         Device.BeginInvokeOnMainThread(async () =>
                         {
+                            PlayerStackLayout.Children.Clear();
+                            PlayerStackLayout.Children.Add(GlobalVariables.GlobalMediaPlayerDevice);
+                            PlayerStackLayout.ForceLayout();
                             bool Answer = await DisplayAlert("Wiedergabe", "Möchten sie die Wiedergabe sofort starten?", "Ja", "Nein");
                             if (Answer)
                             {

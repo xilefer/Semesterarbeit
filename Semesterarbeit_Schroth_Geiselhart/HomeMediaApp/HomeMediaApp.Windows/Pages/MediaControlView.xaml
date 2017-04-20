@@ -3,7 +3,7 @@
              xmlns:win="clr-namespace:Windows.UI.Xaml.Controls;assembly=Windows, Version=255.255.255.255, Culture=neutral, PublicKeyToken=null, ContentType=WindowsRuntime;targetPlatform=Windows"
              HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
   <ContentView.Content>
-      <StackLayout x:Name="StackLayoutContent">
+      <StackLayout x:Name="StackLayoutContent" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
             <Label>Temp</Label>
 
         </StackLayout>

@@ -51,7 +51,7 @@ namespace HomeMediaApp.Pages
         }
 
 
-        ContentView PlayerControlPage = GlobalVariables.GlobalMediaPlayerDevice;
+        //ContentView PlayerControlPage = GlobalVariables.GlobalMediaPlayerDevice;
 
 
         public UPnPDevice CurrentDevice { get; set; }
@@ -62,10 +62,10 @@ namespace HomeMediaApp.Pages
             BackButtonImage.Source = ImageSource.FromResource("HomeMediaApp.Icons.folder_up_icon.png");
             BindingContext = this;
             GlobalVariables.GlobalMediaPlayerDevice = DependencyService.Get<IMediaPlayerControl>() as ContentView;
-            GlobalVariables.GlobalVideoViewerDevice = DependencyService.Get<IVideoViewer>() as ContentView;
-            PlayerControlPage = GlobalVariables.GlobalMediaPlayerDevice;
+            GlobalVariables.GlobalVideoViewerDevice = DependencyService.Get<IVideoViewer>() as ContentView; ;
+
             PlayerStackLayout.Children.Clear();
-            PlayerStackLayout.Children.Add(PlayerControlPage);
+            PlayerStackLayout.Children.Add(GlobalVariables.GlobalMediaPlayerDevice);
             PlayerStackLayout.ForceLayout();
         }
 
@@ -309,9 +309,16 @@ namespace HomeMediaApp.Pages
             if (SelectedRenderer == null) return;
             else if (SelectedRenderer == "Dieses Gerät")
             {
-                PlayerControlPage = GlobalVariables.GlobalVideoViewerDevice;
+                Device.BeginInvokeOnMainThread(() =>
+                {
+                    PlayerStackLayout.Children.Clear();
+                    PlayerStackLayout.Children.Add(GlobalVariables.GlobalVideoViewerDevice);
+                    PlayerStackLayout.ForceLayout();
+                });
                 GlobalVariables.GlobalVideoViewer.ShowVideoFromUri(new Uri(VideoItem.RelatedVideo.Res));
                 GlobalVariables.GlobalVideoViewer.Play();
+                //GlobalVariables.GlobalVideoViewer.ShowVideoFromUri(new Uri(VideoItem.RelatedVideo.Res));
+                //GlobalVariables.GlobalVideoViewer.Play();
                 //try
                 //{
                 //    IVideoViewer videoViewer = DependencyService.Get<IVideoViewer>();

@@ -22,7 +22,7 @@ namespace HomeMediaApp.Pages
         {
             get
             {
-                if (GlobalVariables.UPnPMediaServers.Count == 0)
+                /*if (GlobalVariables.UPnPMediaServers.Count == 0)
                 {
                     return new ObservableCollection<UPnPDevice>()
                     {
@@ -35,7 +35,7 @@ namespace HomeMediaApp.Pages
                             Type = "DUMMY"
                         }
                     };
-                }
+                }*/
                 return GlobalVariables.UPnPMediaServers;
             }
             set
@@ -228,8 +228,7 @@ namespace HomeMediaApp.Pages
                     throw new Exception("Die Funktion konnte nicht ausgeführt werden!");
                 }
             }
-            string sRequestURI = oDevice.Config.Root.Descendants().Where(Node => Node.Name.LocalName.ToLower() == "urlbase").ToList()
-                        [0].Value;
+            string sRequestURI = oDevice.DeviceAddress.Scheme + "://" + oDevice.DeviceAddress.Authority;
             if (sRequestURI.Length == 0)
             {
                 throw new Exception("Die Funktion konnte nicht ausgeführt werden!");

@@ -149,8 +149,7 @@ namespace HomeMediaApp.Pages
                     throw new Exception("Die Funktion konnte nicht ausgeführt werden!");
                 }
             }
-            string sRequestURI = CurrentDevice.Config.Root.Descendants().Where(Node => Node.Name.LocalName.ToLower() == "urlbase").ToList()
-                        [0].Value;
+            string sRequestURI = CurrentDevice.DeviceAddress.Scheme + "://" + CurrentDevice.DeviceAddress.Authority;
             if (sRequestURI.Length == 0)
             {
                 throw new Exception("Die Funktion konnte nicht ausgeführt werden!");

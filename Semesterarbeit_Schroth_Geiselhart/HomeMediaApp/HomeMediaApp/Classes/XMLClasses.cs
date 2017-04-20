@@ -24,7 +24,7 @@ namespace HomeMediaApp.Classes
             List<XAttribute> ObjectAttributes = Element.Attributes().ToList();
             ReturnElement.id = ObjectAttributes.Find(Attrib => Attrib.Name.LocalName.ToLower() == "id").Value;
             ReturnElement.parentID = ObjectAttributes.Find(Attrib => Attrib.Name.LocalName.ToLower() == "parentid").Value;
-            ReturnElement.restricted = Boolean.Parse(ObjectAttributes.Find(Attrib => Attrib.Name.LocalName.ToLower() == "restricted").Value);
+            ReturnElement.restricted = UPnPContainer.ParseBool(ObjectAttributes.Find(Attrib => Attrib.Name.LocalName.ToLower() == "restricted").Value);
             List<XElement> Descendants = Element.Descendants().ToList();
             XElement DescElement = Descendants.Find(Desc => Desc.Name.LocalName.ToLower() =="title");
             ReturnElement.Title = DescElement.Value;
@@ -54,7 +54,7 @@ namespace HomeMediaApp.Classes
             ReturnElement = base.Create(Element, ReturnElement);
             List<XAttribute> ContainerAttributes = Element.Attributes().ToList();
             XAttribute Value = ContainerAttributes.Find(e => e.Name.LocalName.ToLower() == "searchable");
-            if (Value != null) ReturnElement.Searchable = Boolean.Parse(Value.Value);
+            if (Value != null) ReturnElement.Searchable = ParseBool(Value.Value);
             Value = ContainerAttributes.Find(e => e.Name.LocalName.ToLower() == "childcount");
             if (Value != null) ReturnElement.ChildCount = int.Parse(Value.Value);
             Value = ContainerAttributes.Find(e => e.Name.LocalName.ToLower() == "createclass");
@@ -114,12 +114,12 @@ namespace HomeMediaApp.Classes
                 // Benötigte Parameter zuweisen
                 ReturnContainer.id = ContainerAttributes.Find(Attrib => Attrib.Name.LocalName.ToLower() == "id").Value;
                 ReturnContainer.parentID = ContainerAttributes.Find(e => e.Name.LocalName.ToLower() == "parentid").Value;
-                ReturnContainer.restricted = Boolean.Parse(ContainerAttributes.Find(e => e.Name.LocalName.ToLower() == "restricted").Value);
+                ReturnContainer.restricted = ParseBool(ContainerAttributes.Find(e => e.Name.LocalName.ToLower() == "restricted").Value);
                 ReturnContainer.Title = ContainerElement.Elements().Where(e => e.Name.LocalName.ToLower() == "title").ToList()[0].Value;
                 ReturnContainer.Class = ContainerElement.Elements().Where(e => e.Name.LocalName.ToLower() == "class").ToList()[0].Value;
                 // Optionale Parameter zuweisen
                 XAttribute Value = ContainerAttributes.Find(e => e.Name.LocalName.ToLower() == "searchable");
-                if (Value != null) ReturnContainer.Searchable = Boolean.Parse(Value.Value);
+                if (Value != null) ReturnContainer.Searchable = ParseBool(Value.Value);
                 Value = ContainerAttributes.Find(e => e.Name.LocalName.ToLower() == "childcount");
                 if (Value != null) ReturnContainer.ChildCount = int.Parse(Value.Value);
                 Value = ContainerAttributes.Find(e => e.Name.LocalName.ToLower() == "createclass");
@@ -135,6 +135,11 @@ namespace HomeMediaApp.Classes
             return ReturnContainer;
         }
 
+        public static bool ParseBool(string value)
+        {
+            if (value == "1" || value.ToLower() == "true") return true;
+            else return false;
+        }
         public int ChildCount = 0;
         public string CreateClass = "";
         public string SearchClass = "";
@@ -339,7 +344,7 @@ namespace HomeMediaApp.Classes
 
     public static class UPnPStateVariables
     {
-        private static int mA_ARG_TYPE_ObjectID = 0;
+        private static string mA_ARG_TYPE_ObjectID = "0";
         public static string A_ARG_TYPE_ObjectID
         {
             get
@@ -348,11 +353,7 @@ namespace HomeMediaApp.Classes
             }
             set
             {
-                int Temp = 0;
-                if (int.TryParse(value, out Temp))
-                {
-                    mA_ARG_TYPE_ObjectID = Temp;
-                }
+               mA_ARG_TYPE_ObjectID = value.ToString();
             }
         }
 

@@ -51,9 +51,6 @@ namespace HomeMediaApp.Pages
         }
 
 
-        //ContentView PlayerControlPage = GlobalVariables.GlobalMediaPlayerDevice;
-
-
         public UPnPDevice CurrentDevice { get; set; }
 
         public FileExplorerPage()
@@ -62,7 +59,7 @@ namespace HomeMediaApp.Pages
             BackButtonImage.Source = ImageSource.FromResource("HomeMediaApp.Icons.folder_up_icon.png");
             BindingContext = this;
             GlobalVariables.GlobalMediaPlayerDevice = DependencyService.Get<IMediaPlayerControl>() as ContentView;
-            GlobalVariables.GlobalVideoViewerDevice = DependencyService.Get<IVideoViewer>() as ContentView; ;
+            //GlobalVariables.GlobalVideoViewerDevice = DependencyService.Get<IVideoViewer>() as ContentView; ;
 
             PlayerStackLayout.Children.Clear();
             PlayerStackLayout.Children.Add(GlobalVariables.GlobalMediaPlayerDevice);
@@ -121,7 +118,7 @@ namespace HomeMediaApp.Pages
                     }
                     else
                     {
-                        
+
                     }
                 }
             }
@@ -179,7 +176,7 @@ namespace HomeMediaApp.Pages
             List<string> MediaRenderer = new List<string>();
             foreach (UPnPDevice upnPMediaServer in GlobalVariables.UPnPMediaRenderer)
             {
-                if(upnPMediaServer.Type == "DUMMY") continue;
+                if (upnPMediaServer.Type == "DUMMY") continue;
                 MediaRenderer.Add(upnPMediaServer.DeviceName);
             }
             string SelectedRenderer = null;
@@ -312,14 +309,31 @@ namespace HomeMediaApp.Pages
             if (SelectedRenderer == null) return;
             else if (SelectedRenderer == "Dieses Gerät")
             {
-                Device.BeginInvokeOnMainThread(() =>
+                if (Device.OS == TargetPlatform.Android)
                 {
-                    PlayerStackLayout.Children.Clear();
-                    PlayerStackLayout.Children.Add(GlobalVariables.GlobalVideoViewerDevice);
-                    PlayerStackLayout.ForceLayout();
-                });
-                GlobalVariables.GlobalVideoViewer.ShowVideoFromUri(new Uri(VideoItem.RelatedVideo.Res));
-                GlobalVariables.GlobalVideoViewer.Play();
+                    /*
+                    ContentPageTemplate NewPage = new ContentPageTemplate();
+                    GlobalVariables.GlobalVideoViewerDevice.HeightRequest = 200;
+                    GlobalVariables.GlobalVideoViewerDevice.WidthRequest = 300;
+                    NewPage.Content = GlobalVariables.GlobalVideoViewerDevice;
+                    Navigation.PushAsync(new NavigationPage(NewPage));
+                    */
+                    ContentPage oPage = DependencyService.Get<IVideoViewer>() as ContentPage;
+                    Navigation.PushAsync(oPage);
+                    (oPage as IVideoViewer).ShowVideoFromUri(new Uri(VideoItem.RelatedVideo.Res));
+                    (oPage as IVideoViewer).Play();
+                }
+                else
+                {
+                    Device.BeginInvokeOnMainThread(() =>
+                    {
+                        PlayerStackLayout.Children.Clear();
+                        PlayerStackLayout.Children.Add(GlobalVariables.GlobalVideoViewerDevice);
+                        PlayerStackLayout.ForceLayout();
+                    });
+                }
+                //GlobalVariables.GlobalVideoViewer.ShowVideoFromUri(new Uri(VideoItem.RelatedVideo.Res));
+                ///GlobalVariables.GlobalVideoViewer.Play();
                 //GlobalVariables.GlobalVideoViewer.ShowVideoFromUri(new Uri(VideoItem.RelatedVideo.Res));
                 //GlobalVariables.GlobalVideoViewer.Play();
                 //try

@@ -52,6 +52,7 @@
       <HintPath>..\..\packages\Xamarin.Forms.2.3.3.180\lib\MonoAndroid10\FormsViewGroup.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Java.Interop" />
     <Reference Include="Mono.Android" />
     <Reference Include="mscorlib" />
     <Reference Include="Sockets.Plugin, Version=2.0.2.0, Culture=neutral, processorArchitecture=MSIL">
@@ -109,12 +110,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Classes\CloseApplication.cs" />
+    <Compile Include="Controls\VideoViewControl.cs" />
     <Compile Include="MainActivity.cs" />
     <Compile Include="Pages\AndroidMediaPlayerControl.xaml.cs">
       <DependentUpon>AndroidMediaPlayerControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\PhotoViewControl.xaml.cs">
       <DependentUpon>PhotoViewControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\VideoViewControl.xaml.cs">
+      <DependentUpon>VideoViewControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -151,6 +156,11 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Pages\PhotoViewControl.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Pages\VideoViewControl.xaml">
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
     </EmbeddedResource>
   </ItemGroup>

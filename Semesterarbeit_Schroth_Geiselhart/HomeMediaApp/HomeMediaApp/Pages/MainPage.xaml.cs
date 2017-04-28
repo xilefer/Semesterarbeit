@@ -51,10 +51,21 @@ namespace HomeMediaApp.Pages
         {
             InitializeComponent();
             oDeviceSearcher.ReceivedXml += new ReceivedXml(OnReceivedXML);
-            oDeviceSearcher.StartSearch();
             BindingContext = this;
             UPnPServerList.CollectionChanged += ItemsOnCollectionChanged;
-            Init();
+            OuterGrid.ForceLayout();
+        }
+
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
+            oDeviceSearcher.StartSearch();
+        }
+
+        protected override void OnDisappearing()
+        {
+            base.OnDisappearing();
+            oDeviceSearcher.StopSearch();
         }
 
         private void ItemsOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs notifyCollectionChangedEventArgs)
@@ -73,7 +84,7 @@ namespace HomeMediaApp.Pages
             bool DocumentExists = false;
             foreach (UPnPDevice Device in GlobalVariables.UPnPMediaServers)
             {
-                if (Device.Type == "DUMMY") continue; 
+                if (Device.Type == "DUMMY") continue;
                 foreach (XElement oConfigElement in Device.Config.Root.Elements())
                 {
                     List<XElement> ElementList = oConfigElement.Elements().ToList();
@@ -119,7 +130,7 @@ namespace HomeMediaApp.Pages
                     {
                         if (upnPMediaServer.Type == "DUMMY") ClearCollection = true;
                     }
-                    if(ClearCollection) GlobalVariables.UPnPMediaServers.Clear();
+                    if (ClearCollection) GlobalVariables.UPnPMediaServers.Clear();
                     GlobalVariables.UPnPMediaServers.Add(oOutputDevice);
                     OnPropertyChanged("UPnPServerList");    // Damit die Oberfläche aktualisiert wird
                     ForceLayout();
@@ -131,7 +142,7 @@ namespace HomeMediaApp.Pages
                     {
                         if (upnPDevice.Type == "DUMMY") ClearCollection = true;
                     }
-                    if(ClearCollection) GlobalVariables.UPnPMediaRenderer.Clear();
+                    if (ClearCollection) GlobalVariables.UPnPMediaRenderer.Clear();
                     GlobalVariables.UPnPMediaRenderer.Add(oOutputDevice);
                     OnPropertyChanged("UPnPMediaRendererList");
                     ForceLayout();
@@ -171,12 +182,6 @@ namespace HomeMediaApp.Pages
             {
                 OnPropertyChanged("UPnPServerList");
             });
-
-        }
-
-        private void Init()
-        {
-            OuterGrid.ForceLayout();
         }
 
         private void ListViewDevices_OnItemTapped(object sender, ItemTappedEventArgs e)
@@ -253,9 +258,9 @@ namespace HomeMediaApp.Pages
 
         private void OnResponseReceived(XDocument oResponseDocument, ActionState oState)
         {
-            Device.BeginInvokeOnMainThread(() =>
+            if (oState.ActionName.ToLower() == "browse")
             {
-                if (oState.ActionName.ToLower() == "browse")
+                Device.BeginInvokeOnMainThread(() =>
                 {
                     FileExplorerPage oExplorerPage = new FileExplorerPage();
                     UPnPContainer RootContainer = UPnPContainer.GenerateRootContainer(oResponseDocument);
@@ -269,16 +274,17 @@ namespace HomeMediaApp.Pages
                     (Parent.Parent as MasterDetailPageHomeMediaApp).IsPresented = false;
                     (Parent.Parent as MasterDetailPageHomeMediaApp).Detail = new NavigationPage(oExplorerPage);
                     (ListViewDevices.SelectedItem as UPnPDevice).DeviceMethods.Where(y => y.ServiceType.ToLower() == "contentdirectory").ToList()[0].ActionList.Where(x => x.ActionName.ToLower() == "browse").ToList()[0].OnResponseReceived -= OnResponseReceived;
-                }
-            });
+                });
+            }
         }
 
         private async void Button_OnClicked(object sender, EventArgs e)
         {
-            IPhotoViewer PhotoViewer = DependencyService.Get<IPhotoViewer>();
-            PhotoViewer.ShowPhotoFromUri(new Uri("http://nightlife-malsch.de/wp-content/uploads/online.jpg"));
-            ContentPage PhotoViewerPage = PhotoViewer as ContentPage;
-            await Navigation.PushAsync(PhotoViewerPage);
+            await DisplayAlert("Menge an Geräten", GlobalVariables.UPnPMediaServers.Count.ToString(), "OK");
+            //IPhotoViewer PhotoViewer = DependencyService.Get<IPhotoViewer>();
+            //PhotoViewer.ShowPhotoFromUri(new Uri("http://nightlife-malsch.de/wp-content/uploads/online.jpg"));
+            //ContentPage PhotoViewerPage = PhotoViewer as ContentPage;
+            //await Navigation.PushAsync(PhotoViewerPage);
             /*
             oDeviceSearcher = new CSSPD();
             oDeviceSearcher.ReceivedXml += new ReceivedXml(OnReceivedXML);

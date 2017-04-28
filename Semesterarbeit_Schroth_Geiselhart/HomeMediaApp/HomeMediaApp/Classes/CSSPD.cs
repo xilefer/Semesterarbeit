@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Sockets.Plugin;
@@ -24,14 +25,37 @@ namespace HomeMediaApp
 
     public class CSSPD
     {
+        private List<string> ReceivedUDN = new List<string>();
         private UdpSocketReceiver oSendSocket;
         public event ReceivedXml ReceivedXml;
+        private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
         /// <summary>
         /// Startet eine Suche nach UPnP-Geräten im Netzwerk über einen SSDP-Broadcast
         /// </summary>
         public void StartSearch()
-        { 
+        {
+            Task.Factory.StartNew(() =>
+            {
+                StartSearchBackground();
+            }, cancellationTokenSource.Token);
+            /*
+            oSendSocket = new UdpSocketReceiver();
+            oSendSocket.MessageReceived += OSendSocketOnMessageReceived;
+            string sSearchString = "M-SEARCH * HTTP/1.1\r\nHOST:239.255.255.250:1900\r\nMAN:\"ssdp:discover\"\r\nST:ssdp:all\r\nMX:3\r\n\r\n";
+            byte[] sSearchBytes = Encoding.UTF8.GetBytes(sSearchString);
+            oSendSocket.StartListeningAsync(0).Wait();
+            oSendSocket.SendToAsync(sSearchBytes, sSearchBytes.Length, "239.255.255.250", 1900);
+            */
+        }
+
+        public void StopSearch()
+        {
+            cancellationTokenSource.Cancel();
+        }
+
+        private void StartSearchBackground()
+        {
             oSendSocket = new UdpSocketReceiver();
             oSendSocket.MessageReceived += OSendSocketOnMessageReceived;
             string sSearchString = "M-SEARCH * HTTP/1.1\r\nHOST:239.255.255.250:1900\r\nMAN:\"ssdp:discover\"\r\nST:ssdp:all\r\nMX:3\r\n\r\n";
@@ -78,15 +102,39 @@ namespace HomeMediaApp
         /// <param name="oResult">Das IAsyncResult Objekt</param>
         private void RequestCallback(IAsyncResult oResult)
         {
-            CSSDPState oState = (CSSDPState) oResult.AsyncState;
+            CSSDPState oState = (CSSDPState)oResult.AsyncState;
             HttpWebRequest oWebRequest = oState.oWebRequest;
-            
-            oState.oWebResponse = (HttpWebResponse) oWebRequest.EndGetResponse(oResult);
+
+            oState.oWebResponse = (HttpWebResponse)oWebRequest.EndGetResponse(oResult);
             Stream oResponseStream = oState.oWebResponse.GetResponseStream();
             MemoryStream ms = new MemoryStream();
             oResponseStream.CopyTo(ms);
             string sResponse = Encoding.UTF8.GetString(ms.ToArray(), 0, (int)ms.Length);
-            ReceivedXml(XDocument.Parse(sResponse), oState.oWebRequest.RequestUri);
+            XDocument ReceivedXML = XDocument.Parse(sResponse);
+            List<XElement> UDNs = ReceivedXML.Descendants().Where(Desc => Desc.Name.LocalName.ToLower() == "udn").ToList();
+            if (UDNs.Count > 0)
+            {
+                bool OneNewUDN = false;
+                if (Monitor.TryEnter(ReceivedUDN))
+                {
+                    try
+                    {
+                        foreach (var xElement in UDNs)
+                        {
+                            if (!ReceivedUDN.Contains(xElement.Value))
+                            {
+                                ReceivedUDN.Add(xElement.Value);
+                                OneNewUDN = true;
+                            }
+                        }
+                    }
+                    finally
+                    {
+                        Monitor.Exit(ReceivedUDN);
+                    }
+                    if (OneNewUDN) ReceivedXml(ReceivedXML, oState.oWebRequest.RequestUri);
+                }
+            }
         }
     }
 }

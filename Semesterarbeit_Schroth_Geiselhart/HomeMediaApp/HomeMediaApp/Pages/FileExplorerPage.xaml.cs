@@ -59,7 +59,7 @@ namespace HomeMediaApp.Pages
             BackButtonImage.Source = ImageSource.FromResource("HomeMediaApp.Icons.folder_up_icon.png");
             BindingContext = this;
             GlobalVariables.GlobalMediaPlayerDevice = DependencyService.Get<IMediaPlayerControl>() as ContentView;
-            //GlobalVariables.GlobalVideoViewerDevice = DependencyService.Get<IVideoViewer>() as ContentView; ;
+            GlobalVariables.GlobalVideoViewerDevice = DependencyService.Get<IVideoViewer>() as ContentView; ;
 
             PlayerStackLayout.Children.Clear();
             PlayerStackLayout.Children.Add(GlobalVariables.GlobalMediaPlayerDevice);
@@ -306,7 +306,7 @@ namespace HomeMediaApp.Pages
 
         private void VideoDeviceSelected(string SelectedRenderer, VideoItem VideoItem)
         {
-            if (SelectedRenderer == null) return;
+            if (SelectedRenderer == null || SelectedRenderer == "Wiedergabe Abbrechen") return;
             else if (SelectedRenderer == "Dieses Gerät")
             {
                 if (Device.OS == TargetPlatform.Android)
@@ -332,8 +332,8 @@ namespace HomeMediaApp.Pages
                         PlayerStackLayout.ForceLayout();
                     });
                 }
-                //GlobalVariables.GlobalVideoViewer.ShowVideoFromUri(new Uri(VideoItem.RelatedVideo.Res));
-                ///GlobalVariables.GlobalVideoViewer.Play();
+                GlobalVariables.GlobalVideoViewer.ShowVideoFromUri(new Uri(VideoItem.RelatedVideo.Res));
+                GlobalVariables.GlobalVideoViewer.Play();
                 //GlobalVariables.GlobalVideoViewer.ShowVideoFromUri(new Uri(VideoItem.RelatedVideo.Res));
                 //GlobalVariables.GlobalVideoViewer.Play();
                 //try

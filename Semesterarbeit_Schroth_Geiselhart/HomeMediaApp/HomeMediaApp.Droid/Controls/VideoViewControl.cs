@@ -16,9 +16,11 @@ using HomeMediaApp.Droid.Pages;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.Android;
 
+[assembly: ExportRenderer(typeof(HomeMediaApp.Droid.Controls.VideoViewControl), typeof(HomeMediaApp.Droid.Controls.VideoViewRenderer))]
 namespace HomeMediaApp.Droid.Controls
 {
-    class VideoViewControl : Xamarin.Forms.View
+
+    public class VideoViewControl : Xamarin.Forms.View
     {
         public Action StopAction;
         public VideoViewControl() { }
@@ -35,50 +37,51 @@ namespace HomeMediaApp.Droid.Controls
             if (StopAction != null) StopAction();
         }
 
-        class VideoViewRenderer : ViewRenderer<HomeMediaApp.Droid.Controls.VideoViewControl, VideoView>,
+        
+    }
+    class VideoViewRenderer : ViewRenderer<HomeMediaApp.Droid.Controls.VideoViewControl, VideoView>,
             ISurfaceHolderCallback
+    {
+        private VideoView videoview;
+        private MediaPlayer player;
+
+        public void Play(string URI)
         {
-            private VideoView videoview;
-            private MediaPlayer player;
-
-            public void Play(string URI)
-            {
-                player.SetDataSource(Context, Android.Net.Uri.Parse(URI));
-                player.Prepare();
-                player.Start();
-                Control.Layout(0,200,player.VideoHeight, player.VideoWidth); 
-            }
-
-            public VideoViewRenderer() { }
-
-            public void SurfaceChanged(ISurfaceHolder holder, Format format, int width, int height)
-            {
-            }
-
-            protected override void OnElementChanged(ElementChangedEventArgs<VideoViewControl> e)
-            {
-                base.OnElementChanged(e);
-                e.NewElement.StopAction = () =>
-                {
-                    this.player.Stop();
-                    this.Control.StopPlayback();
-                };
-                videoview = new VideoView(Context);
-                base.SetNativeControl(videoview);
-                Control.Holder.AddCallback(this);
-                player = new MediaPlayer();
-                Play(e.NewElement.FileSource);    
-            }
-
-            public void SurfaceCreated(ISurfaceHolder holder)
-            {
-                player.SetDisplay(holder);
-            }
-
-            public void SurfaceDestroyed(ISurfaceHolder holder)
-            {
-            }
-            
+            player.SetDataSource(Context, Android.Net.Uri.Parse(URI));
+            player.Prepare();
+            player.Start();
+            Control.Layout(0, 200, player.VideoHeight, player.VideoWidth);
         }
+
+        public VideoViewRenderer() { }
+
+        public void SurfaceChanged(ISurfaceHolder holder, Format format, int width, int height)
+        {
+        }
+
+        protected override void OnElementChanged(ElementChangedEventArgs<VideoViewControl> e)
+        {
+            base.OnElementChanged(e);
+            e.NewElement.StopAction = () =>
+            {
+                this.player.Stop();
+                this.Control.StopPlayback();
+            };
+            videoview = new VideoView(Context);
+            base.SetNativeControl(videoview);
+            Control.Holder.AddCallback(this);
+            player = new MediaPlayer();
+            Play(e.NewElement.FileSource);
+        }
+
+        public void SurfaceCreated(ISurfaceHolder holder)
+        {
+            player.SetDisplay(holder);
+        }
+
+        public void SurfaceDestroyed(ISurfaceHolder holder)
+        {
+        }
+
     }
 }

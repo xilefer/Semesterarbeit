@@ -15,6 +15,7 @@ namespace HomeMediaApp.Classes
         PICTURE,
         VIDEO,
         MUSIC,
+        PLAYLIST,
         ELSE
     };
 
@@ -24,7 +25,6 @@ namespace HomeMediaApp.Classes
         public ImageSource IconSource { get; set; } = new FileImageSource();
         public virtual string DisplayName { get; set; } = "";
         public FileExplorerItemType ItemType { get; set; } = FileExplorerItemType.ELSE;
-        public ObservableCollection<MenuItem> ContextActions { get; set; } = new ObservableCollection<MenuItem>();
     }
 
     public class FolderItem : FileExplorerItemBase
@@ -46,10 +46,6 @@ namespace HomeMediaApp.Classes
             ItemType = FileExplorerItemType.FOLDER;
             DisplayName = FolderName;
             IconSource = ImageSource.FromResource("HomeMediaApp.Icons.folder_icon.png");
-            ContextActions.Add(new MenuItem()
-            {
-                Text = "Öffnen",
-            });
         }
 
         public void AddChild(FileExplorerItemBase Child)
@@ -139,6 +135,27 @@ namespace HomeMediaApp.Classes
         }
     }
 
+    public class PlaylistItem : FileExplorerItemBase
+    {
+        private UPnPContainer mRelatedContainer;
+        public UPnPContainer RelatedContainer
+        {
+            get { return mRelatedContainer; }
+            set
+            {
+                mRelatedContainer = value;
+                DisplayName = mRelatedContainer.Title;
+            }
+        }
+
+        public PlaylistItem(string PlaylistName)
+        {
+            ItemType = FileExplorerItemType.PLAYLIST;
+            DisplayName = PlaylistName;
+            IconSource = ImageSource.FromResource("HomeMediaApp.Icons.playlist_icon.png");
+        }
+    }
+
     public class ElseItem : FileExplorerItemBase
     {
         public ElseItem(string ElseName)
@@ -147,5 +164,15 @@ namespace HomeMediaApp.Classes
             DisplayName = ElseName;
             IconSource = ImageSource.FromResource("HomeMediaApp.Icons.else_icon.png");
         }
+    }
+
+    public class PlayList
+    {
+        public PlayList(UPnPContainer PlayListContainer, UPnPDevice SourceDevice)
+        {
+            
+        }
+        List<MusicItem> MusicTitles = new List<MusicItem>();
+        private string Name = "";
     }
 }

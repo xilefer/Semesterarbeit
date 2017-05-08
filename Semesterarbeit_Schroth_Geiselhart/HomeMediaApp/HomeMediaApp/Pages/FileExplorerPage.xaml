@@ -24,15 +24,7 @@
                     </Image.GestureRecognizers>
                 </Image>
             </StackLayout>
-            <ListView Grid.Row="1" x:Name="FileListView" ItemTemplate="{StaticResource FileBrowserTemplateSelector}" ItemsSource="{Binding ExplorerItems}" BackgroundColor="White" ItemTapped="FileListView_OnItemTapped"  ItemAppearing="FileListView_OnItemAppearing">
-                <!-- 
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <ImageCell Text="{Binding DisplayName}" ImageSource="{Binding IconSource}" TextColor="Black"/>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-                -->
-            </ListView>
+            <ListView Grid.Row="1" x:Name="FileListView" ItemTemplate="{StaticResource FileBrowserTemplateSelector}" ItemsSource="{Binding ExplorerItems}" BackgroundColor="White" ItemTapped="FileListView_OnItemTapped"/>
             <StackLayout x:Name="PlayerStackLayout" Grid.Row="2" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
                 <Label>Platzhalten</Label>
             </StackLayout>

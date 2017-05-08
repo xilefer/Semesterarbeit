@@ -31,7 +31,7 @@
                 </ListView.ItemTemplate>
             </ListView>
             <Label FontSize="20">Ausgabegeräte:</Label>
-            <ListView x:Name="ListViewRenderer" ItemsSource="{Binding UPnPMediaRendererList}" VerticalOptions="FillAndExpand" ItemTapped="ListViewDevices_OnItemTapped">
+            <ListView x:Name="ListViewRenderer" ItemsSource="{Binding UPnPMediaRendererList}" VerticalOptions="FillAndExpand" ItemTapped="ListViewRenderer_OnItemTapped">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <TextCell Text="{Binding DeviceName}"></TextCell>

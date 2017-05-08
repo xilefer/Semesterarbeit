@@ -64,23 +64,6 @@ namespace HomeMediaApp.Classes
             return ReturnElement;
         }
 
-        //public UPnPContainer GenerateContainer(XElement ContainerElement)
-        //{
-        //    UPnPContainer ReturnContainer = new UPnPContainer();
-        //    List<XAttribute> ContainerAttributes = ContainerElement.Attributes().ToList();
-        //    ReturnContainer = base.Create(ContainerElement, ReturnContainer);
-        //    XAttribute Value = ContainerAttributes.Find(e => e.Name.LocalName.ToLower() == "searchable");
-        //    if (Value != null) ReturnContainer.Searchable = Boolean.Parse(Value.Value);
-        //    Value = ContainerAttributes.Find(e => e.Name.LocalName.ToLower() == "childcount");
-        //    if (Value != null) ReturnContainer.ChildCount = int.Parse(Value.Value);
-        //    Value = ContainerAttributes.Find(e => e.Name.LocalName.ToLower() == "createclass");
-        //    if (Value != null) ReturnContainer.CreateClass = Value.Value;
-        //    Value = ContainerAttributes.Find(e => e.Name.LocalName.ToLower() == "searchclass");
-        //    if (Value != null) ReturnContainer.SearchClass = Value.Value;
-
-        //    return ReturnContainer;
-        //}
-
         public static UPnPContainer GenerateRootContainer(XDocument MetaDocument)
         {
             List<XElement> ResultNodes = MetaDocument.Descendants().Where(Node => Node.Name.LocalName.ToLower() == "result").ToList();
@@ -189,34 +172,6 @@ namespace HomeMediaApp.Classes
             if (Value != null) ReturnElement.AlbumArtURI = Value.Value;
             return ReturnElement;
         }
-
-        //public UPnPMusicTrack CreateTrack(XElement MusicElement)
-        //{
-        //    UPnPMusicTrack ReturnTrack = new UPnPMusicTrack();
-        //    List<XAttribute> Attributes = MusicElement.Attributes().ToList();
-        //    ReturnTrack.id = Attributes.Find(e => e.Name.LocalName.ToLower() == "id").Value;
-        //    ReturnTrack.parentID = Attributes.Find(e => e.Name.LocalName.ToLower() == "parentid").Value;
-        //    ReturnTrack.restricted = Boolean.Parse(Attributes.Find(e => e.Name.LocalName.ToLower() == "restricted").Value);
-        //    ReturnTrack.Title = MusicElement.Elements().Where(e => e.Name.LocalName.ToLower() == "title").ToList()[0].Value;
-        //    ReturnTrack.Class = MusicElement.Elements().Where(e => e.Name.LocalName.ToLower() == "class").ToList()[0].Value;
-        //    // Nicht notwendige Properties
-        //    List<XElement> Descendants = MusicElement.Descendants().ToList();
-        //    XElement Value = Descendants.Find(e => e.Name.LocalName.ToLower() == "artist");
-        //    if (Value != null) ReturnTrack.Artist = Value.Value;
-        //    Value = Descendants.Find(e => e.Name.LocalName.ToLower() == "album");
-        //    if (Value != null) ReturnTrack.Album = Value.Value;
-        //    Value = Descendants.Find(e => e.Name.LocalName.ToLower() == "originaltracknumber");
-        //    if (Value != null) ReturnTrack.OriginalTrackNumber = Value.Value;
-        //    Value = Descendants.Find(e => e.Name.LocalName.ToLower() == "playlist");
-        //    if (Value != null) ReturnTrack.PlayList = Value.Value;
-        //    Value = Descendants.Find(e => e.Name.LocalName.ToLower() == "storagemedium");
-        //    if (Value != null) ReturnTrack.StorageMedium = Value.Value;
-        //    Value = Descendants.Find(e => e.Name.LocalName.ToLower() == "res");
-        //    if (Value != null) ReturnTrack.Res = Value.Value;
-        //    Value = Descendants.Find(e => e.Name.LocalName.ToLower() == "albumarturi");
-        //    if (Value != null) ReturnTrack.AlbumArtURI = Value.Value;
-        //    return ReturnTrack;
-        //}
 
         public string Artist = "";
         public string Album = "";
@@ -339,7 +294,6 @@ namespace HomeMediaApp.Classes
             return ReturnElement;
         }
     }
-
     public static class UPnPBrowseFlag
     {
         public static string BrowseMetadata = "BrowseMetadata";

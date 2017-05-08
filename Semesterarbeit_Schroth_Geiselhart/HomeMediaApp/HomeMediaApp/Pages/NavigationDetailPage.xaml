@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="HomeMediaApp.Pages.NavigationDetailPage"
              Icon="/icons/settings_icon.png" Title="Home Media App" Padding="0,40,0,0" >
-  <ListView  x:Name="listView" VerticalOptions="FillAndExpand" SeparatorVisibility="None" ItemSelected="ListView_OnItemSelected" BackgroundColor="White">
+    <ListView  x:Name="listView" VerticalOptions="FillAndExpand" SeparatorVisibility="None" ItemTapped="ListView_OnItemTapped" BackgroundColor="White">
     <ListView.ItemTemplate>
       <DataTemplate>
         <ImageCell Text="{Binding Path=Title}" Height="100" TextColor="Red" ImageSource="{Binding Path=IconSource}"/>

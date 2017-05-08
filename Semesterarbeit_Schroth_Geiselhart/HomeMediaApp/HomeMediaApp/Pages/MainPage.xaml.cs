@@ -281,5 +281,12 @@ namespace HomeMediaApp.Pages
             ContentPage VideoView = DependencyService.Get<IVideoViewer>() as ContentPage;
             Navigation.PushAsync(new NavigationPage(VideoView));
         }
+
+        private void ListViewRenderer_OnItemTapped(object sender, ItemTappedEventArgs e)
+        {
+            UPnPDevice TappedDevice = e.Item as UPnPDevice;
+            //TappedDevice
+            // TODO: Für Mediarenderer Tapped-Event verarbeiten
+        }
     }
 }

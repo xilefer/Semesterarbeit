@@ -78,6 +78,20 @@ namespace HomeMediaApp.Classes
         }
     }
 
+    public class PlayListViewCell : ViewCellBase
+    {
+        public PlayListViewCell()
+        {
+            MenuItem PlayMenuItem = new MenuItem() { Text = "WIEDERGEBEN" };
+            PlayMenuItem.Clicked += (sender, e) =>
+            {
+                MenuItem mi = sender as MenuItem;
+                MessagingCenter.Send(this, GlobalVariables.PlaylistPlayActionName, mi.BindingContext as PlaylistItem);
+            };
+            this.ContextActions.Add(PlayMenuItem);
+        }
+    }
+
     /// <summary>
     /// Eigener TemplateSelector für dynamische Kontext-Aktionen in einer ListView
     /// </summary>
@@ -88,6 +102,7 @@ namespace HomeMediaApp.Classes
         private DataTemplate PictureTemplate = new DataTemplate(typeof(ImageViewCell));
         private DataTemplate VideoTemplate = new DataTemplate(typeof(VideoViewCell));
         private DataTemplate ElseTemplate = new DataTemplate(typeof(ViewCellBase));
+        private DataTemplate PlaylistTemplate = new DataTemplate(typeof(PlayListViewCell));
 
         public FileBrowserDataTemplateSelector()
         {
@@ -96,16 +111,19 @@ namespace HomeMediaApp.Classes
             PictureTemplate.Bindings.Add(TextCell.TextProperty, new Binding("DisplayName"));
             VideoTemplate.Bindings.Add(TextCell.TextProperty, new Binding("DisplayName"));
             ElseTemplate.Bindings.Add(TextCell.TextProperty, new Binding("DisplayName"));
+            PlaylistTemplate.Bindings.Add(TextCell.TextProperty, new Binding("DisplayName"));
             FolderTemplate.Bindings.Add(ImageCell.ImageSourceProperty, new Binding("IconSource"));
             MuiscTemplate.Bindings.Add(ImageCell.ImageSourceProperty, new Binding("IconSource"));
             PictureTemplate.Bindings.Add(ImageCell.ImageSourceProperty, new Binding("IconSource"));
             VideoTemplate.Bindings.Add(ImageCell.ImageSourceProperty, new Binding("IconSource"));
             ElseTemplate.Bindings.Add(ImageCell.ImageSourceProperty, new Binding("IconSource"));
+            PlaylistTemplate.Bindings.Add(ImageCell.ImageSourceProperty, new Binding("IconSource"));
             FolderTemplate.SetValue(TextCell.TextColorProperty, Color.Black);
             MuiscTemplate.SetValue(TextCell.TextColorProperty, Color.Black);
             PictureTemplate.SetValue(TextCell.TextColorProperty, Color.Black);
             VideoTemplate.SetValue(TextCell.TextColorProperty, Color.Black);
             ElseTemplate.SetValue(TextCell.TextColorProperty, Color.Black);
+            PlaylistTemplate.SetValue(TextCell.TextColorProperty, Color.Black);
         }
 
         protected override DataTemplate OnSelectTemplate(object item, BindableObject container)
@@ -127,6 +145,9 @@ namespace HomeMediaApp.Classes
                         break;
                     case FileExplorerItemType.VIDEO:
                         ReturnTemplate = VideoTemplate;
+                        break;
+                    case FileExplorerItemType.PLAYLIST:
+                        ReturnTemplate = PlaylistTemplate;
                         break;
                     case FileExplorerItemType.ELSE:
                         ReturnTemplate = ElseTemplate;

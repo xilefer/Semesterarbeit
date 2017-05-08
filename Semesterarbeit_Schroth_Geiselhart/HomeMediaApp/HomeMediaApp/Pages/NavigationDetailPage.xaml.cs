@@ -61,9 +61,9 @@ namespace HomeMediaApp.Pages
             this.mParent = Parent;
         }
 
-        private void ListView_OnItemSelected(object sender, SelectedItemChangedEventArgs e)
+        private void ListView_OnItemTapped(object sender, ItemTappedEventArgs e)
         {
-            MasterPageItem temp = e.SelectedItem as MasterPageItem;
+            MasterPageItem temp = e.Item as MasterPageItem;
             if (temp == null) return;
             (Parent as MasterDetailPageHomeMediaApp).Detail = new NavigationPage((Page)Activator.CreateInstance(temp.TargetType));
             (Parent as MasterDetailPageHomeMediaApp).IsPresented = false;

@@ -112,6 +112,18 @@ namespace HomeMediaApp.Pages
                     MediaRenderer.Add("Dieses Gerät");
                     VideoItemTapped(arg, MediaRenderer.ToArray());
                 });
+            // Playlist wiedergeben
+            MessagingCenter.Subscribe<PlayListViewCell, PlaylistItem>(this, GlobalVariables.PlaylistPlayActionName, (sender, arg) =>
+                {
+                    List<string> MediaRenderer = new List<string>();
+                    foreach (UPnPDevice upnPMediaServer in GlobalVariables.UPnPMediaRenderer)
+                    {
+                        if (upnPMediaServer.Type == "DUMMY") continue;
+                        MediaRenderer.Add(upnPMediaServer.DeviceName);
+                    }
+                    MediaRenderer.Add("Dieses Gerät");
+                    PlaylistItemTapped(arg, MediaRenderer.ToArray());
+                });
         }
 
         public void OnResponeReceived(XDocument oResponseDocument, ActionState oState)
@@ -124,13 +136,27 @@ namespace HomeMediaApp.Pages
             {
                 string Name = Node.Name.LocalName.ToLower();
                 if (Name == "container")
-                {
-                    UPnPContainer Container = new UPnPContainer();
-                    Container = Container.Create(Node, Container);
-                    FolderItem ContainerFolder = new FolderItem(Container.Title);
-                    ContainerFolder.Parent = MasterItem;
-                    ContainerFolder.RelatedContainer = Container;
-                    Device.BeginInvokeOnMainThread(() => MasterItem.Childrens.Add(ContainerFolder));
+                {   // Zwischen Playlist und Folder unterscheiden
+                    string Title = Node.Descendants().Where(e => e.Name.LocalName.ToLower() == "title").ToList()[0].Value;
+                    if (Title.EndsWith(".m3u"))
+                    {
+                        UPnPContainer Container = new UPnPContainer();
+                        Container = Container.Create(Node, Container);
+                        PlaylistItem Playlist = new PlaylistItem(Container.Title);
+                        Playlist.Parent = MasterItem;
+                        Playlist.RelatedContainer = Container;
+                        Device.BeginInvokeOnMainThread(() => MasterItem.Childrens.Add(Playlist));
+                        // Playlist
+                    }
+                    else
+                    {
+                        UPnPContainer Container = new UPnPContainer();
+                        Container = Container.Create(Node, Container);
+                        FolderItem ContainerFolder = new FolderItem(Container.Title);
+                        ContainerFolder.Parent = MasterItem;
+                        ContainerFolder.RelatedContainer = Container;
+                        Device.BeginInvokeOnMainThread(() => MasterItem.Childrens.Add(ContainerFolder));
+                    }
                 }
                 else if (Name == "item")
                 {
@@ -244,9 +270,22 @@ namespace HomeMediaApp.Pages
                     MasterItem = Item;
                     BrowseChildrens(MasterItem);
                     break;
+                case FileExplorerItemType.PLAYLIST:
+                    PlaylistItemTapped(e.Item as PlaylistItem, MediaRenderer.ToArray());
+                    break;
                 case FileExplorerItemType.ELSE:
                     break;
             }
+        }
+
+        private void PlaylistItemTapped(PlaylistItem TappedItem, string[] Options)
+        {
+            string SelectedRenderer = "";
+            Device.BeginInvokeOnMainThread(async () =>
+            {
+                SelectedRenderer = await DisplayActionSheet("Wiedergabegerät auswählen", "Wiedergabe Abbrechen", null, Options);
+            });
+            //throw new NotImplementedException("Playlist item Tapped");
         }
 
         private void VideoItemTapped(VideoItem TappedItem, string[] Options)
@@ -406,32 +445,6 @@ namespace HomeMediaApp.Pages
         {
             BackButton_OnClicked(this, null);
             return true;
-        }
-
-        private void FileListView_OnItemAppearing(object sender, ItemVisibilityEventArgs e)
-        {
-            ImageCell Item = e.Item as ImageCell;
-            FileExplorerItemBase ItemBase = e.Item as FileExplorerItemBase;
-            MenuItem oItem = new MenuItem() { Text = "DETAILS" };
-            //switch (ItemBase.ItemType)
-            //{
-            //    case FileExplorerItemType.FOLDER:
-            //        Item.ContextActions.Add(oItem);
-            //        break;
-            //    case FileExplorerItemType.MUSIC:
-            //        Item.ContextActions.Add(oItem);
-            //        break;
-            //    case FileExplorerItemType.PICTURE:
-            //        Item.ContextActions.Add(oItem);
-            //        break;
-            //    case FileExplorerItemType.VIDEO:
-            //        Item.ContextActions.Add(oItem);
-            //        break;
-            //    case FileExplorerItemType.ELSE:
-            //        Item.ContextActions.Add(oItem);
-            //        break;
-            //}
-            //ForceLayout();
         }
     }
 }

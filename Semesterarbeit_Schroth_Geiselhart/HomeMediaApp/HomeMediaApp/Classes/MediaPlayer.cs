@@ -10,9 +10,9 @@ namespace HomeMediaApp.Classes
     {
         public static PlayerControl Play(MediaObject oMedia, UPnPDevice oDevice)
         {
-            PlayerControl Control = new PlayerControl() {oDevice = oDevice };
+            PlayerControl Control = new PlayerControl(oDevice, oMedia);
             Control.MediaList.Add(oMedia);
-            return new PlayerControl();
+            return Control;
         }
     }
 }

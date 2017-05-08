@@ -15,12 +15,26 @@ namespace HomeMediaApp.Classes
         public MediaObject PreviousMedia { get; set; }
         public string Status { get; set; }
 
-        public PlayerControl()
+        public PlayerControl(UPnPDevice RendererDevice, MediaObject Media)
         {
+            this.CurrentMedia = Media;
+            this.oDevice = RendererDevice;
             this.NextMedia = this.CurrentMedia;
             this.PreviousMedia = this.CurrentMedia;
             //Verbindung zum Gerät aufbauen
+            //Entsprechende Action des Gerätes finden
+            UPnPService oTransportService = oDevice.DeviceMethods.Where(e => e.ServiceID.ToLower() == "avtransport").ToList()[0];
+            UPnPAction oTransportAction = oTransportService.ActionList.Where(e => e.ActionName.ToLower() == "setavtransporturi").ToList()[0];
+
             //Pfad setzen
+            string RequestURI = oDevice.DeviceAddress.Scheme + @"://" + oDevice.DeviceAddress.Authority + oTransportService.ControlURL;
+            List<Tuple<string, string>> args = new List<Tuple<string, string>>();
+            args.Add(new Tuple<string, string>("InstanceID", MediaList.IndexOf(CurrentMedia).ToString()));
+            args.Add(new Tuple<string, string>("CurrentURI", CurrentMedia.Path));
+            args.Add(new Tuple<string, string>("CurrentURIMetaData", CurrentMedia.MetaData));
+
+            oTransportAction.Execute(RequestURI, "AVTransport", args);
+            Play(0);
             //Event abonnieren
             //Play ausführen
             //Status aktualisieren
@@ -29,11 +43,32 @@ namespace HomeMediaApp.Classes
         {
             //Pause Action ausführen.
             //Status abrufen und aktualisieren
+            UPnPService oTransportService = oDevice.DeviceMethods.Where(e => e.ServiceID.ToLower() == "avtransport").ToList()[0];
+            UPnPAction oPlayAction = oTransportService.ActionList.Where(e => e.ActionName.ToLower() == "pause").ToList()[0];
+
+            string RequestURI = oDevice.DeviceAddress.Scheme + @"://" + oDevice.DeviceAddress.Authority + oTransportService.ControlURL;
+
+            List<Tuple<string, string>> args = new List<Tuple<string, string>>();
+            args.Add(new Tuple<string, string>("InstanceID", MediaList.IndexOf(CurrentMedia).ToString()));
+
+            oPlayAction.Execute(RequestURI, "AVTransport", args);
+
             return true;
         }
         public bool Play(int Index)
         {
             //Play mit Index ausführen
+            UPnPService oTransportService = oDevice.DeviceMethods.Where(e => e.ServiceID.ToLower() == "avtransport").ToList()[0];
+            UPnPAction oPlayAction = oTransportService.ActionList.Where(e => e.ActionName.ToLower() == "play").ToList()[0];
+
+            string RequestURI = oDevice.DeviceAddress.Scheme + @"://" + oDevice.DeviceAddress.Authority + oTransportService.ControlURL;
+
+            List<Tuple<string, string>> args = new List<Tuple<string, string>>();
+            args.Add(new Tuple<string, string>("InstanceID", MediaList.IndexOf(CurrentMedia).ToString()));
+            args.Add(new Tuple<string, string>("Speed", "1"));
+
+            oPlayAction.Execute(RequestURI, "AVTransport", args);
+
             MediaObject oCurrent = MediaList.Where(e => e.Index == Index).ToList().First();
             if (oCurrent != null) CurrentMedia = oCurrent;
             else return false;

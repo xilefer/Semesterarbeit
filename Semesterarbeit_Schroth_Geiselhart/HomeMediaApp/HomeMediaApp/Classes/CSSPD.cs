@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -35,18 +36,17 @@ namespace HomeMediaApp
         /// </summary>
         public void StartSearch()
         {
-            Task.Factory.StartNew(() =>
+            try
             {
-                StartSearchBackground();
-            }, cancellationTokenSource.Token);
-            /*
-            oSendSocket = new UdpSocketReceiver();
-            oSendSocket.MessageReceived += OSendSocketOnMessageReceived;
-            string sSearchString = "M-SEARCH * HTTP/1.1\r\nHOST:239.255.255.250:1900\r\nMAN:\"ssdp:discover\"\r\nST:ssdp:all\r\nMX:3\r\n\r\n";
-            byte[] sSearchBytes = Encoding.UTF8.GetBytes(sSearchString);
-            oSendSocket.StartListeningAsync(0).Wait();
-            oSendSocket.SendToAsync(sSearchBytes, sSearchBytes.Length, "239.255.255.250", 1900);
-            */
+                Task.Factory.StartNew(() =>
+                {
+                    StartSearchBackground();
+                }, cancellationTokenSource.Token);
+            }
+            catch (Exception gEx)
+            {
+                Debug.WriteLine(gEx.ToString());
+            }
         }
 
         public void StopSearch()
@@ -78,20 +78,27 @@ namespace HomeMediaApp
                 string sLocation = "";
                 try
                 {
-                    sLocation = sAnswerDecomposed.First(e => e.ToUpper().StartsWith("LOCATION:"));
-                    HttpWebRequest oHttpWebRequest = WebRequest.CreateHttp(sLocation.Substring(9));
-                    oHttpWebRequest.Method = "GET";
-                    CSSDPState oState = new CSSDPState()
+                    if (sAnswerDecomposed.Where(e => e.ToUpper().StartsWith("LOCATION:")).ToList().Count > 0)
                     {
-                        oWebRequest = oHttpWebRequest
-                    };
-                    oHttpWebRequest.BeginGetResponse(RequestCallback, oState);
-
+                        sLocation = sAnswerDecomposed.First(e => e.ToUpper().StartsWith("LOCATION:"));
+                        if (!sLocation.Contains("http://"))
+                        {
+                            sLocation = "http://" + sLocation.Substring(9);
+                            sLocation = "LOCATION: " + sLocation;
+                        }
+                        Debug.WriteLine(sLocation.Substring(9));
+                        HttpWebRequest oHttpWebRequest = WebRequest.CreateHttp(sLocation.Substring(9));
+                        oHttpWebRequest.Method = "GET";
+                        CSSDPState oState = new CSSDPState()
+                        {
+                            oWebRequest = oHttpWebRequest
+                        };
+                        oHttpWebRequest.BeginGetResponse(RequestCallback, oState);
+                    }
                 }
-                catch (Exception)
+                catch (Exception gEx)
                 {
-                    // TODO: Logmeldung o.ä.
-                    return;
+                    throw gEx;
                 }
             }
         }
@@ -105,7 +112,15 @@ namespace HomeMediaApp
             CSSDPState oState = (CSSDPState)oResult.AsyncState;
             HttpWebRequest oWebRequest = oState.oWebRequest;
 
-            oState.oWebResponse = (HttpWebResponse)oWebRequest.EndGetResponse(oResult);
+            try
+            {
+                oState.oWebResponse = (HttpWebResponse)oWebRequest.EndGetResponse(oResult);
+            }
+            catch (Exception gEx)
+            {
+                Debug.WriteLine(gEx);
+                return;
+            }
             Stream oResponseStream = oState.oWebResponse.GetResponseStream();
             MemoryStream ms = new MemoryStream();
             oResponseStream.CopyTo(ms);

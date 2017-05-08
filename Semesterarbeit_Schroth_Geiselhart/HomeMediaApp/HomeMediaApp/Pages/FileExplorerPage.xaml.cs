@@ -1,4 +1,4 @@
-﻿using System; 
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -50,7 +50,7 @@ namespace HomeMediaApp.Pages
             }
         }
 
-        
+
 
         public UPnPDevice CurrentDevice { get; set; }
 
@@ -285,6 +285,60 @@ namespace HomeMediaApp.Pages
             {
                 SelectedRenderer = await DisplayActionSheet("Wiedergabegerät auswählen", "Wiedergabe Abbrechen", null, Options);
             });
+            if (SelectedRenderer != null && SelectedRenderer == "Wiedergabe Abbrechen")
+            {
+
+            }
+            else if (SelectedRenderer == "Dieses Gerät")
+            {
+                // TappedItem ist eine Playlist d.h. Die Kinder von TappedItem browsen und Wiedergeben
+                /*
+                if ((GlobalVariables.GlobalMediaPlayerDevice as IMediaPlayerControl).PlayFromUri(new Uri(MusicItem.RelatedTrack.Res)))
+                {
+                    Device.BeginInvokeOnMainThread(async () =>
+                    {
+                        PlayerStackLayout.Children.Clear();
+                        PlayerStackLayout.Children.Add(GlobalVariables.GlobalMediaPlayerDevice);
+                        PlayerStackLayout.ForceLayout();
+                        bool Answer = await DisplayAlert("Wiedergabe", "Möchten sie die Wiedergabe sofort starten?", "Ja", "Nein");
+                        if (Answer)
+                        {
+                            //try
+                            //{
+                            //    (Parent.Parent as MasterDetailPageHomeMediaApp).Detail = new NavigationPage(GlobalVariables.GlobalMediaPlayerDevice as Page);
+                            //}
+                            //catch (Exception e)
+                            //{
+                            //    Debug.WriteLine(e);
+                            //    throw;
+                            //}
+                            GlobalVariables.GlobalMediaPlayerControl.Play();
+                        }
+                    });
+                }*/
+            }
+            else
+            {
+                List<UPnPDevice> SelectedRendererList = GlobalVariables.UPnPMediaRenderer.Where(Renderer => Renderer.DeviceName == SelectedRenderer).ToList();
+                if (SelectedRendererList.Count == 0)
+                {   // Keinen Renderer gefunden
+                    DisplayAlert("Warnung", "Die Wiedergabe konnte nicht gestartet werden." + Environment.NewLine + "Das Ausgabegerät konnte nicht gefunden werden!", "OK");
+                    return;
+                }
+                else
+                {
+                    /*
+                    MediaObject Song = new MediaObject()
+                    {
+                        Index = 0,
+                        // TODO: Metadaten definieren
+                        MetaData = MusicItem.RelatedTrack.Res,
+                        Path = MusicItem.RelatedTrack.Res
+                    };
+                    GlobalVariables.GlobalPlayerControl = MediaPlayer.Play(Song, SelectedRendererList[0]);
+                    */
+                }
+            }
             //throw new NotImplementedException("Playlist item Tapped");
         }
 

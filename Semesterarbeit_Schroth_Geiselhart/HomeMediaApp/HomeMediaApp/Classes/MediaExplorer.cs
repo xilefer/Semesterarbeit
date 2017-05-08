@@ -24,21 +24,11 @@ namespace HomeMediaApp.Classes
         public ImageSource IconSource { get; set; } = new FileImageSource();
         public virtual string DisplayName { get; set; } = "";
         public FileExplorerItemType ItemType { get; set; } = FileExplorerItemType.ELSE;
+        public ObservableCollection<MenuItem> ContextActions { get; set; } = new ObservableCollection<MenuItem>();
     }
 
     public class FolderItem : FileExplorerItemBase
     {
-        /// <summary>
-        /// Parst die Response XML in ein Folder Object
-        /// </summary>
-        /// <param name="Response"></param>
-        /// <returns></returns>
-        public static FolderItem CreateFolderItemFromXML(XDocument Response)
-        {
-            List<XElement> ContainerElements = Response.Descendants().Where(e => e.Name.LocalName == "container").ToList();
-            return new FolderItem("");
-        }
-
         private UPnPContainer mRelatedContainer;
         public UPnPContainer RelatedContainer
         {
@@ -56,6 +46,10 @@ namespace HomeMediaApp.Classes
             ItemType = FileExplorerItemType.FOLDER;
             DisplayName = FolderName;
             IconSource = ImageSource.FromResource("HomeMediaApp.Icons.folder_icon.png");
+            ContextActions.Add(new MenuItem()
+            {
+                Text = "Öffnen",
+            });
         }
 
         public void AddChild(FileExplorerItemBase Child)

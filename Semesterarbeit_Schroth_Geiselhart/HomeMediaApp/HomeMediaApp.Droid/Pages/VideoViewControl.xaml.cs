@@ -13,39 +13,47 @@ namespace HomeMediaApp.Droid.Pages
 {
     public partial class VideoViewControl : ContentPage, IVideoViewer
     {
-        //VideoView VideoViewControlElement = new VideoView(Android.App.Application.Context);
         public VideoViewControl()
         {
             InitializeComponent();
-            //StackLayoutControl.Children.Clear();
-            //StackLayoutControl.Children.Add(VideoViewControlElement.ToView());
-            //VideoViewControlElement.SetZOrderOnTop(true);
-            //this.Content = VideoViewControlElement.ToView();
             ForceLayout();
         }
 
         public void ShowVideoFromUri(Uri FileUri)
         {
-            //VideoViewControlElement.SetVideoURI(Android.Net.Uri.Parse(FileUri.ToString()));
-            VideoViewControlControl.FileSource = FileUri.ToString();
+            VideoContentViewControl.VideoViewControl.SetVideoURI(Android.Net.Uri.Parse(FileUri.ToString()));
+            VideoContentViewControl.VideoViewControl.SeekTo(1);
+            VideoContentViewControl.VideoViewControl.SetZOrderOnTop(true);
         }
 
         public void ShwoVideoFromPath(string FilePath)
         {
-            //VideoViewControlElement.SetVideoPath(FilePath);
+            VideoContentViewControl.VideoViewControl.SetVideoPath(FilePath);
         }
 
         public void Play()
         {
-            //VideoViewControlElement.Start();
-            //VideoViewControlElement.SetZOrderOnTop(true);
-            //ForceLayout();
+            VideoContentViewControl.VideoViewControl.Start();
         }
 
         protected override void OnAppearing()
         {
-            //VideoViewControlElement.SetZOrderOnTop(true);
-            //ForceLayout();
+            //this.ShowVideoFromUri(new Uri("http://192.168.1.102:5001/get/131/Boy+with+taco+FAIL.mp4"));
+        }
+
+        protected override void OnDisappearing()
+        {
+            base.OnDisappearing();
+            if(VideoContentViewControl.VideoViewControl.IsPlaying) VideoContentViewControl.VideoViewControl.StopPlayback();
+        }
+
+        private void PlayPauseButton_OnClicked(object sender, EventArgs e)
+        {
+            if (VideoContentViewControl.VideoViewControl.IsPlaying) VideoContentViewControl.VideoViewControl.Pause();
+            else
+            {
+                VideoContentViewControl.VideoViewControl.Start();
+            }
         }
     }
 }

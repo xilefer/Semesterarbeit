@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -82,7 +83,15 @@ namespace HomeMediaApp.Classes
         private void ResponseCallback(IAsyncResult oResult)
         {
             ActionState oState = (ActionState)oResult.AsyncState;
-            oState.oWebResponse = (HttpWebResponse)oState.oWebRequest.EndGetResponse(oResult);
+            try
+            {
+                oState.oWebResponse = (HttpWebResponse)oState.oWebRequest.EndGetResponse(oResult);
+            }
+            catch (Exception gEx)
+            {
+                Debug.WriteLine(gEx);
+                return;
+            }
             Stream st = oState.oWebResponse.GetResponseStream();
             MemoryStream ms = new MemoryStream();
             st.CopyTo(ms);

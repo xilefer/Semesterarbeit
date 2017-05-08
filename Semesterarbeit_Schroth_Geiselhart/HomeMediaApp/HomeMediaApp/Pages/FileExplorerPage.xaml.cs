@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System; 
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -50,6 +50,7 @@ namespace HomeMediaApp.Pages
             }
         }
 
+        
 
         public UPnPDevice CurrentDevice { get; set; }
 
@@ -60,10 +61,57 @@ namespace HomeMediaApp.Pages
             BindingContext = this;
             GlobalVariables.GlobalMediaPlayerDevice = DependencyService.Get<IMediaPlayerControl>() as ContentView;
             GlobalVariables.GlobalVideoViewerDevice = DependencyService.Get<IVideoViewer>() as ContentView; ;
-
             PlayerStackLayout.Children.Clear();
             PlayerStackLayout.Children.Add(GlobalVariables.GlobalMediaPlayerDevice);
             PlayerStackLayout.ForceLayout();
+            // Subscription für die View-Events die für die Kontextaktionen der ListView-Elemente benötigt werden
+            // Detailfunktion
+            MessagingCenter.Subscribe<ViewCellBase, FileExplorerItemBase>(this, GlobalVariables.BaseShowDetailsActionName, (sender, arg) =>
+            {
+                throw new NotImplementedException("Detail-Funktion gibts noch nicht");
+            });
+            // Ordner öffnen
+            MessagingCenter.Subscribe<FolderViewCell, FolderItem>(this, GlobalVariables.FolderOpenActionName, (sender, arg) =>
+            {
+                this.MasterItem = arg;
+                BrowseChildrens(MasterItem);
+            });
+            // Musik wiedergeben
+            MessagingCenter.Subscribe<MusicViewCell, MusicItem>(this, GlobalVariables.MusicPlayActionName, (sender, arg) =>
+                {
+                    List<string> MediaRenderer = new List<string>();
+                    foreach (UPnPDevice upnPMediaServer in GlobalVariables.UPnPMediaRenderer)
+                    {
+                        if (upnPMediaServer.Type == "DUMMY") continue;
+                        MediaRenderer.Add(upnPMediaServer.DeviceName);
+                    }
+                    MediaRenderer.Add("Dieses Gerät");
+                    MusicItemTapped(arg, MediaRenderer.ToArray());
+                });
+            // Bild anzeigen
+            MessagingCenter.Subscribe<ImageViewCell, PictureItem>(this, GlobalVariables.ImageOpenActionName, (sender, arg) =>
+                {
+                    List<string> MediaRenderer = new List<string>();
+                    foreach (UPnPDevice upnPMediaServer in GlobalVariables.UPnPMediaRenderer)
+                    {
+                        if (upnPMediaServer.Type == "DUMMY") continue;
+                        MediaRenderer.Add(upnPMediaServer.DeviceName);
+                    }
+                    MediaRenderer.Add("Dieses Gerät");
+                    PictureItemTapped(arg, MediaRenderer.ToArray());
+                });
+            // Video wiedergeben
+            MessagingCenter.Subscribe<VideoViewCell, VideoItem>(this, GlobalVariables.VideoPlayActionName, (sender, arg) =>
+                {
+                    List<string> MediaRenderer = new List<string>();
+                    foreach (UPnPDevice upnPMediaServer in GlobalVariables.UPnPMediaRenderer)
+                    {
+                        if (upnPMediaServer.Type == "DUMMY") continue;
+                        MediaRenderer.Add(upnPMediaServer.DeviceName);
+                    }
+                    MediaRenderer.Add("Dieses Gerät");
+                    VideoItemTapped(arg, MediaRenderer.ToArray());
+                });
         }
 
         public void OnResponeReceived(XDocument oResponseDocument, ActionState oState)
@@ -175,38 +223,21 @@ namespace HomeMediaApp.Pages
             if (e.Item as FileExplorerItemBase == null) return;
             List<string> MediaRenderer = new List<string>();
             foreach (UPnPDevice upnPMediaServer in GlobalVariables.UPnPMediaRenderer)
-            {
+            {   // TODO: Hier muss noch auf die Möglichkeiten des Renderers geprüft werden bsp. Kann er auch videos wiedergeben?
                 if (upnPMediaServer.Type == "DUMMY") continue;
                 MediaRenderer.Add(upnPMediaServer.DeviceName);
             }
-            string SelectedRenderer = null;
             MediaRenderer.Add("Dieses Gerät");
             switch ((e.Item as FileExplorerItemBase).ItemType)
             {
                 case FileExplorerItemType.MUSIC:
-                    MusicItem MusicItem = e.Item as MusicItem;
-                    //Popup anzeigen
-                    Device.BeginInvokeOnMainThread(async () =>
-                    {
-                        SelectedRenderer = await DisplayActionSheet("Wiedergabegerät auswählen", "Wiedergabe Abbrechen", null, MediaRenderer.ToArray());
-                        PlayDeviceSelected(SelectedRenderer, MusicItem);
-                    });
+                    MusicItemTapped(e.Item as MusicItem, MediaRenderer.ToArray());
                     break;
                 case FileExplorerItemType.PICTURE:
-                    PictureItem PictureItem = e.Item as PictureItem;
-                    Device.BeginInvokeOnMainThread(async () =>
-                    {
-                        SelectedRenderer = await DisplayActionSheet("Wiedergabegerät auswählen", "Wiedergabe Abbrechen", null, MediaRenderer.ToArray());
-                        PictureDeviceSelected(SelectedRenderer, PictureItem);
-                    });
+                    PictureItemTapped(e.Item as PictureItem, MediaRenderer.ToArray());
                     break;
                 case FileExplorerItemType.VIDEO:
-                    VideoItem VideoItem = e.Item as VideoItem;
-                    Device.BeginInvokeOnMainThread(async () =>
-                    {
-                        SelectedRenderer = await DisplayActionSheet("Wiedergabegerät auswählen", "Wiedergabe Abbrechen", null, MediaRenderer.ToArray());
-                        VideoDeviceSelected(SelectedRenderer, VideoItem);
-                    });
+                    VideoItemTapped(e.Item as VideoItem, MediaRenderer.ToArray());
                     break;
                 case FileExplorerItemType.FOLDER:
                     FolderItem Item = e.Item as FolderItem;
@@ -214,9 +245,39 @@ namespace HomeMediaApp.Pages
                     BrowseChildrens(MasterItem);
                     break;
                 case FileExplorerItemType.ELSE:
-
                     break;
             }
+        }
+
+        private void VideoItemTapped(VideoItem TappedItem, string[] Options)
+        {
+            string SelectedRenderer = "";
+            Device.BeginInvokeOnMainThread(async () =>
+            {
+                SelectedRenderer = await DisplayActionSheet("Wiedergabegerät auswählen", "Wiedergabe Abbrechen", null, Options);
+                VideoDeviceSelected(SelectedRenderer, TappedItem);
+            });
+        }
+
+        private void PictureItemTapped(PictureItem TappedItem, string[] Options)
+        {
+            string SelectedRenderer = "";
+            Device.BeginInvokeOnMainThread(async () =>
+            {
+                SelectedRenderer = await DisplayActionSheet("Wiedergabegerät auswählen", "Wiedergabe Abbrechen", null, Options);
+                PictureDeviceSelected(SelectedRenderer, TappedItem);
+            });
+        }
+
+        private void MusicItemTapped(MusicItem TappedItem, string[] Options)
+        {
+            //Popup anzeigen
+            string SelectedRenderer = "";
+            Device.BeginInvokeOnMainThread(async () =>
+            {
+                SelectedRenderer = await DisplayActionSheet("Wiedergabegerät auswählen", "Wiedergabe Abbrechen", null, Options);
+                PlayDeviceSelected(SelectedRenderer, TappedItem);
+            });
         }
 
         private void PlayDeviceSelected(string SelectedRenderer, MusicItem MusicItem)
@@ -307,21 +368,13 @@ namespace HomeMediaApp.Pages
         private void VideoDeviceSelected(string SelectedRenderer, VideoItem VideoItem)
         {
             if (SelectedRenderer == null || SelectedRenderer == "Wiedergabe Abbrechen") return;
-            else if (SelectedRenderer == "Dieses Gerät")
+            if (SelectedRenderer == "Dieses Gerät")
             {
                 if (Device.OS == TargetPlatform.Android)
-                {
-                    /*
-                    ContentPageTemplate NewPage = new ContentPageTemplate();
-                    GlobalVariables.GlobalVideoViewerDevice.HeightRequest = 200;
-                    GlobalVariables.GlobalVideoViewerDevice.WidthRequest = 300;
-                    NewPage.Content = GlobalVariables.GlobalVideoViewerDevice;
-                    Navigation.PushAsync(new NavigationPage(NewPage));
-                    */
+                {   // Auf Android haben wir eine extra Video-Player Seite
                     ContentPage oPage = DependencyService.Get<IVideoViewer>() as ContentPage;
-                    Navigation.PushAsync(oPage);
                     (oPage as IVideoViewer).ShowVideoFromUri(new Uri(VideoItem.RelatedVideo.Res));
-                    (oPage as IVideoViewer).Play();
+                    Navigation.PushAsync(oPage);
                 }
                 else
                 {
@@ -331,20 +384,9 @@ namespace HomeMediaApp.Pages
                         PlayerStackLayout.Children.Add(GlobalVariables.GlobalVideoViewerDevice);
                         PlayerStackLayout.ForceLayout();
                     });
+                    GlobalVariables.GlobalVideoViewer.ShowVideoFromUri(new Uri(VideoItem.RelatedVideo.Res));
+                    GlobalVariables.GlobalVideoViewer.Play();
                 }
-                GlobalVariables.GlobalVideoViewer.ShowVideoFromUri(new Uri(VideoItem.RelatedVideo.Res));
-                GlobalVariables.GlobalVideoViewer.Play();
-                //GlobalVariables.GlobalVideoViewer.ShowVideoFromUri(new Uri(VideoItem.RelatedVideo.Res));
-                //GlobalVariables.GlobalVideoViewer.Play();
-                //try
-                //{
-                //    IVideoViewer videoViewer = DependencyService.Get<IVideoViewer>();
-                //    videoViewer.ShowVideoFromUri(new Uri(VideoItem.RelatedVideo.Res));
-                //}
-                //catch (Exception e)
-                //{
-                //    DisplayAlert("", e.ToString(), "OK");
-                //}
             }
             else
             {
@@ -364,6 +406,32 @@ namespace HomeMediaApp.Pages
         {
             BackButton_OnClicked(this, null);
             return true;
+        }
+
+        private void FileListView_OnItemAppearing(object sender, ItemVisibilityEventArgs e)
+        {
+            ImageCell Item = e.Item as ImageCell;
+            FileExplorerItemBase ItemBase = e.Item as FileExplorerItemBase;
+            MenuItem oItem = new MenuItem() { Text = "DETAILS" };
+            //switch (ItemBase.ItemType)
+            //{
+            //    case FileExplorerItemType.FOLDER:
+            //        Item.ContextActions.Add(oItem);
+            //        break;
+            //    case FileExplorerItemType.MUSIC:
+            //        Item.ContextActions.Add(oItem);
+            //        break;
+            //    case FileExplorerItemType.PICTURE:
+            //        Item.ContextActions.Add(oItem);
+            //        break;
+            //    case FileExplorerItemType.VIDEO:
+            //        Item.ContextActions.Add(oItem);
+            //        break;
+            //    case FileExplorerItemType.ELSE:
+            //        Item.ContextActions.Add(oItem);
+            //        break;
+            //}
+            //ForceLayout();
         }
     }
 }

@@ -15,7 +15,7 @@ namespace TestConsole
             string sTemp =
                 System.IO.File.ReadAllText(
                     @"C:\Users\felix\Desktop\DHBW Horb\Semesterarbeit\Dokumente\response browse.txt");
-            FolderItem oItem = FolderItem.CreateFolderItemFromXML(XDocument.Parse(sTemp));
+
         }
     }
 }

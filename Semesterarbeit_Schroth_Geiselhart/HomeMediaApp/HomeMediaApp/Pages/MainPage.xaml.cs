@@ -80,7 +80,6 @@ namespace HomeMediaApp.Pages
                 : null;
             if (sUDN == null) return;   // Konfiguration enthält keine UDN
                                         // Ist UDN bereits vorhanden?
-
             bool DocumentExists = false;
             foreach (UPnPDevice Device in GlobalVariables.UPnPMediaServers)
             {
@@ -122,7 +121,6 @@ namespace HomeMediaApp.Pages
                 oDevice.DeviceAddress = oDeviceAddress;
                 UPnPDevice oOutputDevice = oParser.Parse(oDevice);
                 // Jetzt wird zwischen mediaserver und Mediarenderer unterschieden (Wägs dr oberfläch)
-                Debug.WriteLine(oOutputDevice.DeviceName);
                 if (oOutputDevice.Type.ToLower() == "mediaserver")
                 {
                     bool ClearCollection = false;
@@ -164,7 +162,7 @@ namespace HomeMediaApp.Pages
             do
             {
                 if (oDevice.Type.ToLower() == "mediaserver") TempList = UPnPServerList.Where(e => e.DeviceName == oDevice.DeviceName).ToList();
-                else if (oDevice.Type.ToLower() == "mediarenderer") TempList = UPnPServerList.Where(e => e.DeviceName == oDevice.DeviceName).ToList();
+                else if (oDevice.Type.ToLower() == "mediarenderer") TempList = UPnPMediaRendererList.Where(e => e.DeviceName == oDevice.DeviceName).ToList();
             } while (TempList.Count == 0);
             UPnPDevice oTempDevice = TempList[0];
             // Ebenfalls zwischen renderer und Server unterscheiden
@@ -278,18 +276,10 @@ namespace HomeMediaApp.Pages
             }
         }
 
-        private async void Button_OnClicked(object sender, EventArgs e)
+        private void Button_OnClicked(object sender, EventArgs e)
         {
-            await DisplayAlert("Menge an Geräten", GlobalVariables.UPnPMediaServers.Count.ToString(), "OK");
-            //IPhotoViewer PhotoViewer = DependencyService.Get<IPhotoViewer>();
-            //PhotoViewer.ShowPhotoFromUri(new Uri("http://nightlife-malsch.de/wp-content/uploads/online.jpg"));
-            //ContentPage PhotoViewerPage = PhotoViewer as ContentPage;
-            //await Navigation.PushAsync(PhotoViewerPage);
-            /*
-            oDeviceSearcher = new CSSPD();
-            oDeviceSearcher.ReceivedXml += new ReceivedXml(OnReceivedXML);
-            oDeviceSearcher.StartSearch();
-            */
+            ContentPage VideoView = DependencyService.Get<IVideoViewer>() as ContentPage;
+            Navigation.PushAsync(new NavigationPage(VideoView));
         }
     }
 }

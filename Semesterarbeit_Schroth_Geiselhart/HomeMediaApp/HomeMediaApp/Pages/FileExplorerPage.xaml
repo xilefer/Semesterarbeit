@@ -1,8 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:classes="clr-namespace:HomeMediaApp.Classes;assembly=HomeMediaApp"
              x:Class="HomeMediaApp.Pages.FileExplorerPage"
              Title="Dateiexplorer" BackgroundColor="White">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <classes:FileBrowserDataTemplateSelector x:Key="FileBrowserTemplateSelector"/>
+        </ResourceDictionary>
+    </ContentPage.Resources>
     <ContentPage.Content>
         <Grid>
             <Grid.RowDefinitions>
@@ -18,12 +24,14 @@
                     </Image.GestureRecognizers>
                 </Image>
             </StackLayout>
-            <ListView Grid.Row="1" x:Name="FileListView" ItemsSource="{Binding ExplorerItems}" BackgroundColor="White" ItemTapped="FileListView_OnItemTapped">
+            <ListView Grid.Row="1" x:Name="FileListView" ItemTemplate="{StaticResource FileBrowserTemplateSelector}" ItemsSource="{Binding ExplorerItems}" BackgroundColor="White" ItemTapped="FileListView_OnItemTapped"  ItemAppearing="FileListView_OnItemAppearing">
+                <!-- 
                 <ListView.ItemTemplate>
                     <DataTemplate>
-                        <ImageCell Text="{Binding DisplayName}" ImageSource="{Binding IconSource}" TextColor="Black"></ImageCell>
+                        <ImageCell Text="{Binding DisplayName}" ImageSource="{Binding IconSource}" TextColor="Black"/>
                     </DataTemplate>
                 </ListView.ItemTemplate>
+                -->
             </ListView>
             <StackLayout x:Name="PlayerStackLayout" Grid.Row="2" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
                 <Label>Platzhalten</Label>

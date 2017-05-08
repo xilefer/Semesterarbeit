@@ -51,12 +51,12 @@ namespace HomeMediaApp.Classes
             soapRequest.AppendLine(@"<?xml version=""1.0"" encoding=""utf-8""?>");
             soapRequest.AppendLine(@"<s:Envelope xmlns:s=""http://schemas.xmlsoap.org/soap/envelope/"" s:encodingStyle=""http://schemas.xmlsoap.org/soap/encoding/"">");
             soapRequest.AppendLine(@"<s:Body>");
-            soapRequest.AppendLine("<u:" + this.ActionName + " xmlns:u=\"urn:schemas-upnp-org:service:" + ServiceName + ":1\">");
+            soapRequest.AppendLine("<m:" + this.ActionName + " xmlns:m=\"urn:schemas-upnp-org:service:" + ServiceName + ":1\">");
             foreach(Tuple<string,string> item in args)
             {
                 soapRequest.AppendLine("<" + item.Item1 + ">" + item.Item2 + "</" + item.Item1 + ">");
             }
-            soapRequest.AppendLine("</u:" + this.ActionName + ">");
+            soapRequest.AppendLine("</m:" + this.ActionName + ">");
             soapRequest.AppendLine("</s:Body>");
             soapRequest.AppendLine("</s:Envelope>");
             byte[] bytes = Encoding.UTF8.GetBytes(soapRequest.ToString());

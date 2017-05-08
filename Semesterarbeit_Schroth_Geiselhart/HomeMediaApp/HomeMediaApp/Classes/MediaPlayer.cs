@@ -11,7 +11,6 @@ namespace HomeMediaApp.Classes
         public static PlayerControl Play(MediaObject oMedia, UPnPDevice oDevice)
         {
             PlayerControl Control = new PlayerControl(oDevice, oMedia);
-            Control.MediaList.Add(oMedia);
             return Control;
         }
     }

@@ -11,7 +11,7 @@ namespace HomeMediaApp.Classes
     public class PlayerControl
     {
         // public int CurrentPosition() (-1 wenns net spielt, sonst die aktuelle sekundenzahl)
-        // public bool IsPlaying;
+        // public bool IsPlaying; Erledigt
         
         public UPnPDevice oDevice { get; set; }
         public List<MediaObject> MediaList { get; set; } = new List<MediaObject>();
@@ -19,40 +19,32 @@ namespace HomeMediaApp.Classes
         public MediaObject NextMedia { get; set; }
         public MediaObject PreviousMedia { get; set; }
         public string Status { get; set; }
+        private int LastPosition { get; set; }
+        private bool PlayingReponse { get; set; }
+        private bool Playing { get; set; } = false;
+        private bool PositionResponse { get; set; } = false;
+        public bool IsPlaying
+        {
+            get
+            {
+                UPnPService oTransportService = oDevice.DeviceMethods.Where(e => e.ServiceID.ToLower() == "avtransport").ToList()[0];
+                UPnPAction oPlayingAction = oTransportService.ActionList.Where(e => e.ActionName.ToLower() == "gettransportinfo").ToList()[0];
+                oPlayingAction.OnResponseReceived += new ResponseReceived(OnResponsePlaying);
 
-        public void OnResponseReceived(XDocument oResponseDocument, ActionState oState)
-        {
+                string RequestURI = oDevice.DeviceAddress.Scheme + @"://" + oDevice.DeviceAddress.Authority + oTransportService.ControlURL;
 
-        }
-        public void OnResponseSetAVTransportURI(XDocument oResponseDocument, ActionState oState)
-        {
-            if(oState.oWebResponse.StatusCode == System.Net.HttpStatusCode.OK)
-            {
-                Playable();
-            }
-            else
-            {
-                //Fehler
+                List<Tuple<string, string>> args = new List<Tuple<string, string>>();
+                args.Add(new Tuple<string, string>("InstanceID", MediaList.IndexOf(CurrentMedia).ToString()));
+                PlayingReponse = false;
+                oPlayingAction.Execute(RequestURI, "AVTransport", args);
+                while(PlayingReponse == false)
+                { }
+                PlayingReponse = false;
+                return Playing;
             }
         }
-        public void OnResponseGetCurrentTransportAction(XDocument oResponseDocument, ActionState oState)
-        {
-            if(oState.oWebResponse.StatusCode == System.Net.HttpStatusCode.OK)
-            {
-                Play(CurrentMedia.Index);
-            }
-            else
-            {
-                Playable();
-            }
-        }
-        public void OnResponsePlay(XDocument oResponseDocument, ActionState oState)
-        {
-            if (oState.oWebResponse.StatusCode == System.Net.HttpStatusCode.OK)
-            {
-                //Gut
-            }
-        }
+
+
         public PlayerControl(UPnPDevice RendererDevice, MediaObject Media)
         {
             this.CurrentMedia = Media;
@@ -80,6 +72,24 @@ namespace HomeMediaApp.Classes
             //Status aktualisieren
         }
 
+        public int GetCurrentPosition()
+        {
+            UPnPService oTransportService = oDevice.DeviceMethods.Where(e => e.ServiceID.ToLower() == "avtransport").ToList()[0];
+            UPnPAction oPositionAction = oTransportService.ActionList.Where(e => e.ActionName.ToLower() == "getpositioninfo").ToList()[0];
+            oPositionAction.OnResponseReceived += new ResponseReceived(OnResponsePosition);
+
+            string RequestURI = oDevice.DeviceAddress.Scheme + @"://" + oDevice.DeviceAddress.Authority + oTransportService.ControlURL;
+
+            List<Tuple<string, string>> args = new List<Tuple<string, string>>();
+            args.Add(new Tuple<string, string>("InstanceID", MediaList.IndexOf(CurrentMedia).ToString()));
+
+            oPositionAction.Execute(RequestURI, "AVTransport", args);
+            PositionResponse = false;
+            while (PositionResponse == false)
+            { }
+            PositionResponse = false;
+            return LastPosition;
+        }
         public void  Playable()
         {
             UPnPService oTransportService = oDevice.DeviceMethods.Where(e => e.ServiceID.ToLower() == "avtransport").ToList()[0];
@@ -181,6 +191,61 @@ namespace HomeMediaApp.Classes
                 if (item.Index > Index) Index = item.Index;
             }
             return Index;
+        }
+
+        public void OnResponsePlaying(XDocument oResponseDocument, ActionState oState)
+        {
+            if (oState.oWebResponse.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                XElement TransportState = oResponseDocument.Root.Elements().Elements().Elements().Where(e => e.Name.LocalName.ToLower() == "currenttransportstate").ToList()[0];
+                if (TransportState.Value.ToLower() == "playing") Playing = true;
+                else Playing = false;
+            }
+            PlayingReponse = true;
+
+        }
+        public void OnResponseReceived(XDocument oResponseDocument, ActionState oState)
+        {
+
+        }
+        public void OnResponseSetAVTransportURI(XDocument oResponseDocument, ActionState oState)
+        {
+            if (oState.oWebResponse.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                Playable();
+            }
+            else
+            {
+                //Fehler
+            }
+        }
+        public void OnResponseGetCurrentTransportAction(XDocument oResponseDocument, ActionState oState)
+        {
+            if (oState.oWebResponse.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                Play(CurrentMedia.Index);
+            }
+            else
+            {
+                Playable();
+            }
+        }
+        public void OnResponsePlay(XDocument oResponseDocument, ActionState oState)
+        {
+            if (oState.oWebResponse.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                //Gut
+            }
+        }
+        public void OnResponsePosition(XDocument oResponseDocument, ActionState oState)
+        {
+            if (oState.oWebResponse.StatusCode == System.Net.HttpStatusCode.OK && IsPlaying)
+            {
+                int Position = int.Parse(oResponseDocument.Root.Elements().Elements().Elements().Where(e => e.Name.LocalName.ToLower() == "abstime").ToList()[0].Value);
+                LastPosition = Position;
+            }
+            else LastPosition = -1;
+            PositionResponse = true;
         }
     }
 }

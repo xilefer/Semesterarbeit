@@ -8,11 +8,13 @@ using System.Xml.Linq;
 
 namespace HomeMediaApp.Classes
 {
+    public delegate void PlayingStatusChangedEvent();
     public class PlayerControl
     {
+
         // public int CurrentPosition() (-1 wenns net spielt, sonst die aktuelle sekundenzahl)
         // public bool IsPlaying; Erledigt
-        
+        public event PlayingStatusChangedEvent PlayingStatusChanged;
         public UPnPDevice oDevice { get; set; }
         public List<MediaObject> MediaList { get; set; } = new List<MediaObject>();
         public MediaObject CurrentMedia { get; set; }
@@ -40,6 +42,7 @@ namespace HomeMediaApp.Classes
                 while(PlayingReponse == false)
                 { }
                 PlayingReponse = false;
+                PlayingStatusChanged?.Invoke();
                 return Playing;
             }
         }

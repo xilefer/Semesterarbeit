@@ -10,6 +10,9 @@ namespace HomeMediaApp.Classes
 {
     public class PlayerControl
     {
+        // public int CurrentPosition() (-1 wenns net spielt, sonst die aktuelle sekundenzahl)
+        // public bool IsPlaying;
+        
         public UPnPDevice oDevice { get; set; }
         public List<MediaObject> MediaList { get; set; } = new List<MediaObject>();
         public MediaObject CurrentMedia { get; set; }
@@ -107,6 +110,8 @@ namespace HomeMediaApp.Classes
 
             return true;
         }
+
+
         public bool Play(int Index)
         {
             //Play mit Index ausführen

@@ -12,12 +12,14 @@ namespace HomeMediaApp.Classes
 {
     public static class GlobalVariables
     {
+        #region CONST Strings
         public const string BaseShowDetailsActionName = "MEDIAEXPLORER_BASE_SHOW_DETAILS";
         public const string FolderOpenActionName = "MEDIAEXPLORER_FOLDER_OPEN";
         public const string MusicPlayActionName = "MEDIAEXPLORER_MUSIC_PLAY";
         public const string ImageOpenActionName = "MEDIAEXPLORER_IMAGE_OPEN";
         public const string VideoPlayActionName = "MEDIAEXPLORER_VIDEO_PLAY";
         public const string PlaylistPlayActionName = "MEDIAEXPLORER_PLAYLIST_PLAY";
+        #endregion
 
         public static ObservableCollection<UPnPDevice> UPnPMediaServers = new ObservableCollection<UPnPDevice>()
         {

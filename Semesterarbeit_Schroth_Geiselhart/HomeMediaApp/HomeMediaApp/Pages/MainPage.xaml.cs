@@ -160,7 +160,7 @@ namespace HomeMediaApp.Pages
         {
             List<UPnPDevice> TempList = new List<UPnPDevice>();
             do
-            {
+            {   // TODO: Hier gibt es immerwieder eine Exception, Collection eventuell Sperren, aber an anderen Stellen!
                 if (oDevice.Type.ToLower() == "mediaserver") TempList = UPnPServerList.Where(e => e.DeviceName == oDevice.DeviceName).ToList();
                 else if (oDevice.Type.ToLower() == "mediarenderer") TempList = UPnPMediaRendererList.Where(e => e.DeviceName == oDevice.DeviceName).ToList();
             } while (TempList.Count == 0);
@@ -278,8 +278,7 @@ namespace HomeMediaApp.Pages
 
         private void Button_OnClicked(object sender, EventArgs e)
         {
-            ContentPage VideoView = DependencyService.Get<IVideoViewer>() as ContentPage;
-            Navigation.PushAsync(new NavigationPage(VideoView));
+            Navigation.PushAsync(new NavigationPage(new RemoteMediaPlayerPage()));
         }
 
         private void ListViewRenderer_OnItemTapped(object sender, ItemTappedEventArgs e)

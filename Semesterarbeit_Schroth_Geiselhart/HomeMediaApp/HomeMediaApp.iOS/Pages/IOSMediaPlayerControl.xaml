@@ -1,6 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<ContentView xmlns="http://xamarin.com/schemas/2014/forms" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" x:Class="HomeMediaApp.iOS.Pages.IOSMediaPlayerControl"
-             xmlns:ios="clr-namespace:UIKit;assembly=Xamarin.iOS;targetPlatform=iOS">
+<ContentView xmlns="http://xamarin.com/schemas/2014/forms" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" x:Class="HomeMediaApp.iOS.Pages.IOSMediaPlayerControl">
   <ContentView.Content>
     <StackLayout x:Name="StackLayoutControl">
       <Label>Temp</Label>

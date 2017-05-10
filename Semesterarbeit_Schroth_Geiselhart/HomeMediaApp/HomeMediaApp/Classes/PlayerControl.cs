@@ -42,8 +42,13 @@ namespace HomeMediaApp.Classes
                 while(PlayingReponse == false)
                 { }
                 PlayingReponse = false;
-                PlayingStatusChanged?.Invoke();
                 return Playing;
+            }
+            set
+            {
+                if (Playing == value) return;
+                Playing = value;
+                PlayingStatusChanged?.Invoke();
             }
         }
 
@@ -209,7 +214,7 @@ namespace HomeMediaApp.Classes
         }
         public void OnResponseReceived(XDocument oResponseDocument, ActionState oState)
         {
-
+            IsPlaying = false;
         }
         public void OnResponseSetAVTransportURI(XDocument oResponseDocument, ActionState oState)
         {
@@ -237,6 +242,7 @@ namespace HomeMediaApp.Classes
         {
             if (oState.oWebResponse.StatusCode == System.Net.HttpStatusCode.OK)
             {
+                IsPlaying = true;
                 //Gut
             }
         }

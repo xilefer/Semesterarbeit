@@ -425,6 +425,7 @@ namespace HomeMediaApp.Pages
                             Path = MusicItem.RelatedTrack.Res
                         };
                         GlobalVariables.GlobalPlayerControl = MediaPlayer.Play(Song, SelectedRendererList[0]);
+                        OpenRemotePlayerView();
                     }
                 }
             }
@@ -458,6 +459,11 @@ namespace HomeMediaApp.Pages
             }
         }
 
+        public void OpenRemotePlayerView()
+        {
+            Navigation.PushAsync(new NavigationPage(new RemoteMediaPlayerPage()));
+        }
+
         private void VideoDeviceSelected(string SelectedRenderer, VideoItem VideoItem)
         {
             if (SelectedRenderer == null || SelectedRenderer == "Wiedergabe Abbrechen") return;
@@ -483,7 +489,24 @@ namespace HomeMediaApp.Pages
             }
             else
             {
-                throw new NotImplementedException();
+                List<UPnPDevice> SelectedRendererList = GlobalVariables.UPnPMediaRenderer.Where(Renderer => Renderer.DeviceName == SelectedRenderer).ToList();
+                if (SelectedRendererList.Count == 0)
+                {   // Keinen Renderer gefunden
+                    DisplayAlert("Warnung", "Die Wiedergabe konnte nicht gestartet werden." + Environment.NewLine + "Das Ausgabegerät konnte nicht gefunden werden!", "OK");
+                    return;
+                }
+                else
+                {
+                    MediaObject Video = new MediaObject()
+                    {
+                        Index = 0,
+                        // TODO: Metadaten definieren
+                        MetaData = VideoItem.RelatedVideo.Res,
+                        Path = VideoItem.RelatedVideo.Res
+                    };
+                    GlobalVariables.GlobalPlayerControl = MediaPlayer.Play(Video, SelectedRendererList[0]);
+                    OpenRemotePlayerView();
+                }
             }
         }
 

@@ -126,30 +126,42 @@ namespace HomeMediaApp
             oResponseStream.CopyTo(ms);
             string sResponse = Encoding.UTF8.GetString(ms.ToArray(), 0, (int)ms.Length);
             XDocument ReceivedXML = XDocument.Parse(sResponse);
-            List<XElement> UDNs = ReceivedXML.Descendants().Where(Desc => Desc.Name.LocalName.ToLower() == "udn").ToList();
-            if (UDNs.Count > 0)
+            List<XElement> Devices = ReceivedXML.Descendants().Where(e => e.Name.LocalName.ToLower() == "device").ToList();
+            List<XElement> DevicesList = ReceivedXML.Descendants().Where(e => e.Name.LocalName.ToLower() == "devicelist").ToList();
+            if (DevicesList.Count > 0)
             {
-                bool OneNewUDN = false;
-                if (Monitor.TryEnter(ReceivedUDN))
+                Devices = Devices.Descendants().Where(e => e.Name.LocalName.ToLower() == "device").ToList();
+            }
+            //List<XElement> Devices =
+              //  ReceivedXML.Descendants().Where(e => e.Name.LocalName.ToLower() == "device").ToList();
+            foreach (XElement DeviceXML in Devices)
+            {
+                List<XElement> UDNs = DeviceXML.Descendants().Where(Desc => Desc.Name.LocalName.ToLower() == "udn").ToList();
+                if (UDNs.Count > 0)
                 {
-                    try
+                    bool OneNewUDN = false;
+                    if (Monitor.TryEnter(ReceivedUDN))
                     {
-                        foreach (var xElement in UDNs)
+                        try
                         {
-                            if (!ReceivedUDN.Contains(xElement.Value))
+                            foreach (var xElement in UDNs)
                             {
-                                ReceivedUDN.Add(xElement.Value);
-                                OneNewUDN = true;
+                                if (!ReceivedUDN.Contains(xElement.Value))
+                                {
+                                    ReceivedUDN.Add(xElement.Value);
+                                    OneNewUDN = true;
+                                }
                             }
                         }
+                        finally
+                        {
+                            Monitor.Exit(ReceivedUDN);
+                        }
+                        if (OneNewUDN) ReceivedXml(XDocument.Parse("<root xmlns=\"urn: schemas - upnp - org:device - 1 - 0\">" + DeviceXML.ToString() + "</root>"), oState.oWebRequest.RequestUri);
                     }
-                    finally
-                    {
-                        Monitor.Exit(ReceivedUDN);
-                    }
-                    if (OneNewUDN) ReceivedXml(ReceivedXML, oState.oWebRequest.RequestUri);
                 }
             }
+            
         }
     }
 }

@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="HomeMediaApp.Pages.RemoteMediaPlayerPage"
+             xmlns:classes="clr-namespace:HomeMediaApp.Classes;assembly=HomeMediaApp"
+             Title="Aktuelle Wiedergabe">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="60*"/>
+            <RowDefinition Height="40*"/>
+        </Grid.RowDefinitions>
+        <Grid BackgroundColor="Aqua">
+            
+        </Grid>
+        <Grid Grid.Row="1">
+            <!-- Hier ist der Rest drin -->
+            <Image x:Name="AlbumImage" VerticalOptions="CenterAndExpand" HorizontalOptions="Center" Aspect="AspectFit"/>
+        </Grid>
+        
+        <Grid Grid.Row="2">
+            <!-- Hier sind die Buttons zur Steuerung untergebracht -->
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Slider x:Name="PositionSlider" Value="{Binding SliderValue}" Grid.Row="0"  Margin="20,5,20,5"></Slider>
+            <Grid Grid.Row="1" BackgroundColor="White">
+                <StackLayout Orientation="Horizontal" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
+                    <Image x:Name="ImageLast" HorizontalOptions="StartAndExpand" VerticalOptions="CenterAndExpand" BackgroundColor="Red" Source="{classes:ImageResource HomeMediaApp.Icons.last_icon.png}">
+                        <Image.GestureRecognizers>
+                            <TapGestureRecognizer x:Name="ImageLastGestureRecognizer" Tapped="ImageLastGestureRecognizer_OnTapped"/>
+                        </Image.GestureRecognizers>
+                    </Image>
+                    <Image x:Name="ImagePlay" HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand" Source="{Binding PlayPauseSource}">
+                        <Image.GestureRecognizers>
+                            <TapGestureRecognizer x:Name="ImagePlayGestureRecognizer" Tapped="ImagePlayGestureRecognizer_OnTapped"/>
+                        </Image.GestureRecognizers>
+                    </Image>
+                    <Image x:Name="ImageNext" HorizontalOptions="EndAndExpand" VerticalOptions="CenterAndExpand" Source="{classes:ImageResource HomeMediaApp.Icons.next_icon.png}">
+                        <Image.GestureRecognizers>
+                            <TapGestureRecognizer x:Name="ImageNextGestureRecognizer" Tapped="ImageNextGestureRecognizer_OnTapped"/>
+                        </Image.GestureRecognizers>
+                    </Image>
+                </StackLayout>
+            </Grid>
+            
+        </Grid>
+    </Grid>
+</ContentPage>

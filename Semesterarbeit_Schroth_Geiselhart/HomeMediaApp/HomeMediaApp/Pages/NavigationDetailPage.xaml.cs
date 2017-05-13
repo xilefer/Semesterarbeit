@@ -54,7 +54,7 @@ namespace HomeMediaApp.Pages
             TempItems.Add(new MasterPageItem()
             {
                 
-                IconSource = ImageSource.FromResource("HomeMediaApp.Icons.music_iconö.png"),
+                IconSource = ImageSource.FromResource("HomeMediaApp.Icons.music_icon.png"),
                 Title="Aktuelle Wiedergabe",
                 TargetType = typeof(RemoteMediaPlayerPage)
             });
@@ -72,8 +72,16 @@ namespace HomeMediaApp.Pages
         {
             MasterPageItem temp = e.Item as MasterPageItem;
             if (temp == null) return;
-            (Parent as MasterDetailPageHomeMediaApp).Detail = new NavigationPage((Page)Activator.CreateInstance(temp.TargetType));
-            (Parent as MasterDetailPageHomeMediaApp).IsPresented = false;
+            if (temp.TargetType == typeof(RemoteMediaPlayerPage))
+            {
+                (Parent as MasterDetailPageHomeMediaApp).Detail = GlobalVariables.GlobalRemoteMediaPlayerPage;
+                (Parent as MasterDetailPageHomeMediaApp).IsPresented = false;
+            }
+            else
+            {
+                (Parent as MasterDetailPageHomeMediaApp).Detail = new NavigationPage((Page)Activator.CreateInstance(temp.TargetType));
+                (Parent as MasterDetailPageHomeMediaApp).IsPresented = false;
+            }
         }
     }
 }

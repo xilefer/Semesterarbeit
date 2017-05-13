@@ -88,6 +88,11 @@ namespace HomeMediaApp.Pages
                     MediaRenderer.Add("Dieses Gerät");
                     MusicItemTapped(arg, MediaRenderer.ToArray());
                 });
+            // Musik in aktuelle Wiedergabeliste einfügen
+            MessagingCenter.Subscribe<MusicViewCell, MusicItem>(this, GlobalVariables.MusicAddToPlayLIstActionName, (sender, arg) =>
+                {
+                    GlobalVariables.GlobalRemoteMediaPlayerPage.AddMusicTrackToPlayList(arg);
+                });
             // Bild anzeigen
             MessagingCenter.Subscribe<ImageViewCell, PictureItem>(this, GlobalVariables.ImageOpenActionName, (sender, arg) =>
                 {

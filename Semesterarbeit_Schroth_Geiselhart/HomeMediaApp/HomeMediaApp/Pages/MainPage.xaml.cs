@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Xamarin.Forms;
@@ -156,14 +157,50 @@ namespace HomeMediaApp.Pages
             });
         }
 
-        private void OnDeviceFinished(UPnPDevice oDevice, UPnPService oService)
+        private async void OnDeviceFinished(UPnPDevice oDevice, UPnPService oService)
         {
             List<UPnPDevice> TempList = new List<UPnPDevice>();
-            do
-            {   // TODO: Hier gibt es immerwieder eine Exception, Collection eventuell Sperren, aber an anderen Stellen!
-                if (oDevice.Type.ToLower() == "mediaserver") TempList = UPnPServerList.Where(e => e.DeviceName == oDevice.DeviceName).ToList();
-                else if (oDevice.Type.ToLower() == "mediarenderer") TempList = UPnPMediaRendererList.Where(e => e.DeviceName == oDevice.DeviceName).ToList();
-            } while (TempList.Count == 0);
+            while (!Monitor.TryEnter(UPnPServerList))
+            {
+                await Task.Delay(50);  // 50 ms schlafen legen
+            }
+            try
+            {
+                while (!Monitor.TryEnter(UPnPMediaRendererList))
+                {
+                    await Task.Delay(50);   // 50 ms schlafen legen
+                }
+                try
+                {
+                    do
+                    {   // TODO: Hier gibt es immerwieder eine Exception, Collection eventuell Sperren, aber an anderen Stellen!
+                        if (oDevice.Type.ToLower() == "mediaserver") TempList = UPnPServerList.Where(e => e.DeviceName == oDevice.DeviceName).ToList();
+                        else if (oDevice.Type.ToLower() == "mediarenderer") TempList = UPnPMediaRendererList.Where(e => e.DeviceName == oDevice.DeviceName).ToList();
+                    } while (TempList.Count == 0);
+                }
+                finally { Monitor.Exit(UPnPMediaRendererList);}
+            }
+            finally { Monitor.Exit(UPnPServerList); }
+            //if (Monitor.TryEnter(UPnPServerList))
+            //{
+            //    try
+            //    {
+            //        if (Monitor.TryEnter(UPnPMediaRendererList))
+            //        {
+            //            try
+            //            {
+                          
+            //            }
+            //            finally { Monitor.Exit(UPnPMediaRendererList); }
+            //        }
+            //    }
+            //    finally { Monitor.Exit(UPnPServerList); }
+            //}
+            //else
+            //{
+
+            //}
+
             UPnPDevice oTempDevice = TempList[0];
             // Ebenfalls zwischen renderer und Server unterscheiden
             if (oDevice.Type.ToLower() == "mediaserver")

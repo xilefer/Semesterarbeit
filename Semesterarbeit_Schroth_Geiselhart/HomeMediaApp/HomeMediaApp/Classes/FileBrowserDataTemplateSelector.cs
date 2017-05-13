@@ -47,6 +47,13 @@ namespace HomeMediaApp.Classes
                 MessagingCenter.Send(this, GlobalVariables.MusicPlayActionName, mi.BindingContext as MusicItem);
             };
             this.ContextActions.Add(PlayMenuItem);
+            MenuItem AddToPlayListMenuItem = new MenuItem() {Text = "ZUR WIEDERGABELIST HINZUFÜGEN"};
+            AddToPlayListMenuItem.Clicked += (sender, e) =>
+            {
+                MenuItem mi = sender as MenuItem;
+                MessagingCenter.Send(this, GlobalVariables.MusicAddToPlayLIstActionName, mi.BindingContext as MusicItem);
+            };
+            ContextActions.Add(AddToPlayListMenuItem);
         }
     }
 

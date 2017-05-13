@@ -6,6 +6,7 @@ using System.Xml.Linq;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Threading;
+using HomeMediaApp.Classes;
 using Xamarin.Forms;
 using HomeMediaApp.Pages;
 
@@ -21,6 +22,7 @@ namespace HomeMediaApp
             // Startseite als NavigationPage starten
             try
             {
+                GlobalVariables.GlobalRemoteMediaPlayerPage = new RemoteMediaPlayerPage();
                 MainPage = new MasterDetailPageHomeMediaApp();
             }
             catch (Exception e)

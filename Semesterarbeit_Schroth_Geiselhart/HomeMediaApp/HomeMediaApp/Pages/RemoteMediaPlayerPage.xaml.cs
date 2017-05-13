@@ -10,6 +10,7 @@ using Xamarin.Forms.Xaml;
 
 namespace HomeMediaApp.Pages
 {
+    // TODO: Datatemplate selector für PlayListView implementieren
     public partial class RemoteMediaPlayerPage : ContentPage
     {
         private int CurrentMediaIndex = 0;
@@ -41,7 +42,6 @@ namespace HomeMediaApp.Pages
                 OnPropertyChanged("CurrentMusicTrackName");
                 OnPropertyChanged("SliderMaximum");
                 SliderValue = 0;
-                OnPropertyChanged("SliderValue");
             }
         }
 
@@ -60,13 +60,13 @@ namespace HomeMediaApp.Pages
             {
                 if (CurrentMusicTrack != null)
                 {
-                    if(CurrentMusicTrack.AlbumArtURI.Length > 0) return ImageSource.FromUri(new Uri(CurrentMusicTrack.AlbumArtURI));
+                    if (CurrentMusicTrack.AlbumArtURI.Length > 0) return ImageSource.FromUri(new Uri(CurrentMusicTrack.AlbumArtURI));
                     return ImageSource.FromResource("HomeMediaApp.Icons.music_icon.png");
                 }
                 else return null;
             }
         }
-        
+
         public PlayerControl RemotePlayerControl
         {
             get { return GlobalVariables.GlobalPlayerControl; }
@@ -91,7 +91,7 @@ namespace HomeMediaApp.Pages
         {
             get
             {
-                if(CurrentMusicTrack != null ) return CurrentMusicTrack.DurationSec;
+                if (CurrentMusicTrack != null) return CurrentMusicTrack.DurationSec;
                 return 1;
             }
         }
@@ -101,7 +101,10 @@ namespace HomeMediaApp.Pages
             get
             {
                 if (PlayList != null) return PlayList.MusicItems;
-                return null;
+                return new ObservableCollection<MusicItem>()
+                {
+                    new MusicItem("Keine Titel vorhanden")
+                };
             }
         }
 
@@ -118,6 +121,7 @@ namespace HomeMediaApp.Pages
 
         private void ImageLastGestureRecognizer_OnTapped(object sender, EventArgs e)
         {
+            if(PlayList == null) return;
             List<MusicItem> CurrentItem = PlayList.MusicItems.Where(Item => Item.RelatedTrack.Title == CurrentMusicTrackName).ToList();
             if (CurrentItem.Count == 1)
             {
@@ -147,12 +151,28 @@ namespace HomeMediaApp.Pages
 
         private void ImagePlayGestureRecognizer_OnTapped(object sender, EventArgs e)
         {
+            if(GlobalVariables.GlobalPlayerControl == null) return;
             if (GlobalVariables.GlobalPlayerControl.IsPlaying) GlobalVariables.GlobalPlayerControl.Pause();
             else GlobalVariables.GlobalPlayerControl.Play(CurrentMediaIndex);
         }
 
+        /// <summary>
+        /// Fügt der aktuellen Wiedergabeliste einen neuen Musiktitel hinzu
+        /// </summary>
+        /// <param name="MusicTrack"></param>
+        public void AddMusicTrackToPlayList(MusicItem MusicTrack)
+        {
+            if (PlayList == null)
+            {
+                PlayList = new PlaylistItem("Aktuelle Wiedergabe");
+            }
+            PlayList.MusicItems.Add(MusicTrack);
+            OnPropertyChanged("MusicItems");
+        }
+
         private void ImageNextGestureRecognizer_OnTapped(object sender, EventArgs e)
         {
+            if (PlayList == null) return;
             List<MusicItem> CurrentItem = PlayList.MusicItems.Where(item => item.RelatedTrack.Title == CurrentMusicTrackName).ToList();
             if (CurrentItem.Count == 1)
             {
@@ -182,7 +202,7 @@ namespace HomeMediaApp.Pages
                 PlaylistButton.Text = "Aktuelle Wiedergabeliste";
             }
             else
-            {   
+            {
                 PlayListView.IsVisible = true;
                 AlbumImage.IsVisible = false;
                 PlaylistButton.Text = "Aktuelle Wiedergabe";
@@ -193,6 +213,7 @@ namespace HomeMediaApp.Pages
 
         private void PlayListView_OnItemTapped(object sender, ItemTappedEventArgs e)
         {
+            if (PlayList == null) return;
             foreach (var playListMusicItem in PlayList.MusicItems)
             {
                 playListMusicItem.IsPlaying = false;

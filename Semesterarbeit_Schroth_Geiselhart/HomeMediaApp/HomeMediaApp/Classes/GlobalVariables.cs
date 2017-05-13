@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using HomeMediaApp.Interfaces;
+using HomeMediaApp.Pages;
 using Xamarin.Forms;
 
 namespace HomeMediaApp.Classes
@@ -19,6 +20,7 @@ namespace HomeMediaApp.Classes
         public const string ImageOpenActionName = "MEDIAEXPLORER_IMAGE_OPEN";
         public const string VideoPlayActionName = "MEDIAEXPLORER_VIDEO_PLAY";
         public const string PlaylistPlayActionName = "MEDIAEXPLORER_PLAYLIST_PLAY";
+        public const string MusicAddToPlayLIstActionName = "MEDIAEXPLORER_MUSIC_ADD_TO_PLAYLIST";
         #endregion
 
         public static ObservableCollection<UPnPDevice> UPnPMediaServers = new ObservableCollection<UPnPDevice>()
@@ -50,6 +52,8 @@ namespace HomeMediaApp.Classes
         public static ContentView GlobalMediaPlayerDevice = null;
 
         public static ContentView GlobalVideoViewerDevice = null;
+
+        public static RemoteMediaPlayerPage GlobalRemoteMediaPlayerPage = null;
 
         public static IMediaPlayerControl GlobalMediaPlayerControl
         {

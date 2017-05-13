@@ -69,7 +69,7 @@ namespace HomeMediaApp.Classes
             }
             return oDevice;
         }
-        private void RequestCallback(IAsyncResult oResult)
+        private async void RequestCallback(IAsyncResult oResult)
         {
             RequestState oState = (RequestState)oResult.AsyncState;
             HttpWebRequest oWebRequest = oState.oWebRequest;
@@ -106,6 +106,7 @@ namespace HomeMediaApp.Classes
                 oServiceState.DataType = oXMLVariable.Elements().Where(e => e.Name.LocalName.ToLower() == "datatype").ToList()[0].Value;
                 oState.oServiceCallback.ServiceStateTable.Add(oServiceState);
             }
+            await Task.Delay(50);
             DeviceFinished(oState.oDevice, oState.oServiceCallback);
         }
 

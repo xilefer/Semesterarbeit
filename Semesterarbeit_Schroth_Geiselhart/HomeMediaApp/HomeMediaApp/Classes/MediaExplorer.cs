@@ -86,6 +86,17 @@ namespace HomeMediaApp.Classes
         }
 
         public override string DisplayName { get; set; }
+
+        public bool IsPlaying = false;
+
+        public Color TextColor
+        {
+            get
+            {
+                if (IsPlaying) return Color.Red;
+                return Color.Black;
+            }
+        }
     }
 
     public class PictureItem : FileExplorerItemBase
@@ -147,6 +158,8 @@ namespace HomeMediaApp.Classes
                 DisplayName = mRelatedContainer.Title;
             }
         }
+
+        public ObservableCollection<MusicItem> MusicItems = new ObservableCollection<MusicItem>();
 
         public PlaylistItem(string PlaylistName)
         {

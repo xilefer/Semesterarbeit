@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using System.Xml.Serialization;
+using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
 namespace HomeMediaApp.Classes
@@ -170,9 +171,13 @@ namespace HomeMediaApp.Classes
             if (Value != null) ReturnElement.Res = Value.Value;
             Value = Descendants.Find(e => e.Name.LocalName.ToLower() == "albumarturi");
             if (Value != null) ReturnElement.AlbumArtURI = Value.Value;
+            List<XAttribute> Attributes = Descendants.Find(e => e.Name.LocalName.ToLower() == "res").Attributes().ToList();
+            XAttribute Value1 = Attributes.Find(e => e.Name.LocalName.ToLower() == "duration");
+            if (Value1 != null) ReturnElement.DurationSec = (int)TimeSpan.Parse(Value1.Value).TotalSeconds;
             return ReturnElement;
         }
 
+        public int DurationSec = 0;
         public string Artist = "";
         public string Album = "";
         public string OriginalTrackNumber = "";

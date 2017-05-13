@@ -280,16 +280,21 @@ namespace HomeMediaApp.Pages
 
         private void PlaylistItemTapped(PlaylistItem TappedItem, string[] Options)
         {
-            string SelectedRenderer = "";
             Device.BeginInvokeOnMainThread(async () =>
             {
-                SelectedRenderer = await DisplayActionSheet("Wiedergabegerät auswählen", "Wiedergabe Abbrechen", null, Options);
+                string SelectedRenderer = await DisplayActionSheet("Wiedergabegerät auswählen", "Wiedergabe Abbrechen", null,
+                    Options);
+                PlayListDeviceSelected(TappedItem, SelectedRenderer);
             });
+        }
+
+        private void PlayListDeviceSelected(PlaylistItem TappedItem, string SelectedRenderer)
+        {
             if (SelectedRenderer != null && SelectedRenderer == "Wiedergabe Abbrechen")
             {
 
             }
-            else if (SelectedRenderer == "Dieses Gerät")
+            else if (SelectedRenderer == "Disseses Gerät")
             {
                 // TappedItem ist eine Playlist d.h. Die Kinder von TappedItem browsen und Wiedergeben
                 /*
@@ -317,29 +322,95 @@ namespace HomeMediaApp.Pages
                     });
                 }*/
             }
-            else
+            else if(SelectedRenderer == "Dieses Gerät")
             {
-                List<UPnPDevice> SelectedRendererList = GlobalVariables.UPnPMediaRenderer.Where(Renderer => Renderer.DeviceName == SelectedRenderer).ToList();
-                if (SelectedRendererList.Count == 0)
-                {   // Keinen Renderer gefunden
-                    DisplayAlert("Warnung", "Die Wiedergabe konnte nicht gestartet werden." + Environment.NewLine + "Das Ausgabegerät konnte nicht gefunden werden!", "OK");
+                UPnPAction BrowseAction = null;
+                try
+                {
+                    BrowseAction =
+                        CurrentDevice.DeviceMethods.Where(e => e.ServiceType.ToLower() == "contentdirectory").ToList()[0
+                        ].ActionList.Where(x => x.ActionName.ToLower() == "browse").ToList()[0];
+                }
+                catch (Exception gEx)
+                {
+                    // TODO: Fehlerbehandlungskonzept
+                    DisplayAlert("Fehler", gEx.ToString(), "Abbruch");
+                }
+                if (BrowseAction == null)
+                {
+                    DisplayAlert("Fehler", "Die Playlist kann nicht geöffnet werden!", "OK");
                     return;
                 }
-                else
+                BrowseAction.OnResponseReceived += OnResponseReceivedPlaylist;
+                List<UPnPActionArgument> InArgs = new List<UPnPActionArgument>();
+                foreach (UPnPActionArgument oArg in BrowseAction.ArgumentList)
                 {
-                    /*
-                    MediaObject Song = new MediaObject()
+                    if (oArg.Direction == "in")
                     {
-                        Index = 0,
-                        // TODO: Metadaten definieren
-                        MetaData = MusicItem.RelatedTrack.Res,
-                        Path = MusicItem.RelatedTrack.Res
-                    };
-                    GlobalVariables.GlobalPlayerControl = MediaPlayer.Play(Song, SelectedRendererList[0]);
-                    */
+                        InArgs.Add(oArg);
+                    }
+                }
+                UPnPStateVariables.A_ARG_TYPE_BrowseFlag = UPnPBrowseFlag.BrowseDirectChildren;
+                UPnPStateVariables.A_ARG_TYPE_Count = "100";
+                UPnPStateVariables.A_ARG_TYPE_Index = "0";
+                UPnPStateVariables.A_ARG_TYPE_ObjectID = TappedItem.RelatedContainer.id;
+                UPnPStateVariables.A_ARG_TYPE_SortCriteria = ""; //Keine Sortierung
+                Type TypeInfo = typeof(UPnPStateVariables);
+                List<Tuple<string, string>> ArgList = new List<Tuple<string, string>>();
+                foreach (UPnPActionArgument Arg in InArgs)
+                {
+                    PropertyInfo ResultProperty = TypeInfo.GetRuntimeProperty(Arg.RelatedStateVariable);
+                    if (ResultProperty != null)
+                    {
+                        ArgList.Add(new Tuple<string, string>(Arg.Name, ResultProperty.GetValue(null).ToString()));
+                    }
+                    else
+                    {
+                        throw new Exception("Die Funktion konnte nicht ausgeführt werden!");
+                    }
+                }
+                string sRequestURI = CurrentDevice.DeviceAddress.Scheme + "://" + CurrentDevice.DeviceAddress.Authority;
+                if (sRequestURI.Length == 0)
+                {
+                    throw new Exception("Die Funktion konnte nicht ausgeführt werden!");
+                }
+                if (sRequestURI.EndsWith("/"))
+                    sRequestURI = sRequestURI.Substring(0, sRequestURI.Length - 1); // Schrägstrich entfernen
+                if (
+                    !CurrentDevice.DeviceMethods.Where(x => x.ServiceID == "ContentDirectory").ToList()[0].ControlURL
+                        .StartsWith("/")) sRequestURI += "/";
+                sRequestURI +=
+                    CurrentDevice.DeviceMethods.Where(x => x.ServiceID == "ContentDirectory").ToList()[0].ControlURL;
+                BrowseAction.Execute(sRequestURI, "ContentDirectory", ArgList);
+            }
+
+        }
+
+        private void OnResponseReceivedPlaylist(XDocument oResponseDocument, ActionState oState)
+        {
+            PlaylistItem TappedPlayList = FileListView.SelectedItem as PlaylistItem;
+            if (TappedPlayList == null) return;
+            XDocument ResultXML = XDocument.Parse(oResponseDocument.Root.Descendants().Where(e => e.Name.LocalName.ToLower() == "result").ToList()[0].Value);
+            List<XElement> Nodes = ResultXML.Root.Elements().ToList();
+            foreach (XElement Node in Nodes)
+            {
+                string Name = Node.Name.LocalName.ToLower();
+                if (Name == "item")
+                {
+                    string UPnPClass = Node.Elements().Where(e => e.Name.LocalName.ToLower() == "class").ToList()[0].Value;
+                    string[] ClassDecomposed = UPnPClass.Split('.');
+                    if (ClassDecomposed[ClassDecomposed.Length - 1].ToLower() == "musictrack")
+                    {
+                        UPnPMusicTrack MusicTrack = new UPnPMusicTrack();
+                        MusicTrack = MusicTrack.Create(Node, MusicTrack);
+                        MusicItem MusicItem = new MusicItem(MusicTrack.Title);
+                        MusicItem.Parent = MasterItem;
+                        MusicItem.RelatedTrack = MusicTrack;
+                        TappedPlayList.MusicItems.Add(MusicItem);
+                    }
                 }
             }
-            //throw new NotImplementedException("Playlist item Tapped");
+            OpenRemotePlayerView(TappedPlayList);
         }
 
         private void VideoItemTapped(VideoItem TappedItem, string[] Options)
@@ -457,6 +528,17 @@ namespace HomeMediaApp.Pages
             {
                 throw new NotImplementedException();
             }
+        }
+
+        public void OpenRemotePlayerView(PlaylistItem PlayList)
+        {
+            PlayList.MusicItems[0].IsPlaying = true;
+            RemoteMediaPlayerPage PlayerPage = new RemoteMediaPlayerPage()
+            {
+                PlayList = PlayList,
+                CurrentMusicTrack = PlayList.MusicItems[0].RelatedTrack
+            };
+            Device.BeginInvokeOnMainThread(() => Navigation.PushAsync(new NavigationPage(PlayerPage)));
         }
 
         public void OpenRemotePlayerView()

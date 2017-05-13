@@ -10,24 +10,35 @@
             <RowDefinition Height="60*"/>
             <RowDefinition Height="40*"/>
         </Grid.RowDefinitions>
-        <Grid BackgroundColor="Aqua">
-            
+        <Grid>
+            <Button BackgroundColor="Black" TextColor="White" HorizontalOptions="EndAndExpand" VerticalOptions="EndAndExpand" x:Name="PlaylistButton" Text="Aktuelle Wiedergabeliste" Clicked="Button_OnClicked"></Button>
         </Grid>
-        <Grid Grid.Row="1">
+        <Grid Grid.Row="1" BackgroundColor="White">
             <!-- Hier ist der Rest drin -->
-            <Image x:Name="AlbumImage" VerticalOptions="CenterAndExpand" HorizontalOptions="Center" Aspect="AspectFit"/>
+            <Image x:Name="AlbumImage" IsVisible="True" VerticalOptions="CenterAndExpand" HorizontalOptions="Center" Aspect="AspectFit" Source="{Binding AlbumArtSource}"/>
+            <ListView x:Name="PlayListView" ItemTapped="PlayListView_OnItemTapped" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" IsVisible="False" ItemsSource="{Binding MusicItems}">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ImageCell ImageSource="{Binding IconSource}" Text="{Binding DisplayName}" TextColor="{Binding TextColor}"></ImageCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
         </Grid>
         
         <Grid Grid.Row="2">
             <!-- Hier sind die Buttons zur Steuerung untergebracht -->
             <Grid.RowDefinitions>
-                <RowDefinition Height="50"/>
+                <RowDefinition Height="80"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <Slider x:Name="PositionSlider" Value="{Binding SliderValue}" Grid.Row="0"  Margin="20,5,20,5"></Slider>
+            <StackLayout Orientation="Vertical" Grid.Row="0">
+                <Label x:Name="CurrentMusicLabel" Text="{Binding CurrentMusicTrackName}" TextColor="White" Margin="20,0,0,0" VerticalOptions="StartAndExpand" HorizontalOptions="StartAndExpand"/>
+                <Slider x:Name="PositionSlider"  Value="{Binding SliderValue}" Maximum="{Binding SliderMaximum}" Margin="20,5,20,5" ValueChanged="PositionSlider_OnValueChanged">
+                </Slider>
+            </StackLayout>
             <Grid Grid.Row="1" BackgroundColor="White">
                 <StackLayout Orientation="Horizontal" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
-                    <Image x:Name="ImageLast" HorizontalOptions="StartAndExpand" VerticalOptions="CenterAndExpand" BackgroundColor="Red" Source="{classes:ImageResource HomeMediaApp.Icons.last_icon.png}">
+                    <Image x:Name="ImageLast" HorizontalOptions="StartAndExpand" VerticalOptions="CenterAndExpand" Source="{classes:ImageResource HomeMediaApp.Icons.last_icon.png}">
                         <Image.GestureRecognizers>
                             <TapGestureRecognizer x:Name="ImageLastGestureRecognizer" Tapped="ImageLastGestureRecognizer_OnTapped"/>
                         </Image.GestureRecognizers>

@@ -51,6 +51,13 @@ namespace HomeMediaApp.Pages
                 Title = "Explorer",
                 TargetType = typeof(FileExplorerPage)
             });
+            TempItems.Add(new MasterPageItem()
+            {
+                
+                IconSource = ImageSource.FromResource("HomeMediaApp.Icons.music_iconö.png"),
+                Title="Aktuelle Wiedergabe",
+                TargetType = typeof(RemoteMediaPlayerPage)
+            });
             PageItems = TempItems;
             listView.ItemsSource = PageItems;
 

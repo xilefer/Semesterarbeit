@@ -4,6 +4,11 @@
              x:Class="HomeMediaApp.Pages.RemoteMediaPlayerPage"
              xmlns:classes="clr-namespace:HomeMediaApp.Classes;assembly=HomeMediaApp"
              Title="Aktuelle Wiedergabe">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <classes:PlayListViewDataTemplateSelector x:Key="PlayListViewDataTemplateSelector"/>
+        </ResourceDictionary>
+    </ContentPage.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="50"/>
@@ -16,13 +21,15 @@
         <Grid Grid.Row="1" BackgroundColor="White">
             <!-- Hier ist der Rest drin -->
             <Image x:Name="AlbumImage" IsVisible="True" VerticalOptions="CenterAndExpand" HorizontalOptions="Center" Aspect="AspectFit" Source="{Binding AlbumArtSource}"/>
-            <ListView x:Name="PlayListView" ItemTapped="PlayListView_OnItemTapped" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" IsVisible="False" ItemsSource="{Binding MusicItems}">
+            <ListView x:Name="PlayListView" ItemTemplate="{StaticResource PlayListViewDataTemplateSelector}" ItemTapped="PlayListView_OnItemTapped" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" IsVisible="False" ItemsSource="{Binding MusicItems}">
+                <!--
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <ImageCell ImageSource="{Binding IconSource}" Text="{Binding DisplayName}" TextColor="{Binding TextColor}"></ImageCell>
                     </DataTemplate>
                 </ListView.ItemTemplate>
-            </ListView>
+            -->
+                </ListView>
         </Grid>
         
         <Grid Grid.Row="2">

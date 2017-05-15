@@ -45,6 +45,7 @@
     <Compile Include="Classes\MediaObject.cs" />
     <Compile Include="Classes\MediaPlayer.cs" />
     <Compile Include="Classes\PlayerControl.cs" />
+    <Compile Include="Classes\PlayListViewDataTemplateSelector.cs" />
     <Compile Include="Classes\UPnPDevice.cs" />
     <Compile Include="Classes\MasterPageItem.cs" />
     <Compile Include="Classes\UPnPService.cs" />

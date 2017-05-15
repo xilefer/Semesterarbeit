@@ -117,6 +117,12 @@ namespace HomeMediaApp.Pages
             if (GlobalVariables.GlobalPlayerControl != null) GlobalVariables.GlobalPlayerControl.PlayingStatusChanged += new PlayingStatusChangedEvent(() => Device.BeginInvokeOnMainThread(
                 () => OnPropertyChanged("PlayPauseSource")));
             OnPropertyChanged("PlayPauseSource");
+            // Subscription für die ContextActions!
+            MessagingCenter.Subscribe<PlayListViewViewCell, MusicItem>(this, GlobalVariables.RemoveTrackFromPlayListActionName, (sender, arg) =>
+            {
+                PlayList.MusicItems.Remove(arg);
+                OnPropertyChanged("MusicItems");
+            });
         }
 
         private void ImageLastGestureRecognizer_OnTapped(object sender, EventArgs e)

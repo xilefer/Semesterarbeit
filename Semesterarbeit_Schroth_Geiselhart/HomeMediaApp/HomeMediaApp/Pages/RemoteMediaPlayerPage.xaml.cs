@@ -159,7 +159,7 @@ namespace HomeMediaApp.Pages
         {
             if(GlobalVariables.GlobalPlayerControl == null) return;
             if (GlobalVariables.GlobalPlayerControl.IsPlaying) GlobalVariables.GlobalPlayerControl.Pause();
-            else GlobalVariables.GlobalPlayerControl.Play(CurrentMediaIndex);
+            else GlobalVariables.GlobalPlayerControl.Play();
         }
 
         /// <summary>

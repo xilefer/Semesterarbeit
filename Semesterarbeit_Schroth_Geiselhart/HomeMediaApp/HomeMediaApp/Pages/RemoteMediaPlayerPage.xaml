@@ -16,31 +16,26 @@
             <RowDefinition Height="40*"/>
         </Grid.RowDefinitions>
         <Grid>
-            <Button BackgroundColor="Black" TextColor="White" HorizontalOptions="EndAndExpand" VerticalOptions="EndAndExpand" x:Name="PlaylistButton" Text="Aktuelle Wiedergabeliste" Clicked="Button_OnClicked"></Button>
+            <StackLayout Orientation="Horizontal" VerticalOptions="FillAndExpand" HorizontalOptions="EndAndExpand">
+                <Button BackgroundColor="Black" TextColor="White" HorizontalOptions="EndAndExpand" VerticalOptions="EndAndExpand" Text="{Binding CurrentDeviceName}" Clicked="DeviceChangeButton_OnClicked"/>
+                <Button BackgroundColor="Black" TextColor="White" HorizontalOptions="EndAndExpand" VerticalOptions="EndAndExpand" x:Name="PlaylistButton" Text="Aktuelle Wiedergabeliste" Clicked="Button_OnClicked"></Button>
+            </StackLayout>
         </Grid>
         <Grid Grid.Row="1" BackgroundColor="White">
             <!-- Hier ist der Rest drin -->
             <Image x:Name="AlbumImage" IsVisible="True" VerticalOptions="CenterAndExpand" HorizontalOptions="Center" Aspect="AspectFit" Source="{Binding AlbumArtSource}"/>
-            <ListView x:Name="PlayListView" ItemTemplate="{StaticResource PlayListViewDataTemplateSelector}" ItemTapped="PlayListView_OnItemTapped" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" IsVisible="False" ItemsSource="{Binding MusicItems}">
-                <!--
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <ImageCell ImageSource="{Binding IconSource}" Text="{Binding DisplayName}" TextColor="{Binding TextColor}"></ImageCell>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            -->
-                </ListView>
+            <ListView x:Name="PlayListView" ItemTemplate="{StaticResource PlayListViewDataTemplateSelector}" ItemTapped="PlayListView_OnItemTapped" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" IsVisible="False" ItemsSource="{Binding MusicItems}"/>
         </Grid>
-        
-        <Grid Grid.Row="2">
+
+        <Grid Grid.Row="2"  BackgroundColor="White"> 
             <!-- Hier sind die Buttons zur Steuerung untergebracht -->
             <Grid.RowDefinitions>
                 <RowDefinition Height="80"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <StackLayout Orientation="Vertical" Grid.Row="0">
-                <Label x:Name="CurrentMusicLabel" Text="{Binding CurrentMusicTrackName}" TextColor="White" Margin="20,0,0,0" VerticalOptions="StartAndExpand" HorizontalOptions="StartAndExpand"/>
-                <Slider x:Name="PositionSlider"  Value="{Binding SliderValue}" Maximum="{Binding SliderMaximum}" Margin="20,5,20,5" ValueChanged="PositionSlider_OnValueChanged">
+                <Label x:Name="CurrentMusicLabel" Text="{Binding CurrentMusicTrackName}" TextColor="Black" Margin="20,0,0,0" VerticalOptions="StartAndExpand" HorizontalOptions="StartAndExpand"/>
+                <Slider x:Name="PositionSlider" Value="{Binding SliderValue}" Maximum="{Binding SliderMaximum}" Margin="20,5,20,5" ValueChanged="PositionSlider_OnValueChanged">
                 </Slider>
             </StackLayout>
             <Grid Grid.Row="1" BackgroundColor="White">

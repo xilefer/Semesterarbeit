@@ -299,7 +299,7 @@ namespace HomeMediaApp.Pages
             {
 
             }
-            else if (SelectedRenderer == "Disseses Gerät")
+            else if (SelectedRenderer == "Dieses Gerät")
             {
                 // TappedItem ist eine Playlist d.h. Die Kinder von TappedItem browsen und Wiedergeben
                 /*
@@ -411,7 +411,7 @@ namespace HomeMediaApp.Pages
                         MusicItem MusicItem = new MusicItem(MusicTrack.Title);
                         MusicItem.Parent = MasterItem;
                         MusicItem.RelatedTrack = MusicTrack;
-                        TappedPlayList.MusicItems.Add(MusicItem);
+                        if(TappedPlayList.MusicItems.Where(e => e.DisplayName == MusicItem.DisplayName).Count() == 0) TappedPlayList.MusicItems.Add(MusicItem);
                     }
                 }
             }
@@ -457,6 +457,7 @@ namespace HomeMediaApp.Pages
             }
             else if (SelectedRenderer != null)
             {   // Wiedergabe starten
+                #region Play Dieses Gerät
                 if (SelectedRenderer == "Dieses Gerät")
                 {   // Auf diesem Gerät wiedergeben
                     if ((GlobalVariables.GlobalMediaPlayerDevice as IMediaPlayerControl).PlayFromUri(new Uri(MusicItem.RelatedTrack.Res)))
@@ -483,8 +484,9 @@ namespace HomeMediaApp.Pages
                         });
                     }
                 }
+                #endregion
                 else
-                {
+                {   // Remote-Gerät
                     List<UPnPDevice> SelectedRendererList = GlobalVariables.UPnPMediaRenderer.Where(Renderer => Renderer.DeviceName == SelectedRenderer).ToList();
                     if (SelectedRendererList.Count == 0)
                     {   // Keinen Renderer gefunden
@@ -501,6 +503,17 @@ namespace HomeMediaApp.Pages
                             Path = MusicItem.RelatedTrack.Res
                         };
                         GlobalVariables.GlobalPlayerControl = MediaPlayer.Play(Song, SelectedRendererList[0]);
+                        if (GlobalVariables.GlobalRemoteMediaPlayerPage.PlayList == null)
+                        {
+                            GlobalVariables.GlobalRemoteMediaPlayerPage.AddMusicTrackToPlayList(MusicItem);
+                        }
+                        else
+                        {
+                            GlobalVariables.GlobalRemoteMediaPlayerPage.PlayList.MusicItems.Clear();
+                            GlobalVariables.GlobalRemoteMediaPlayerPage.PlayList.MusicItems.Add(MusicItem);
+                        }
+                        GlobalVariables.GlobalRemoteMediaPlayerPage.PlayList.MusicItems[0].IsPlaying = true;
+                        GlobalVariables.GlobalRemoteMediaPlayerPage.CurrentMusicTrack = GlobalVariables.GlobalRemoteMediaPlayerPage.PlayList.MusicItems[0].RelatedTrack;
                         OpenRemotePlayerView();
                     }
                 }
@@ -538,17 +551,14 @@ namespace HomeMediaApp.Pages
         public void OpenRemotePlayerView(PlaylistItem PlayList)
         {
             PlayList.MusicItems[0].IsPlaying = true;
-            RemoteMediaPlayerPage PlayerPage = new RemoteMediaPlayerPage()
-            {
-                PlayList = PlayList,
-                CurrentMusicTrack = PlayList.MusicItems[0].RelatedTrack
-            };
-            Device.BeginInvokeOnMainThread(() => Navigation.PushAsync(new NavigationPage(PlayerPage)));
+            GlobalVariables.GlobalRemoteMediaPlayerPage.PlayList = PlayList;
+            GlobalVariables.GlobalRemoteMediaPlayerPage.CurrentMusicTrack = PlayList.MusicItems[0].RelatedTrack;
+            (Parent.Parent as MasterDetailPageHomeMediaApp).Detail = GlobalVariables.GlobalRemoteMediaPlayerPage;
         }
 
         public void OpenRemotePlayerView()
         {
-            Navigation.PushAsync(new NavigationPage(new RemoteMediaPlayerPage()));
+            (Parent.Parent as MasterDetailPageHomeMediaApp).Detail = GlobalVariables.GlobalRemoteMediaPlayerPage;
         }
 
         private void VideoDeviceSelected(string SelectedRenderer, VideoItem VideoItem)

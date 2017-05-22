@@ -18,7 +18,7 @@
                 <ColumnDefinition Width="30*"/>
             </Grid.ColumnDefinitions>
             <Label Text="Willkommen" Grid.Column="1" HorizontalTextAlignment="Center" FontSize="20"></Label>
-            <Button Text="Suchen" Grid.Column="2" FontSize="20" Clicked="Button_OnClicked"></Button>
+            <!-- <Button Text="Suchen" Grid.Column="2" FontSize="20" Clicked="Button_OnClicked"></Button> -->
         </Grid>
 
         <StackLayout Orientation="Vertical" Grid.Row="1">

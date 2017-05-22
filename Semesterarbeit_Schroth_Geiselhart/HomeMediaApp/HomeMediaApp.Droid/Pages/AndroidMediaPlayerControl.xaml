@@ -1,8 +1,17 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<ContentView xmlns="http://xamarin.com/schemas/2014/forms" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" x:Class="HomeMediaApp.Droid.Pages.AndroidMediaPlayerControl">
+<ContentView xmlns="http://xamarin.com/schemas/2014/forms" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:widget="clr-namespace:Android.Widget;assembly=Mono.Android"
+             x:Class="HomeMediaApp.Droid.Pages.AndroidMediaPlayerControl"
+             VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
   <ContentView.Content>
-      <StackLayout x:Name="StackLayoutPlayer">
-          
-      </StackLayout>
+      <StackLayout x:Name="StackLayoutPlayer" BackgroundColor="Red" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" Orientation="Horizontal">
+            <Label></Label>
+          <!--
+          <Image x:Name="PlayPauseImage" VerticalOptions="CenterAndExpand" HorizontalOptions="FillAndExpand" BackgroundColor="White" Aspect="AspectFit">
+                <Image.GestureRecognizers>
+                    <TapGestureRecognizer x:Name="PlayPauseTapGestureRecognizer" Tapped="PlayPauseTapGestureRecognizer_OnTapped"/>
+                </Image.GestureRecognizers>
+            </Image> -->
+        </StackLayout>
   </ContentView.Content>
 </ContentView>

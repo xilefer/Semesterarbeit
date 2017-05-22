@@ -16,7 +16,7 @@ namespace HomeMediaApp.Pages
         {
             masterpage = new NavigationDetailPage(this);
             Master = masterpage;
-            Detail = new MainPage();
+            Detail = new NavigationPage(new MainPage());
             InitializeComponent();
         }
 

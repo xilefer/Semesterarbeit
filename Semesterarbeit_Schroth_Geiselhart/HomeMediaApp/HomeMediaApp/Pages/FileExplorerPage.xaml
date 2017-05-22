@@ -14,7 +14,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="50"/>
                 <RowDefinition Height="*"/>
-                <RowDefinition Height="50"/>
+                <RowDefinition Height="70"/>
             </Grid.RowDefinitions>
             <StackLayout Orientation="Horizontal">
                 <Label TextColor="Black" FontSize="20" Text="{Binding CurrentDirectory}" />

@@ -39,28 +39,26 @@ namespace HomeMediaApp.Pages
                 Title = "Startseite",
                 TargetType = typeof(MainPage)
             });
+            //TempItems.Add(new MasterPageItem()
+            //{
+            //    IconSource = ImageSource.FromResource("HomeMediaApp.Icons.settings_icon.png"),
+            //    Title = "Einstellungen",
+            //    TargetType = typeof(SettingsPage)
+            //});
+            //TempItems.Add(new MasterPageItem()
+            //{
+            //    IconSource = ImageSource.FromResource("HomeMediaApp.Icons.folder_icon.png"),
+            //    Title = "Explorer",
+            //    TargetType = typeof(FileExplorerPage)
+            //});
             TempItems.Add(new MasterPageItem()
             {
-                IconSource = ImageSource.FromResource("HomeMediaApp.Icons.settings_icon.png"),
-                Title = "Einstellungen",
-                TargetType = typeof(SettingsPage)
-            });
-            TempItems.Add(new MasterPageItem()
-            {
-                IconSource = ImageSource.FromResource("HomeMediaApp.Icons.folder_icon.png"),
-                Title = "Explorer",
-                TargetType = typeof(FileExplorerPage)
-            });
-            TempItems.Add(new MasterPageItem()
-            {
-                
                 IconSource = ImageSource.FromResource("HomeMediaApp.Icons.music_icon.png"),
                 Title="Aktuelle Wiedergabe",
                 TargetType = typeof(RemoteMediaPlayerPage)
             });
             PageItems = TempItems;
             listView.ItemsSource = PageItems;
-
         }
 
         public NavigationDetailPage(MasterDetailPageHomeMediaApp Parent) : this()
@@ -74,6 +72,7 @@ namespace HomeMediaApp.Pages
             if (temp == null) return;
             if (temp.TargetType == typeof(RemoteMediaPlayerPage))
             {
+                GlobalVariables.GlobalRemoteMediaPlayerPage.Parent = null;
                 (Parent as MasterDetailPageHomeMediaApp).Detail = GlobalVariables.GlobalRemoteMediaPlayerPage;
                 (Parent as MasterDetailPageHomeMediaApp).IsPresented = false;
             }

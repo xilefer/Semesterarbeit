@@ -54,6 +54,15 @@ namespace HomeMediaApp.Pages
             }
         }
 
+        public string CurrentDeviceName
+        {
+            get
+            {
+                if (GlobalVariables.GlobalPlayerControl == null) return "Kein Gerät gewählt";
+                return "Ausgabegerät: " +  GlobalVariables.GlobalPlayerControl.oDevice.DeviceName;
+            }
+        }
+
         public ImageSource AlbumArtSource
         {
             get
@@ -152,6 +161,8 @@ namespace HomeMediaApp.Pages
         private void ChangeMusicTrack(MusicItem NewTrack)
         {
             CurrentMediaIndex = PlayList.MusicItems.IndexOf(NewTrack);
+            GlobalVariables.GlobalPlayerControl.MediaList.Insert(CurrentMediaIndex, new MediaObject() { Index = GlobalVariables.GlobalPlayerControl.MediaList.Count, Path = NewTrack.RelatedTrack.Res, MetaData = ""});
+            GlobalVariables.GlobalPlayerControl.Next();
             // TODO: Neuen Song wiedergeben
         }
 
@@ -217,6 +228,13 @@ namespace HomeMediaApp.Pages
             ForceLayout();
         }
 
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
+            OnPropertyChanged("MusicItems");
+            OnPropertyChanged("CurrentDeviceName");
+        }
+
         private void PlayListView_OnItemTapped(object sender, ItemTappedEventArgs e)
         {
             if (PlayList == null) return;
@@ -239,6 +257,26 @@ namespace HomeMediaApp.Pages
         private void PositionSlider_OnValueChanged(object sender, ValueChangedEventArgs e)
         {
             // TODO: Erkennen wenn der Slider losgelassen wird   
+        }
+
+        private void DeviceChangeButton_OnClicked(object sender, EventArgs e)
+        {
+            List<string> MediaRenderers = new List<string>();
+            foreach (var upnPDevice in GlobalVariables.UPnPMediaRenderer)
+            {
+                MediaRenderers.Add(upnPDevice.DeviceName);
+            }
+            Device.BeginInvokeOnMainThread(async () =>
+            {
+                string Temp =  await DisplayActionSheet("Ausgabegerät Wechseln", "Abbrechen", null, MediaRenderers.ToArray());
+                if(Temp != null && Temp != "Abbrechen") ChangeOutputDevice(Temp);
+            });
+        }
+
+        private void ChangeOutputDevice(string NewDevice)
+        {
+            // TODO: Das ausgabegerät wechseln
+            throw new NotImplementedException();
         }
     }
 }

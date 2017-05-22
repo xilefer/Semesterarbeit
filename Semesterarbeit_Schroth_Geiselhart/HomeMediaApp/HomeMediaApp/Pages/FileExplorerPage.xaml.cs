@@ -64,7 +64,6 @@ namespace HomeMediaApp.Pages
             PlayerStackLayout.Children.Clear();
             PlayerStackLayout.Children.Add(GlobalVariables.GlobalMediaPlayerDevice);
             PlayerStackLayout.ForceLayout();
-            (GlobalVariables.GlobalMediaPlayerDevice as IMediaPlayerControl).ControlAdded();
             // Subscription für die View-Events die für die Kontextaktionen der ListView-Elemente benötigt werden
             // Detailfunktion
             MessagingCenter.Subscribe<ViewCellBase, FileExplorerItemBase>(this, GlobalVariables.BaseShowDetailsActionName, (sender, arg) =>

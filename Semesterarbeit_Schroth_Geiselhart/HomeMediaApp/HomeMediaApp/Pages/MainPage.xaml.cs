@@ -55,6 +55,7 @@ namespace HomeMediaApp.Pages
             BindingContext = this;
             UPnPServerList.CollectionChanged += ItemsOnCollectionChanged;
             OuterGrid.ForceLayout();
+            string IPAddress = DependencyService.Get<IGetDeviceIPAddress>().GetDeviceIP();
         }
 
         protected override void OnAppearing()

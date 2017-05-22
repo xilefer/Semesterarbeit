@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 
 namespace HomeMediaApp.Interfaces
 {
+    public interface IGetDeviceIPAddress
+    {
+        string GetDeviceIP();
+    }
     public interface IMediaPlayer
     {
         bool PlayFromUri(Uri FileUri);
@@ -17,7 +21,6 @@ namespace HomeMediaApp.Interfaces
 
     public interface IMediaPlayerControl : IMediaPlayer
     {
-        void ControlAdded();
     }
 
     public interface ICloseApplication

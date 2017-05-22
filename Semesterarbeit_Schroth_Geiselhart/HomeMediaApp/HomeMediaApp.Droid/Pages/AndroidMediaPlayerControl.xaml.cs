@@ -116,10 +116,6 @@ namespace HomeMediaApp.Droid.Pages
             if (AndroidMediaPlayer.IsPlaying) Pause();
             Play();
         }
-
-        public void ControlAdded()
-        {
-
-        }
+        
     }
 }

@@ -2,16 +2,24 @@
 <ContentView xmlns="http://xamarin.com/schemas/2014/forms" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:widget="clr-namespace:Android.Widget;assembly=Mono.Android"
              x:Class="HomeMediaApp.Droid.Pages.AndroidMediaPlayerControl"
-             VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
+             VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" HeightRequest="70" >
   <ContentView.Content>
-      <StackLayout x:Name="StackLayoutPlayer" BackgroundColor="Red" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" Orientation="Horizontal">
-            <Label></Label>
-          <!--
-          <Image x:Name="PlayPauseImage" VerticalOptions="CenterAndExpand" HorizontalOptions="FillAndExpand" BackgroundColor="White" Aspect="AspectFit">
-                <Image.GestureRecognizers>
-                    <TapGestureRecognizer x:Name="PlayPauseTapGestureRecognizer" Tapped="PlayPauseTapGestureRecognizer_OnTapped"/>
-                </Image.GestureRecognizers>
-            </Image> -->
-        </StackLayout>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="20"/>
+                <RowDefinition Height="50"/>
+            </Grid.RowDefinitions>
+            <Slider x:Name="SongSlider" HeightRequest="20" Margin="10,0,10,0" />
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="50"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackLayout Grid.Column="0" x:Name="StackLayoutPlayer" HorizontalOptions="StartAndExpand" Margin="1" VerticalOptions="FillAndExpand" Orientation="Horizontal" >
+                    <Label></Label>
+                </StackLayout>
+                <Label Grid.Column="1" Text="Kein Musiktitel ausgewählt"></Label>
+            </Grid>
+        </Grid>
   </ContentView.Content>
 </ContentView>

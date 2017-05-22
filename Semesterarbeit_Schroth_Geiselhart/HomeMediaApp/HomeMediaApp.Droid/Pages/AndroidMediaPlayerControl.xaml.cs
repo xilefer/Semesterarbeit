@@ -11,6 +11,7 @@ using HomeMediaApp.Interfaces;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.Android;
 using Application = Android.App.Application;
+using View = Xamarin.Forms.View;
 
 [assembly: Dependency(typeof(AndroidMediaPlayerControl))]
 namespace HomeMediaApp.Droid.Pages
@@ -19,21 +20,36 @@ namespace HomeMediaApp.Droid.Pages
     {
         MediaPlayer AndroidMediaPlayer = new MediaPlayer();
         ImageView ImageViewPlayPause = new ImageView(Application.Context);
+        TapGestureRecognizer TapRecognizer = new TapGestureRecognizer();
         private Xamarin.Forms.View TempView = null;
         private bool Prepared = false;
+
+        private string mSongName = "";
+
+        public string SongName
+        {
+            get { return mSongName; }
+            set
+            {
+                if (mSongName == value) return;
+                mSongName = value;
+                OnPropertyChanged();
+            }
+        }
+
         public AndroidMediaPlayerControl()
         {
             InitializeComponent();
             AndroidMediaPlayer.Prepared += AndroidMediaPlayerOnPrepared;
             StackLayoutPlayer.Children.Clear();
-            ImageViewPlayPause.SetImageResource(Resource.Drawable.play_icon);
             TempView = ImageViewPlayPause.ToView();
             TempView.VerticalOptions = LayoutOptions.FillAndExpand;
-            TempView.HorizontalOptions = LayoutOptions.CenterAndExpand;
+            TempView.HorizontalOptions = LayoutOptions.FillAndExpand;
             TempView.BackgroundColor = Color.White;
-            // TODO: Gesture Recognizer
+            TapRecognizer.TappedCallback = new Action<View, object>((sender, args) => View_OnClick(sender, null));
+            TempView.GestureRecognizers.Add(TapRecognizer);
             StackLayoutPlayer.Children.Add(TempView);
-            //PlayPauseImage.Source = ImageSource.FromResource("HomeMediaApp.Droid.drawable");
+            ImageViewPlayPause.SetImageResource(Resource.Drawable.play_icon);
             ForceLayout();
         }
         
@@ -99,6 +115,11 @@ namespace HomeMediaApp.Droid.Pages
         {
             if (AndroidMediaPlayer.IsPlaying) Pause();
             Play();
+        }
+
+        public void ControlAdded()
+        {
+
         }
     }
 }

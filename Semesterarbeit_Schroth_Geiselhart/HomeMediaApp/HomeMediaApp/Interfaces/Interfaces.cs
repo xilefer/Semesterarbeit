@@ -17,7 +17,7 @@ namespace HomeMediaApp.Interfaces
 
     public interface IMediaPlayerControl : IMediaPlayer
     {
-        
+        void ControlAdded();
     }
 
     public interface ICloseApplication

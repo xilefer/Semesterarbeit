@@ -234,12 +234,12 @@ namespace HomeMediaApp.Classes
                 XElement oMuteState = Eventinfo.Elements().Where(e => e.Name.LocalName.ToLower() == "mute").FirstOrDefault();
                 if (oMuteState != null)
                 {
-                    if (oMuteState.Value.ToLower() != Mutevalue.ToString()) MuteStatusChanged?.Invoke();
+                    if (oMuteState.Value.ToLower() != Mutevalue.ToString()) MuteStatusChanged?.Invoke(); Mutevalue = Boolean.Parse(oMuteState.Value);
                 }
                 XElement oVolume = Eventinfo.Elements().Where(e => e.Name.LocalName.ToLower() == "volume").FirstOrDefault();
                 if (oVolume != null)
                 {
-                    if (oVolume.Value != Volumevalue.ToString()) VolumeValueChanged?.Invoke();
+                    if (oVolume.Value != Volumevalue.ToString()) VolumeValueChanged?.Invoke(); Volumevalue = int.Parse(oVolume.Value);
                 }
             }
         }

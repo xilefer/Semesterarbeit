@@ -100,7 +100,7 @@ namespace HomeMediaApp.Pages
         {
             get
             {
-                if (CurrentMusicTrack != null) return CurrentMusicTrack.DurationSec;
+                if (CurrentMusicTrack != null && CurrentMusicTrack.DurationSec != 0) return CurrentMusicTrack.DurationSec;
                 return 1;
             }
         }

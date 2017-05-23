@@ -17,27 +17,156 @@ using Xamarin.Forms;
 namespace HomeMediaApp.Classes
 {
     public delegate void PlayingStatusChangedEvent();
+    public delegate void MuteStatusChangedEvent();
+    public delegate void VolumeValueChangedEvent();
     public class PlayerControl
     {
         // public int CurrentPosition() (-1 wenns net spielt, sonst die aktuelle sekundenzahl)
         // public bool IsPlaying; Erledigt
-        public string ListenIP = "5000";
+        private string ListenPortAV = "5000";
+        private string ListenPortRenderer = "5001";
         public event PlayingStatusChangedEvent PlayingStatusChanged;
+        public event MuteStatusChangedEvent MuteStatusChanged;
+        public event VolumeValueChangedEvent VolumeValueChanged;
         public UPnPDevice oDevice { get; set; }
         public List<MediaObject> MediaList { get; set; } = new List<MediaObject>();
         public MediaObject CurrentMedia { get; set; }
         public MediaObject NextMedia { get; set; }
         public MediaObject PreviousMedia { get; set; }
         public string Status { get; set; }
+        public int CurrentVolume
+        {
+            get { return GetVolume(); }
+            set
+            {
+                if (value >= 0 && value <= 100) SetVolume(value);
+                else return;
+            }
+        }
+        public bool Mute
+        {
+            get { return GetMute(); }
+            set { SetMute(value);   }
+        }
+        private bool Mutevalue { get; set; }
+        private bool TempMute { get; set; } = false;
+        private bool GetMuteResponse { get; set; } = false;
+        public int Volume
+        {
+            get { return GetVolume(); }
+            set { SetVolume(value); }
+        }
+        private int Volumevalue { get; set; }  = 0;
+        private int TempVolume { get; set; } = 0;
+        private bool GetVolumeResponse { get; set; } = false;
         private int LastPosition { get; set; }
         private bool PlayingReponse { get; set; }
         private bool Playing { get; set; } = false;
         private bool PositionResponse { get; set; } = false;
+        private bool CurrentIDResponse { get; set; } = false;
+        public bool ConnectionSuccessful { get; set; } = false;
+        private TcpSocketListener oSocket { get; set; }
+        private TcpSocketListener oSocketRenderer { get; set; }
+        public bool ConnectionError { get; set; } = false;
+        private XDocument CurrentIDResponseDoc { get; set; }
+
+
+
+
+        public PlayerControl(UPnPDevice RendererDevice, MediaObject Media)
+        {
+            this.CurrentMedia = Media;
+            this.oDevice = RendererDevice;
+            this.NextMedia = this.CurrentMedia;
+            this.PreviousMedia = this.CurrentMedia;
+            MediaList.Add(Media);
+
+            //Überprüfen ob bereits eine Verbindung besteht
+            //---------------------------------------------------------------------------------------------------------------------------------------//
+
+            UPnPService oConnectionService = oDevice.DeviceMethods.Where(e => e.ServiceID.ToLower() == "connectionmanager").FirstOrDefault();
+            UPnPAction oCurrentIDs = oConnectionService.ActionList.Where(e => e.ActionName.ToLower() == "getcurrentconnectionids").FirstOrDefault();
+            oCurrentIDs.OnResponseReceived += new ResponseReceived(OnResponseCurrentIDs);
+            List<Tuple<string, string>> argsid = new List<Tuple<string, string>>();
+            CurrentIDResponse = false;
+            oCurrentIDs.Execute(oDevice.DeviceAddress.Scheme + @"://" + oDevice.DeviceAddress.Authority + oConnectionService.ControlURL, "ConnectionManager", argsid);
+            while (CurrentIDResponse == false) { };
+            XElement ConnectionIDElement = CurrentIDResponseDoc.Root.Elements().Elements().Elements().Where(e => e.Name.LocalName.ToLower() == "connectionids").FirstOrDefault();
+            string ConnectionIDs = "";
+            if (ConnectionIDElement != null) { ConnectionIDs = ConnectionIDElement.Value; }
+
+            if (ConnectionIDs != "")
+            {
+                Stop();
+            }
+            //---------------------------------------------------------------------------------------------------------------------------------------//
+            //
+
+
+            //Abonnieren der Events von AVTransport und RenderingControl
+            //---------------------------------------------------------------------------------------------------------------------------------------//
+            UPnPService oTransportService = oDevice.DeviceMethods.Where(e => e.ServiceID.ToLower() == "avtransport").FirstOrDefault();
+            UPnPService oRendererService = oDevice.DeviceMethods.Where(e => e.ServiceID.ToLower() == "renderingcontrol").FirstOrDefault();
+
+            if (oTransportService == null) return;
+            string IP = DependencyService.Get<IGetDeviceIPAddress>().GetDeviceIP();
+            if (IP != null)
+            {
+
+                string EventURI = oDevice.DeviceAddress.Scheme + @"://" + oDevice.DeviceAddress.Authority + oTransportService.EventSubURL;
+                HttpWebRequest httpRequest = (HttpWebRequest)WebRequest.Create(EventURI);
+                httpRequest.Method = "SUBSCRIBE";
+                httpRequest.Headers["CALLBACK"] = "http://" + IP + ":" + ListenPortAV + "/";
+                httpRequest.Headers["NT"] = "upnp:event";
+                httpRequest.Headers["TIMEOUT"] = "Second-300";
+                ActionState oState = new ActionState()
+                {
+                    oWebRequest = httpRequest
+                };
+                httpRequest.BeginGetResponse(RequestCallback, oState);
+                if(oRendererService != null)
+                {
+                    string EventURIRenderer = oDevice.DeviceAddress.Scheme + @"://" + oDevice.DeviceAddress.Authority + oRendererService.EventSubURL;
+                    HttpWebRequest httpRequestRenderer = (HttpWebRequest)WebRequest.Create(EventURI);
+                    httpRequestRenderer.Method = "SUBSCRIBE";
+                    httpRequestRenderer.Headers["CALLBACK"] = "http://" + IP + ":" + ListenPortRenderer + "/";
+                    httpRequestRenderer.Headers["NT"] = "upnp:event";
+                    httpRequestRenderer.Headers["TIMEOUT"] = "Second-300";
+                    ActionState oStateRenderer = new ActionState()
+                    {
+                        oWebRequest = httpRequestRenderer
+                    };
+                    httpRequestRenderer.BeginGetResponse(RequestCallbackRenderer, oStateRenderer);
+                }
+            }
+            //---------------------------------------------------------------------------------------------------------------------------------------//
+            //
+
+
+            //Verbindung zum Gerät aufbauen
+            //---------------------------------------------------------------------------------------------------------------------------------------//
+
+            UPnPAction oTransportAction = oTransportService.ActionList.Where(e => e.ActionName.ToLower() == "setavtransporturi").ToList()[0];
+            oTransportAction.OnResponseReceived += new ResponseReceived(OnResponseSetAVTransportURI);
+
+            //Pfad setzen
+            string RequestURI = oDevice.DeviceAddress.Scheme + @"://" + oDevice.DeviceAddress.Authority + oTransportService.ControlURL;
+            List<Tuple<string, string>> args = new List<Tuple<string, string>>();
+            args.Add(new Tuple<string, string>("InstanceID", "0"));
+            args.Add(new Tuple<string, string>("CurrentURI", CurrentMedia.Path));
+            args.Add(new Tuple<string, string>("CurrentURIMetaData", CurrentMedia.MetaData));
+
+            ConnectionSuccessful = false;
+            oTransportAction.Execute(RequestURI, "AVTransport", args);
+            while (!ConnectionSuccessful && !ConnectionError) { };
+            
+            //---------------------------------------------------------------------------------------------------------------------------------------//
+            //
+        }
         public bool IsPlaying
         {
             get
             {
-                //return true;
                 UPnPService oTransportService = oDevice.DeviceMethods.Where(e => e.ServiceID.ToLower() == "avtransport").ToList()[0];
                 UPnPAction oPlayingAction = oTransportService.ActionList.Where(e => e.ActionName.ToLower() == "gettransportinfo").ToList()[0];
                 oPlayingAction.OnResponseReceived += new ResponseReceived(OnResponsePlaying);
@@ -60,7 +189,7 @@ namespace HomeMediaApp.Classes
                 PlayingStatusChanged?.Invoke();
             }
         }
-        public void RequestCallback(IAsyncResult oResult)
+        private void RequestCallback(IAsyncResult oResult)
         {
             ActionState oState = (ActionState)oResult.AsyncState;
 
@@ -70,10 +199,49 @@ namespace HomeMediaApp.Classes
             MemoryStream ms = new MemoryStream();
             st.CopyTo(ms);
             string oResponse = Encoding.UTF8.GetString(ms.ToArray(), 0, (int)ms.Length);
-            TcpSocketListener oSocket = new TcpSocketListener();
+            oSocket = new TcpSocketListener();
 
-            oSocket.StartListeningAsync(int.Parse(ListenIP));
+            oSocket.StartListeningAsync(int.Parse(ListenPortAV));
             oSocket.ConnectionReceived += TCPRec;
+        }
+        private void RequestCallbackRenderer(IAsyncResult oResult)
+        {
+            ActionState oState = (ActionState)oResult.AsyncState;
+
+            oState.oWebResponse = (HttpWebResponse)oState.oWebRequest.EndGetResponse(oResult);
+
+            Stream st = oState.oWebResponse.GetResponseStream();
+            MemoryStream ms = new MemoryStream();
+            st.CopyTo(ms);
+            string oResponse = Encoding.UTF8.GetString(ms.ToArray(), 0, (int)ms.Length);
+            oSocketRenderer = new TcpSocketListener();
+
+            oSocketRenderer.StartListeningAsync(int.Parse(ListenPortRenderer));
+            oSocketRenderer.ConnectionReceived += TCPRecRend;
+        }
+        private void TCPRecRend(object sender, TcpSocketListenerConnectEventArgs args)
+        {
+            ITcpSocketClient oClient = args.SocketClient;
+            byte[] bytes = new byte[64 * 1024];
+            oClient.ReadStream.Read(bytes, 0, bytes.Length);
+            string Message = Encoding.UTF8.GetString(bytes, 0, bytes.Length);
+            string xmlmessage = Message.Substring(Message.IndexOf("<?")).Trim(System.Convert.ToChar(System.Convert.ToUInt32("00", 16)));
+            XDocument Response = XDocument.Parse(xmlmessage);
+            XElement oElement = Response.Root.Elements().Elements().FirstOrDefault();
+            if (oElement != null)
+            {
+                XDocument Eventinfo = XDocument.Parse(oElement.Value);
+                XElement oMuteState = Eventinfo.Elements().Where(e => e.Name.LocalName.ToLower() == "mute").FirstOrDefault();
+                if (oMuteState != null)
+                {
+                    if (oMuteState.Value.ToLower() != Mutevalue.ToString()) MuteStatusChanged?.Invoke();
+                }
+                XElement oVolume = Eventinfo.Elements().Where(e => e.Name.LocalName.ToLower() == "volume").FirstOrDefault();
+                if (oVolume != null)
+                {
+                    if (oVolume.Value != Volumevalue.ToString()) VolumeValueChanged?.Invoke();
+                }
+            }
         }
         private void TCPRec(object sender, TcpSocketListenerConnectEventArgs args)
         {
@@ -108,50 +276,6 @@ namespace HomeMediaApp.Classes
                 }
             }
             
-        }
-        public PlayerControl(UPnPDevice RendererDevice, MediaObject Media)
-        {
-            this.CurrentMedia = Media;
-            this.oDevice = RendererDevice;
-            this.NextMedia = this.CurrentMedia;
-            this.PreviousMedia = this.CurrentMedia;
-            MediaList.Add(Media);
-            UPnPService oTransportService = oDevice.DeviceMethods.Where(e => e.ServiceID.ToLower() == "avtransport").FirstOrDefault();
-            if (oTransportService == null) return;
-            string IP = DependencyService.Get<IGetDeviceIPAddress>().GetDeviceIP();
-            if(IP != null)
-            {
-                
-                string EventURI = oDevice.DeviceAddress.Scheme + @"://" + oDevice.DeviceAddress.Authority + oTransportService.EventSubURL;
-                HttpWebRequest httpRequest = (HttpWebRequest)WebRequest.Create(EventURI);
-                httpRequest.Method = "SUBSCRIBE";
-                httpRequest.Headers["CALLBACK"] = "http://" + IP + ":"+ ListenIP + "/";
-                httpRequest.Headers["NT"] = "upnp:event";
-                httpRequest.Headers["TIMEOUT"] = "Second-300";
-                ActionState oState = new ActionState()
-                {
-                    oWebRequest = httpRequest
-                };
-                httpRequest.BeginGetResponse(RequestCallback, oState);
-            }
-
-            //Verbindung zum Gerät aufbauen
-            //Entsprechende Action des Gerätes finden
-            UPnPAction oTransportAction = oTransportService.ActionList.Where(e => e.ActionName.ToLower() == "setavtransporturi").ToList()[0];
-            oTransportAction.OnResponseReceived += new ResponseReceived(OnResponseSetAVTransportURI);
-
-            //Pfad setzen
-            string RequestURI = oDevice.DeviceAddress.Scheme + @"://" + oDevice.DeviceAddress.Authority + oTransportService.ControlURL;
-            List<Tuple<string, string>> args = new List<Tuple<string, string>>();
-            args.Add(new Tuple<string, string>("InstanceID", "0"));
-            args.Add(new Tuple<string, string>("CurrentURI", CurrentMedia.Path));
-            args.Add(new Tuple<string, string>("CurrentURIMetaData", CurrentMedia.MetaData));
-
-            oTransportAction.Execute(RequestURI, "AVTransport", args);
-            //Play(0);
-            //Event abonnieren
-            //Play ausführen
-            //Status aktualisieren
         }
         public int GetCurrentPosition()
         {
@@ -294,7 +418,78 @@ namespace HomeMediaApp.Classes
 
             oTransportAction.Execute(RequestURI, "AVTransport", args);
         }
-        public void OnResponsePlaying(XDocument oResponseDocument, ActionState oState)
+        private int GetVolume()
+        {
+            UPnPService oRendererService = oDevice.DeviceMethods.Where(e => e.ServiceID.ToLower() == "renderingcontrol").ToList()[0];
+            UPnPAction oTransportAction = oRendererService.ActionList.Where(e => e.ActionName.ToLower() == "getvolume").ToList()[0];
+            oTransportAction.OnResponseReceived += new ResponseReceived(OnResponseSetCurrent);
+
+            //Pfad setzen
+            string RequestURI = oDevice.DeviceAddress.Scheme + @"://" + oDevice.DeviceAddress.Authority + oRendererService.ControlURL;
+            List<Tuple<string, string>> args = new List<Tuple<string, string>>();
+            args.Add(new Tuple<string, string>("InstanceID", "0"));
+            args.Add(new Tuple<string, string>("Channel", "Master"));
+            GetVolumeResponse = false;
+            oTransportAction.Execute(RequestURI, "RenderingControl", args);
+            while (!GetVolumeResponse) { };
+            GetVolumeResponse = false;
+            return Volumevalue;
+        }
+        private void SetVolume(int Volume)
+        {
+            UPnPService oRendererService = oDevice.DeviceMethods.Where(e => e.ServiceID.ToLower() == "renderingcontrol").ToList()[0];
+            UPnPAction oTransportAction = oRendererService.ActionList.Where(e => e.ActionName.ToLower() == "setvolume").ToList()[0];
+            oTransportAction.OnResponseReceived += new ResponseReceived(OnResponseSetVolume);
+
+            //Pfad setzen
+            string RequestURI = oDevice.DeviceAddress.Scheme + @"://" + oDevice.DeviceAddress.Authority + oRendererService.ControlURL;
+            List<Tuple<string, string>> args = new List<Tuple<string, string>>();
+            args.Add(new Tuple<string, string>("InstanceID", "0"));
+            args.Add(new Tuple<string, string>("Channel", "Master"));
+            args.Add(new Tuple<string, string>("DesiredVolume", Volume.ToString()));
+            TempVolume = Volume;
+            oTransportAction.Execute(RequestURI, "RenderingControl", args);
+        }
+        private bool GetMute()
+        {
+            UPnPService oRendererService = oDevice.DeviceMethods.Where(e => e.ServiceID.ToLower() == "renderingcontrol").ToList()[0];
+            UPnPAction oTransportAction = oRendererService.ActionList.Where(e => e.ActionName.ToLower() == "getmute").ToList()[0];
+            oTransportAction.OnResponseReceived += new ResponseReceived(OnResponseSetCurrent);
+
+            //Pfad setzen
+            string RequestURI = oDevice.DeviceAddress.Scheme + @"://" + oDevice.DeviceAddress.Authority + oRendererService.ControlURL;
+            List<Tuple<string, string>> args = new List<Tuple<string, string>>();
+            args.Add(new Tuple<string, string>("InstanceID", "0"));
+            args.Add(new Tuple<string, string>("Channel", "Master"));
+            GetMuteResponse = false;
+            oTransportAction.Execute(RequestURI, "RenderingControl", args);
+            while (!GetMuteResponse) { };
+            GetMuteResponse = false;
+            return Mutevalue;
+        }
+        private void SetMute(bool Mute)
+        {
+            UPnPService oRendererService = oDevice.DeviceMethods.Where(e => e.ServiceID.ToLower() == "renderingcontrol").ToList()[0];
+            UPnPAction oTransportAction = oRendererService.ActionList.Where(e => e.ActionName.ToLower() == "setmute").ToList()[0];
+            oTransportAction.OnResponseReceived += new ResponseReceived(OnResponseSetMute);
+
+            //Pfad setzen
+            string RequestURI = oDevice.DeviceAddress.Scheme + @"://" + oDevice.DeviceAddress.Authority + oRendererService.ControlURL;
+            List<Tuple<string, string>> args = new List<Tuple<string, string>>();
+            args.Add(new Tuple<string, string>("InstanceID", "0"));
+            args.Add(new Tuple<string, string>("Channel", "Master"));
+            args.Add(new Tuple<string, string>("DesiredMute", Mute.ToString()));
+
+            TempMute = Mute;
+            oTransportAction.Execute(RequestURI, "RenderingControl", args);
+
+        }
+
+
+
+
+
+        private void OnResponsePlaying(XDocument oResponseDocument, ActionState oState)
         {
             if (oState.oWebResponse.StatusCode == System.Net.HttpStatusCode.OK)
             {
@@ -305,24 +500,26 @@ namespace HomeMediaApp.Classes
             PlayingReponse = true;
 
         }
-        public void OnResponseReceived(XDocument oResponseDocument, ActionState oState)
+        private void OnResponseReceived(XDocument oResponseDocument, ActionState oState)
         {
             IsPlaying = false;
         }
-        public void OnResponseSetAVTransportURI(XDocument oResponseDocument, ActionState oState)
+        private void OnResponseSetAVTransportURI(XDocument oResponseDocument, ActionState oState)
         {
-            if (oState.oWebResponse.StatusCode == System.Net.HttpStatusCode.OK)
+            if (oState.Successful && oState.oWebResponse.StatusCode == System.Net.HttpStatusCode.OK)
             {
+                ConnectionSuccessful = true;
                 Playable();
             }
             else
             {
-                //Fehler
+                //In diesem Fall gab es einen Fehler beim Abrufen der Response dann Fehler anzeigen in der Oberfläche.   
+                ConnectionError = true;
             }
         }
-        public void OnResponseGetCurrentTransportAction(XDocument oResponseDocument, ActionState oState)
+        private void OnResponseGetCurrentTransportAction(XDocument oResponseDocument, ActionState oState)
         {
-            if (oState.oWebResponse.StatusCode == System.Net.HttpStatusCode.OK)
+            if (oState.Successful && oState.oWebResponse.StatusCode == System.Net.HttpStatusCode.OK)
             {
                 Play();
             }
@@ -331,17 +528,17 @@ namespace HomeMediaApp.Classes
                 Playable();
             }
         }
-        public void OnResponsePlay(XDocument oResponseDocument, ActionState oState)
+        private void OnResponsePlay(XDocument oResponseDocument, ActionState oState)
         {
-            if (oState.oWebResponse.StatusCode == System.Net.HttpStatusCode.OK)
+            if (oState.Successful && oState.oWebResponse.StatusCode == System.Net.HttpStatusCode.OK)
             {
                 IsPlaying = true;
                 //Gut
             }
         }
-        public void OnResponsePosition(XDocument oResponseDocument, ActionState oState)
+        private void OnResponsePosition(XDocument oResponseDocument, ActionState oState)
         {
-            if (oState.oWebResponse.StatusCode == System.Net.HttpStatusCode.OK && IsPlaying)
+            if (oState.Successful && oState.oWebResponse.StatusCode == System.Net.HttpStatusCode.OK && IsPlaying)
             {
                 int Position = int.Parse(oResponseDocument.Root.Elements().Elements().Elements().Where(e => e.Name.LocalName.ToLower() == "abstime").ToList()[0].Value);
                 LastPosition = Position;
@@ -349,9 +546,9 @@ namespace HomeMediaApp.Classes
             else LastPosition = -1;
             PositionResponse = true;
         }
-        public void OnResponseNext(XDocument oResponseDocument, ActionState oState)
+        private void OnResponseNext(XDocument oResponseDocument, ActionState oState)
         {
-            if (oState.oWebResponse.StatusCode == System.Net.HttpStatusCode.OK)
+            if (oState.Successful && oState.oWebResponse.StatusCode == System.Net.HttpStatusCode.OK)
             {
                 PreviousMedia = CurrentMedia;
                 CurrentMedia = NextMedia;
@@ -360,19 +557,59 @@ namespace HomeMediaApp.Classes
             }
 
         }
-        public void OnResponseSetNext(XDocument oResponseDocument, ActionState oState)
+        private void OnResponseSetNext(XDocument oResponseDocument, ActionState oState)
         {
-            if (oState.oWebResponse.StatusCode == HttpStatusCode.OK) Play();
+            if (oState.Successful && oState.oWebResponse.StatusCode == HttpStatusCode.OK) Play();
         }
-        public void OnResponseStop(XDocument oResponseDocument, ActionState oState)
+        private void OnResponseStop(XDocument oResponseDocument, ActionState oState)
         {
-            if (oState.oWebResponse.StatusCode == HttpStatusCode.OK) IsPlaying = false;
+            if (oState.Successful && oState.oWebResponse.StatusCode == HttpStatusCode.OK) IsPlaying = false;
         }
-        public void OnResponseSetCurrent(XDocument oResponseDocument, ActionState oState)
+        private void OnResponseSetCurrent(XDocument oResponseDocument, ActionState oState)
         {
-            if (oState.oWebResponse.StatusCode == System.Net.HttpStatusCode.OK)
+            if (oState.Successful && oState.oWebResponse.StatusCode == System.Net.HttpStatusCode.OK)
             {
                 Playable();
+            }
+        }
+        private void OnResponseCurrentIDs(XDocument oResponseDocument, ActionState oState)
+        {
+            if (oState.Successful && oState.oWebResponse.StatusCode == HttpStatusCode.OK) CurrentIDResponseDoc = oResponseDocument;
+            else CurrentIDResponseDoc = null;
+            CurrentIDResponse = true;
+        }
+        private void OnResponseGetVolume(XDocument oResponseDocument, ActionState oState)
+        {
+            if(oState.Successful && oState.oWebResponse.StatusCode == HttpStatusCode.OK)
+            {
+                XElement Volume = oResponseDocument.Root.Elements().Elements().Elements().Where(e => e.Name.LocalName.ToLower() == "currentvolume").FirstOrDefault();
+                if (Volume != null) Volumevalue = int.Parse(Volume.Value);
+            }
+            GetVolumeResponse = true;
+        }
+        private void OnResponseSetVolume(XDocument oResponseDocument, ActionState oState)
+        {
+            if (oState.Successful && oState.oWebResponse.StatusCode == HttpStatusCode.OK)
+            {
+                Volumevalue = TempVolume;
+            }
+        }
+        private void OnResponseGetMute(XDocument oResponseDocument, ActionState oState)
+        {
+            if (oState.Successful && oState.oWebResponse.StatusCode == HttpStatusCode.OK)
+            {
+                XElement Mute = oResponseDocument.Root.Elements().Elements().Elements().Where(e => e.Name.LocalName.ToLower() == "currentmute").FirstOrDefault();
+                if (Mute != null) Mutevalue = Boolean.Parse(Mute.Value);
+                GetMuteResponse = true;
+            }
+            else Mutevalue = false;
+            GetMuteResponse = true;
+        }
+        private void OnResponseSetMute(XDocument oResponseDocument, ActionState oState)
+        {
+            if (oState.Successful && oState.oWebResponse.StatusCode == HttpStatusCode.OK)
+            {
+                Mutevalue = TempMute;
             }
         }
     }

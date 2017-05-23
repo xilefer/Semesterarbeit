@@ -18,6 +18,7 @@ namespace HomeMediaApp.Classes
         public HttpWebResponse oWebResponse;
         public string ActionName;
         public byte[] RequestBody;
+        public bool Successful = false;
     }
 
     public class UPnPService
@@ -90,12 +91,14 @@ namespace HomeMediaApp.Classes
             catch (Exception gEx)
             {
                 Debug.WriteLine(gEx);
+                OnResponseReceived(new XDocument(), oState);
                 return;
             }
             Stream st = oState.oWebResponse.GetResponseStream();
             MemoryStream ms = new MemoryStream();
             st.CopyTo(ms);
             string oResponse = Encoding.UTF8.GetString(ms.ToArray(), 0, (int)ms.Length);
+            oState.Successful = true;
             OnResponseReceived(XDocument.Parse(oResponse), oState);
         }
     }

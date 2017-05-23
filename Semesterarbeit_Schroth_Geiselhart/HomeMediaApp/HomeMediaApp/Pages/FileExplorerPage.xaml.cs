@@ -503,6 +503,7 @@ namespace HomeMediaApp.Pages
                             Path = MusicItem.RelatedTrack.Res
                         };
                         GlobalVariables.GlobalPlayerControl = MediaPlayer.Play(Song, SelectedRendererList[0]);
+                        if (GlobalVariables.GlobalPlayerControl.ConnectionError) { DisplayAlert("Fehler", "Wiedergabe konnte aufgrund eines Gerätefehlers nicht gestartet werden.", "OK");return; }
                         if (GlobalVariables.GlobalRemoteMediaPlayerPage.PlayList == null)
                         {
                             GlobalVariables.GlobalRemoteMediaPlayerPage.AddMusicTrackToPlayList(MusicItem);

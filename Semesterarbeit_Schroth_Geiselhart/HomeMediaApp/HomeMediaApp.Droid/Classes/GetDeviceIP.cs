@@ -4,7 +4,6 @@ using System.Linq;
 using System.Net;
 using System.Runtime.CompilerServices;
 using System.Text;
-
 using Android.App;
 using Android.Content;
 using Android.OS;

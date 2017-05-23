@@ -9,6 +9,9 @@ using System.Net;
 using System.IO;
 using Sockets.Plugin;
 using Sockets.Plugin.Abstractions;
+using System.Net.NetworkInformation;
+using HomeMediaApp.Interfaces;
+using Xamarin.Forms;
 
 
 namespace HomeMediaApp.Classes
@@ -16,9 +19,9 @@ namespace HomeMediaApp.Classes
     public delegate void PlayingStatusChangedEvent();
     public class PlayerControl
     {
-
         // public int CurrentPosition() (-1 wenns net spielt, sonst die aktuelle sekundenzahl)
         // public bool IsPlaying; Erledigt
+        public string ListenIP = "5000";
         public event PlayingStatusChangedEvent PlayingStatusChanged;
         public UPnPDevice oDevice { get; set; }
         public List<MediaObject> MediaList { get; set; } = new List<MediaObject>();
@@ -69,7 +72,7 @@ namespace HomeMediaApp.Classes
             string oResponse = Encoding.UTF8.GetString(ms.ToArray(), 0, (int)ms.Length);
             TcpSocketListener oSocket = new TcpSocketListener();
 
-            oSocket.StartListeningAsync(8080);
+            oSocket.StartListeningAsync(int.Parse(ListenIP));
             oSocket.ConnectionReceived += TCPRec;
         }
         private void TCPRec(object sender, TcpSocketListenerConnectEventArgs args)
@@ -108,26 +111,32 @@ namespace HomeMediaApp.Classes
         }
         public PlayerControl(UPnPDevice RendererDevice, MediaObject Media)
         {
-            
-            HttpWebRequest httpRequest = (HttpWebRequest)WebRequest.Create("http://129.144.51.117:50148/MediaRenderer_AVTransport/event");
-            httpRequest.Method = "SUBSCRIBE";
-            httpRequest.Headers["CALLBACK"] = "http://129.144.51.103:8080/"; 
-            httpRequest.Headers["NT"] = "upnp:event";
-            httpRequest.Headers["TIMEOUT"] = "Second-300";
-            ActionState oState = new ActionState()
-            {
-                oWebRequest = httpRequest
-            };
-            httpRequest.BeginGetResponse(RequestCallback, oState);
-            
             this.CurrentMedia = Media;
             this.oDevice = RendererDevice;
             this.NextMedia = this.CurrentMedia;
             this.PreviousMedia = this.CurrentMedia;
             MediaList.Add(Media);
+            UPnPService oTransportService = oDevice.DeviceMethods.Where(e => e.ServiceID.ToLower() == "avtransport").FirstOrDefault();
+            if (oTransportService == null) return;
+            string IP = DependencyService.Get<IGetDeviceIPAddress>().GetDeviceIP();
+            if(IP != null)
+            {
+                
+                string EventURI = oDevice.DeviceAddress.Scheme + @"://" + oDevice.DeviceAddress.Authority + oTransportService.EventSubURL;
+                HttpWebRequest httpRequest = (HttpWebRequest)WebRequest.Create(EventURI);
+                httpRequest.Method = "SUBSCRIBE";
+                httpRequest.Headers["CALLBACK"] = "http://" + IP + ":"+ ListenIP + "/";
+                httpRequest.Headers["NT"] = "upnp:event";
+                httpRequest.Headers["TIMEOUT"] = "Second-300";
+                ActionState oState = new ActionState()
+                {
+                    oWebRequest = httpRequest
+                };
+                httpRequest.BeginGetResponse(RequestCallback, oState);
+            }
+
             //Verbindung zum Gerät aufbauen
             //Entsprechende Action des Gerätes finden
-            UPnPService oTransportService = oDevice.DeviceMethods.Where(e => e.ServiceID.ToLower() == "avtransport").ToList()[0];
             UPnPAction oTransportAction = oTransportService.ActionList.Where(e => e.ActionName.ToLower() == "setavtransporturi").ToList()[0];
             oTransportAction.OnResponseReceived += new ResponseReceived(OnResponseSetAVTransportURI);
 

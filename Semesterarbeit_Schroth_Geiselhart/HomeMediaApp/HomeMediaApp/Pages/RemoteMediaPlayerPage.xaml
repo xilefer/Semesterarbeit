@@ -31,14 +31,31 @@
             <!-- Hier sind die Buttons zur Steuerung untergebracht -->
             <Grid.RowDefinitions>
                 <RowDefinition Height="80"/>
+                <RowDefinition Height="20"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <StackLayout Orientation="Vertical" Grid.Row="0">
-                <Label x:Name="CurrentMusicLabel" Text="{Binding CurrentMusicTrackName}" TextColor="Black" Margin="20,0,0,0" VerticalOptions="StartAndExpand" HorizontalOptions="StartAndExpand"/>
-                <Slider x:Name="PositionSlider" Value="{Binding SliderValue}" Maximum="{Binding SliderMaximum}" Margin="20,5,20,5" ValueChanged="PositionSlider_OnValueChanged">
-                </Slider>
-            </StackLayout>
-            <Grid Grid.Row="1" BackgroundColor="White">
+            <Grid Grid.Row="0" BackgroundColor="Black">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="50"/>
+                    <RowDefinition Height="30"/>
+                </Grid.RowDefinitions>
+                <StackLayout Orientation="Vertical" Grid.Row="0" BackgroundColor="White">
+                    <Label x:Name="CurrentMusicLabel" Text="{Binding CurrentMusicTrackName}" TextColor="Black" Margin="20,0,0,0" VerticalOptions="StartAndExpand" HorizontalOptions="StartAndExpand"/>
+                </StackLayout>
+                <StackLayout Orientation="Vertical" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" Grid.Row="1">
+                    <StackLayout.BackgroundColor>
+                        <OnPlatform x:TypeArguments="Color" Android="White" WinPhone="Black" iOS="White"/>
+                    </StackLayout.BackgroundColor>
+                    <Slider x:Name="PositionSlider" Value="{Binding SliderValue}" Maximum="{Binding SliderMaximum}" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" Margin="20,0,20,0" ValueChanged="PositionSlider_OnValueChanged">
+                    </Slider>
+                </StackLayout>
+            </Grid>
+            <Grid Grid.Row="1">
+                <Grid.BackgroundColor>
+                    <OnPlatform x:TypeArguments="Color" Android="White" WinPhone="Black" iOS="White"/>
+                </Grid.BackgroundColor>
+            </Grid>
+            <Grid Grid.Row="2" BackgroundColor="White">
                 <StackLayout Orientation="Horizontal" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
                     <Image x:Name="ImageLast" HorizontalOptions="StartAndExpand" VerticalOptions="CenterAndExpand" Source="{classes:ImageResource HomeMediaApp.Icons.last_icon.png}">
                         <Image.GestureRecognizers>

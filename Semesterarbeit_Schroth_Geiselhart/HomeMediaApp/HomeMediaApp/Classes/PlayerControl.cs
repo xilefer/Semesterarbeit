@@ -116,7 +116,7 @@ namespace HomeMediaApp.Classes
                 string EventURI = oDevice.DeviceAddress.Scheme + @"://" + oDevice.DeviceAddress.Authority + oTransportService.EventSubURL;
                 HttpWebRequest httpRequest = (HttpWebRequest)WebRequest.Create(EventURI);
                 httpRequest.Method = "SUBSCRIBE";
-                httpRequest.Headers["CALLBACK"] = "http://" + IP + ":" + ListenPortAV + "/";
+                httpRequest.Headers["CALLBACK"] = "<http://" + IP + ":" + ListenPortAV + "/>";
                 httpRequest.Headers["NT"] = "upnp:event";
                 httpRequest.Headers["TIMEOUT"] = "Second-300";
                 ActionState oState = new ActionState()
@@ -129,7 +129,7 @@ namespace HomeMediaApp.Classes
                     string EventURIRenderer = oDevice.DeviceAddress.Scheme + @"://" + oDevice.DeviceAddress.Authority + oRendererService.EventSubURL;
                     HttpWebRequest httpRequestRenderer = (HttpWebRequest)WebRequest.Create(EventURI);
                     httpRequestRenderer.Method = "SUBSCRIBE";
-                    httpRequestRenderer.Headers["CALLBACK"] = "http://" + IP + ":" + ListenPortRenderer + "/";
+                    httpRequestRenderer.Headers["CALLBACK"] = "<http://" + IP + ":" + ListenPortRenderer + "/>";
                     httpRequestRenderer.Headers["NT"] = "upnp:event";
                     httpRequestRenderer.Headers["TIMEOUT"] = "Second-300";
                     ActionState oStateRenderer = new ActionState()

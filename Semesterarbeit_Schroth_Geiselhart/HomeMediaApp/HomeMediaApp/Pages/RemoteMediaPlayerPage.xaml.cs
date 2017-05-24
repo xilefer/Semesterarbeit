@@ -133,6 +133,7 @@ namespace HomeMediaApp.Pages
                 OnPropertyChanged("MusicItems");
             });
         }
+        
 
         private void ImageLastGestureRecognizer_OnTapped(object sender, EventArgs e)
         {
@@ -153,17 +154,68 @@ namespace HomeMediaApp.Pages
                 PlayListView.ItemsSource = null;
                 PlayListView.ItemsSource = MusicItems;
                 OnPropertyChanged("MusicItems");
-                ChangeMusicTrack(PlayList.MusicItems[IndexOfItem]);
+                ChangeMusicTrack(PlayList.MusicItems[IndexOfItem], false);
                 ForceLayout();
             }
         }
 
-        private void ChangeMusicTrack(MusicItem NewTrack)
+        private void ChangeMusicTrack(MusicItem NewTrack, bool Next)
         {
-            CurrentMediaIndex = PlayList.MusicItems.IndexOf(NewTrack);
-            GlobalVariables.GlobalPlayerControl.MediaList.Insert(CurrentMediaIndex, new MediaObject() { Index = GlobalVariables.GlobalPlayerControl.MediaList.Count, Path = NewTrack.RelatedTrack.Res, MetaData = ""});
-            GlobalVariables.GlobalPlayerControl.Next();
-            // TODO: Neuen Song wiedergeben
+            // Ist NewTrack dem PlayerControl bereits bekannt?
+            int nIndex = -1;
+            foreach (var MediaObject in GlobalVariables.GlobalPlayerControl.MediaList)
+            {
+                if (MediaObject.Path == NewTrack.RelatedTrack.Res)
+                {
+                    nIndex = GlobalVariables.GlobalPlayerControl.MediaList.IndexOf(MediaObject);
+                    break;
+                }
+            }
+            if (nIndex == -1)
+            {
+                if (Next)
+                {
+                    // Nicht bekannt --> Nach aktuellem Medium Einfügen
+                    GlobalVariables.GlobalPlayerControl.MediaList.Insert(
+                        GlobalVariables.GlobalPlayerControl.MediaList.IndexOf(
+                            GlobalVariables.GlobalPlayerControl.CurrentMedia) + 1, new MediaObject()
+                            {
+                                Index =
+                                    GlobalVariables.GlobalPlayerControl.MediaList.IndexOf(
+                                        GlobalVariables.GlobalPlayerControl.CurrentMedia) + 1,
+                                Path = NewTrack.RelatedTrack.Res
+                            });
+                    GlobalVariables.GlobalPlayerControl.NextMedia =
+                        GlobalVariables.GlobalPlayerControl.MediaList[
+                            GlobalVariables.GlobalPlayerControl.MediaList.IndexOf(
+                                GlobalVariables.GlobalPlayerControl.CurrentMedia) + 1];
+                    GlobalVariables.GlobalPlayerControl.SetNextMedia(
+                        GlobalVariables.GlobalPlayerControl.MediaList[
+                            GlobalVariables.GlobalPlayerControl.MediaList.IndexOf(
+                                GlobalVariables.GlobalPlayerControl.CurrentMedia) + 1]);
+                }
+                else
+                {
+                    // nicht bekannt --> Sicherstellen dass es vor dem aktuellen Element ist
+                    //TODO: Siehe Kommentar
+                }
+            }
+            else
+            {
+                if (Next)
+                {
+                    // bekannt --> Sicherstellen dass es als nächstes Wiedergegeben wird
+                    GlobalVariables.GlobalPlayerControl.NextMedia = GlobalVariables.GlobalPlayerControl.MediaList[nIndex];
+                    GlobalVariables.GlobalPlayerControl.SetNextMedia(GlobalVariables.GlobalPlayerControl.MediaList[nIndex]);
+                }
+                else
+                {
+                    // bekannt --> Sicherstellen dass es vor dem aktuellen Element ist
+                    //TODO: Siehe Kommentar
+                }
+            }
+            if (Next) GlobalVariables.GlobalPlayerControl.Next(); // Wiedergabe des nächsten Titels starten
+            else GlobalVariables.GlobalPlayerControl.Previous();
         }
 
         private void ImagePlayGestureRecognizer_OnTapped(object sender, EventArgs e)
@@ -177,13 +229,20 @@ namespace HomeMediaApp.Pages
         /// Fügt der aktuellen Wiedergabeliste einen neuen Musiktitel hinzu
         /// </summary>
         /// <param name="MusicTrack"></param>
-        public void AddMusicTrackToPlayList(MusicItem MusicTrack)
+        public void AddMusicTrackToPlayList(MusicItem MusicTrack, bool bFirst)
         {
             if (PlayList == null)
             {
                 PlayList = new PlaylistItem("Aktuelle Wiedergabe");
             }
             PlayList.MusicItems.Add(MusicTrack);
+            if (!bFirst)
+            {
+                if (GlobalVariables.GlobalPlayerControl != null)
+                {
+                    GlobalVariables.GlobalPlayerControl.AddMedia(new MediaObject() { Index = GlobalVariables.GlobalPlayerControl.MediaList.Count, Path = MusicTrack.RelatedTrack.Res });
+                }
+            }
             OnPropertyChanged("MusicItems");
         }
 
@@ -205,7 +264,7 @@ namespace HomeMediaApp.Pages
                 PlayListView.ItemsSource = null;
                 PlayListView.ItemsSource = MusicItems;
                 OnPropertyChanged("MusicItems");
-                ChangeMusicTrack(PlayList.MusicItems[IndexOfItem]);
+                ChangeMusicTrack(PlayList.MusicItems[IndexOfItem], true);
                 ForceLayout();
             }
         }
@@ -249,7 +308,9 @@ namespace HomeMediaApp.Pages
             OnPropertyChanged("MusicItems");
             ForceLayout();
             CurrentMusicTrack = (e.Item as MusicItem).RelatedTrack;
-            ChangeMusicTrack(PlayList.MusicItems[index]);
+            // TODO: Wiedergabe des ausgewählten Elements starten
+            throw new NotImplementedException();
+            //ChangeMusicTrack(PlayList.MusicItems[index]);
             // TODO: Wiedergabe starten
             Button_OnClicked(this, null);
         }

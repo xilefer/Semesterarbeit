@@ -91,7 +91,10 @@ namespace HomeMediaApp.Pages
             // Musik in aktuelle Wiedergabeliste einfügen
             MessagingCenter.Subscribe<MusicViewCell, MusicItem>(this, GlobalVariables.MusicAddToPlayLIstActionName, (sender, arg) =>
                 {
-                    GlobalVariables.GlobalRemoteMediaPlayerPage.AddMusicTrackToPlayList(arg);
+                    Device.BeginInvokeOnMainThread(() =>
+                    {
+                        GlobalVariables.GlobalRemoteMediaPlayerPage.AddMusicTrackToPlayList(arg, false);
+                    });
                 });
             // Bild anzeigen
             MessagingCenter.Subscribe<ImageViewCell, PictureItem>(this, GlobalVariables.ImageOpenActionName, (sender, arg) =>
@@ -129,6 +132,24 @@ namespace HomeMediaApp.Pages
                     MediaRenderer.Add("Dieses Gerät");
                     PlaylistItemTapped(arg, MediaRenderer.ToArray());
                 });
+        }
+
+        protected override void OnDisappearing()
+        {
+            base.OnDisappearing();
+            MessagingCenter.Unsubscribe<ViewCellBase, FileExplorerItemBase>(this, GlobalVariables.BaseShowDetailsActionName);
+            // Ordner öffnen
+            MessagingCenter.Unsubscribe<FolderViewCell, FolderItem>(this, GlobalVariables.FolderOpenActionName);
+            // Musik wiedergeben
+            MessagingCenter.Unsubscribe<MusicViewCell, MusicItem>(this, GlobalVariables.MusicPlayActionName);
+            // Musik in aktuelle Wiedergabeliste einfügen
+            MessagingCenter.Unsubscribe<MusicViewCell, MusicItem>(this, GlobalVariables.MusicAddToPlayLIstActionName);
+            // Bild anzeigen
+            MessagingCenter.Unsubscribe<ImageViewCell, PictureItem>(this, GlobalVariables.ImageOpenActionName);
+            // Video wiedergeben
+            MessagingCenter.Unsubscribe<VideoViewCell, VideoItem>(this, GlobalVariables.VideoPlayActionName);
+            // Playlist wiedergeben
+            MessagingCenter.Unsubscribe<PlayListViewCell, PlaylistItem>(this, GlobalVariables.PlaylistPlayActionName);
         }
 
         public void OnResponeReceived(XDocument oResponseDocument, ActionState oState)
@@ -506,7 +527,7 @@ namespace HomeMediaApp.Pages
                         if (GlobalVariables.GlobalPlayerControl.ConnectionError) { DisplayAlert("Fehler", "Wiedergabe konnte aufgrund eines Gerätefehlers nicht gestartet werden.", "OK");return; }
                         if (GlobalVariables.GlobalRemoteMediaPlayerPage.PlayList == null)
                         {
-                            GlobalVariables.GlobalRemoteMediaPlayerPage.AddMusicTrackToPlayList(MusicItem);
+                            GlobalVariables.GlobalRemoteMediaPlayerPage.AddMusicTrackToPlayList(MusicItem, true);
                         }
                         else
                         {

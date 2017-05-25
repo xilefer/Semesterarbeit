@@ -11,6 +11,7 @@ using System.IO;
 using Sockets.Plugin;
 using Sockets.Plugin.Abstractions;
 using System.Net.NetworkInformation;
+using System.Threading;
 using HomeMediaApp.Interfaces;
 using Xamarin.Forms;
 
@@ -24,6 +25,12 @@ namespace HomeMediaApp.Classes
     {
         // public int CurrentPosition() (-1 wenns net spielt, sonst die aktuelle sekundenzahl)
         // public bool IsPlaying; Erledigt
+
+        //Events fürs aus und einhängen
+        private ResponseReceived ResponseReceivedPlaying = null;
+        private bool PlayableResponseReceived { get; set; } = false;
+
+
         private string ListenPortAV = "5000";
         private string ListenPortRenderer = "5001";
         public event PlayingStatusChangedEvent PlayingStatusChanged;
@@ -57,12 +64,14 @@ namespace HomeMediaApp.Classes
             get { return GetVolume(); }
             set { SetVolume(value); }
         }
+
+        private bool PauseResponse { get; set; } = false;
         private int Volumevalue { get; set; }  = 0;
         private int TempVolume { get; set; } = 0;
         private bool GetVolumeResponse { get; set; } = false;
         private int LastPosition { get; set; }
         private bool PlayingReponse { get; set; }
-        private bool Playing { get; set; } = false;
+        public bool Playing { get; set; } = false;
         private bool PositionResponse { get; set; } = false;
         private bool CurrentIDResponse { get; set; } = false;
         public bool ConnectionSuccessful { get; set; } = false;
@@ -71,7 +80,7 @@ namespace HomeMediaApp.Classes
         public bool ConnectionError { get; set; } = false;
         private XDocument CurrentIDResponseDoc { get; set; }
 
-
+        private object LockObject = new object();
 
 
         public PlayerControl(UPnPDevice RendererDevice, MediaObject Media)
@@ -81,7 +90,11 @@ namespace HomeMediaApp.Classes
             this.NextMedia = this.CurrentMedia;
             this.PreviousMedia = this.CurrentMedia;
             MediaList.Add(Media);
+            // Callback Member initialisieren
+            PauseResponseReceived = new ResponseReceived(OnResponseReceived);
+            ResponseReceivedPlaying = new ResponseReceived(OnResponseGetCurrentTransportAction);
 
+            
             //Überprüfen ob bereits eine Verbindung besteht
             //---------------------------------------------------------------------------------------------------------------------------------------//
 
@@ -168,13 +181,15 @@ namespace HomeMediaApp.Classes
             //---------------------------------------------------------------------------------------------------------------------------------------//
             //
         }
+
         public bool IsPlaying
         {
             get
             {
                 UPnPService oTransportService = oDevice.DeviceMethods.Where(e => e.ServiceID.ToLower() == "avtransport").ToList()[0];
                 UPnPAction oPlayingAction = oTransportService.ActionList.Where(e => e.ActionName.ToLower() == "gettransportinfo").ToList()[0];
-                oPlayingAction.OnResponseReceived += new ResponseReceived(OnResponsePlaying);
+                ResponseReceived PlayingResponse = new ResponseReceived(OnResponsePlaying);
+                oPlayingAction.OnResponseReceived += PlayingResponse;
 
                 string RequestURI = oDevice.DeviceAddress.Scheme + @"://" + oDevice.DeviceAddress.Authority + oTransportService.ControlURL;
 
@@ -185,6 +200,7 @@ namespace HomeMediaApp.Classes
                 while(PlayingReponse == false)
                 { }
                 PlayingReponse = false;
+                oPlayingAction.OnResponseReceived -= PlayingResponse;
                 return Playing;
             }
             set
@@ -194,6 +210,7 @@ namespace HomeMediaApp.Classes
                 PlayingStatusChanged?.Invoke();
             }
         }
+
         private void RequestCallback(IAsyncResult oResult)
         {
             ActionState oState = (ActionState)oResult.AsyncState;
@@ -209,6 +226,7 @@ namespace HomeMediaApp.Classes
             oSocket.StartListeningAsync(int.Parse(ListenPortAV));
             oSocket.ConnectionReceived += TCPRec;
         }
+
         private void RequestCallbackRenderer(IAsyncResult oResult)
         {
             ActionState oState = (ActionState)oResult.AsyncState;
@@ -224,8 +242,10 @@ namespace HomeMediaApp.Classes
             oSocketRenderer.StartListeningAsync(int.Parse(ListenPortRenderer));
             oSocketRenderer.ConnectionReceived += TCPRecRend;
         }
+
         private void TCPRecRend(object sender, TcpSocketListenerConnectEventArgs args)
         {
+            return;
             ITcpSocketClient oClient = args.SocketClient;
             byte[] bytes = new byte[64 * 1024];
             oClient.ReadStream.Read(bytes, 0, bytes.Length);
@@ -248,8 +268,10 @@ namespace HomeMediaApp.Classes
                 }
             }
         }
+
         private void TCPRec(object sender, TcpSocketListenerConnectEventArgs args)
         {
+            return;
             ITcpSocketClient oClient = args.SocketClient;
             byte[] bytes = new byte[64*1024];
             oClient.ReadStream.Read(bytes, 0, bytes.Length);
@@ -282,61 +304,81 @@ namespace HomeMediaApp.Classes
             }
             
         }
+        
         public int GetCurrentPosition()
         {
             UPnPService oTransportService = oDevice.DeviceMethods.Where(e => e.ServiceID.ToLower() == "avtransport").ToList()[0];
             UPnPAction oPositionAction = oTransportService.ActionList.Where(e => e.ActionName.ToLower() == "getpositioninfo").ToList()[0];
-            oPositionAction.OnResponseReceived += new ResponseReceived(OnResponsePosition);
+            ResponseReceived ThisResponse = new ResponseReceived(OnResponsePosition);
+            oPositionAction.OnResponseReceived += ThisResponse;
 
             string RequestURI = oDevice.DeviceAddress.Scheme + @"://" + oDevice.DeviceAddress.Authority + oTransportService.ControlURL;
 
             List<Tuple<string, string>> args = new List<Tuple<string, string>>();
             args.Add(new Tuple<string, string>("InstanceID", "0"));
-
-            oPositionAction.Execute(RequestURI, "AVTransport", args);
             PositionResponse = false;
-            while (PositionResponse == false)
-            { }
+            Debug.WriteLine("Calling Position Execute");    
+            oPositionAction.Execute(RequestURI, "AVTransport", args);
+            while (PositionResponse == false )
+            {
+                Task.Delay(5);
+            }
+            oPositionAction.OnResponseReceived -= ThisResponse;
             PositionResponse = false;
             return LastPosition;
         }
+
+
         public void  Playable()
         {
             UPnPService oTransportService = oDevice.DeviceMethods.Where(e => e.ServiceID.ToLower() == "avtransport").ToList()[0];
             UPnPAction oTransportAction = oTransportService.ActionList.Where(e => e.ActionName.ToLower() == "getcurrenttransportactions").ToList()[0];
-            oTransportAction.OnResponseReceived += new ResponseReceived(OnResponseGetCurrentTransportAction);
-
+            oTransportAction.OnResponseReceived += ResponseReceivedPlaying;
+            PlayableResponseReceived = false;
             string RequestURI = oDevice.DeviceAddress.Scheme + @"://" + oDevice.DeviceAddress.Authority + oTransportService.ControlURL;
 
             List<Tuple<string, string>> args = new List<Tuple<string, string>>();
             args.Add(new Tuple<string, string>("InstanceID", "0"));
 
             oTransportAction.Execute(RequestURI, "AVTransport", args);
+            while (!PlayableResponseReceived) { Task.Delay(10); }
+            oTransportAction.OnResponseReceived -= ResponseReceivedPlaying;
         }
+
+        private ResponseReceived PauseResponseReceived = null;
+
         public bool Pause()
         {
             //Pause Action ausführen.
             //Status abrufen und aktualisieren
             UPnPService oTransportService = oDevice.DeviceMethods.Where(e => e.ServiceID.ToLower() == "avtransport").ToList()[0];
             UPnPAction oPlayAction = oTransportService.ActionList.Where(e => e.ActionName.ToLower() == "pause").ToList()[0];
-            oPlayAction.OnResponseReceived += new ResponseReceived(OnResponseReceived);
-
+            oPlayAction.OnResponseReceived += PauseResponseReceived;
+            PauseResponse = false;
             string RequestURI = oDevice.DeviceAddress.Scheme + @"://" + oDevice.DeviceAddress.Authority + oTransportService.ControlURL;
 
             List<Tuple<string, string>> args = new List<Tuple<string, string>>();
             args.Add(new Tuple<string, string>("InstanceID", "0"));
 
             oPlayAction.Execute(RequestURI, "AVTransport", args);
-
+            while (!PauseResponse)
+            {
+                Task.Delay(10);
+            }
+            oPlayAction.OnResponseReceived -= PauseResponseReceived;
             return true;
         }
+
+        private ResponseReceived ResponseReceivedPlay = null;
+        private bool PlayResponseReceived { get; set; } = false;
         public bool Play()
         {
             //Play mit Index ausführen
+            ResponseReceivedPlay = new ResponseReceived(OnResponsePlay);
             UPnPService oTransportService = oDevice.DeviceMethods.Where(e => e.ServiceID.ToLower() == "avtransport").ToList()[0];
             UPnPAction oPlayAction = oTransportService.ActionList.Where(e => e.ActionName.ToLower() == "play").ToList()[0];
-            oPlayAction.OnResponseReceived += new ResponseReceived(OnResponsePlay);
-
+            oPlayAction.OnResponseReceived += ResponseReceivedPlay;
+            PlayResponseReceived = false;
             string RequestURI = oDevice.DeviceAddress.Scheme + @"://" + oDevice.DeviceAddress.Authority + oTransportService.ControlURL;
 
             List<Tuple<string, string>> args = new List<Tuple<string, string>>();
@@ -344,6 +386,11 @@ namespace HomeMediaApp.Classes
             args.Add(new Tuple<string, string>("Speed", "1"));
 
             oPlayAction.Execute(RequestURI, "AVTransport", args);
+            while (!PlayResponseReceived)
+            {
+                Task.Delay(10);
+            }
+            oPlayAction.OnResponseReceived -= ResponseReceivedPlay;
             /*
             MediaObject oCurrent = MediaList.Where(e => e.Index == Index).ToList().FirstOrDefault();
             if (oCurrent != null) CurrentMedia = oCurrent;
@@ -358,29 +405,50 @@ namespace HomeMediaApp.Classes
         }
         public bool Next()
         {
-            if (IsPlaying) Stop();
-            while (IsPlaying) { };
+            if (IsPlaying)
+            {
+                Stop();
+                Task.Delay(10);
+            }
+            while (IsPlaying)
+            {
+                Task.Delay(10);
+            };
             SetCurrentMedia(NextMedia);
             return true;
         }
         public bool Previous()
         {
-            if (IsPlaying) Stop();
-            while (IsPlaying) { };
+            if (IsPlaying)
+            {
+                Stop();
+                Task.Delay(10);
+            }
+            while (IsPlaying)
+            {
+                Task.Delay(10);
+            };
             SetCurrentMedia(PreviousMedia);
             return true;
         }
+        private bool StopResponseReceived { get; set; } = false;
         public bool Stop()
         {
+            ResponseReceived StopResponse = new ResponseReceived(OnResponseStop);
             UPnPService oTransportService = oDevice.DeviceMethods.Where(e => e.ServiceID.ToLower() == "avtransport").ToList()[0];
             UPnPAction oPlayAction = oTransportService.ActionList.Where(e => e.ActionName.ToLower() == "stop").ToList()[0];
-            oPlayAction.OnResponseReceived += new ResponseReceived(OnResponseStop);
-
+            oPlayAction.OnResponseReceived += StopResponse;
+            StopResponseReceived = false;
             string RequestURI = oDevice.DeviceAddress.Scheme + @"://" + oDevice.DeviceAddress.Authority + oTransportService.ControlURL;
             List<Tuple<string, string>> args = new List<Tuple<string, string>>();
             args.Add(new Tuple<string, string>("InstanceID", "0"));
 
             oPlayAction.Execute(RequestURI, "AVTransport", args);
+            while (!StopResponseReceived)
+            {
+                Task.Delay(10);
+            }
+            oPlayAction.OnResponseReceived -= StopResponse;
             return true;
         }
         public void AddMedia(MediaObject oMedia)
@@ -392,12 +460,15 @@ namespace HomeMediaApp.Classes
                 SetNextMedia(oMedia);
             }
         }
+
+        private bool SetNextMediaResponseReceived { get; set; } = false;
         public void SetNextMedia(MediaObject oMedia)
         {
+            ResponseReceived responseReceivednextmedia = new ResponseReceived(OnResponseSetNext);
             UPnPService oTransportService = oDevice.DeviceMethods.Where(e => e.ServiceID.ToLower() == "avtransport").ToList()[0];
             UPnPAction oTransportAction = oTransportService.ActionList.Where(e => e.ActionName.ToLower() == "setnextavtransporturi").ToList()[0];
-            oTransportAction.OnResponseReceived += new ResponseReceived(OnResponseSetNext);
-
+            oTransportAction.OnResponseReceived += responseReceivednextmedia;
+            SetNextMediaResponseReceived = false;
             //Pfad setzen
             string RequestURI = oDevice.DeviceAddress.Scheme + @"://" + oDevice.DeviceAddress.Authority + oTransportService.ControlURL;
             List<Tuple<string, string>> args = new List<Tuple<string, string>>();
@@ -406,14 +477,22 @@ namespace HomeMediaApp.Classes
             args.Add(new Tuple<string, string>("NextURIMetaData", oMedia.MetaData));
 
             oTransportAction.Execute(RequestURI, "AVTransport", args);
-            
+            while (!SetNextMediaResponseReceived)
+            {
+                Task.Delay(10);
+            }
+            oTransportAction.OnResponseReceived -= responseReceivednextmedia;
+
         }
+
+        private bool SetCurrentMediaResponseReceived { get; set; } = false;
         public void SetCurrentMedia(MediaObject oMedia)
         {
+            ResponseReceived temp = new ResponseReceived(OnResponseSetCurrent);
             UPnPService oTransportService = oDevice.DeviceMethods.Where(e => e.ServiceID.ToLower() == "avtransport").ToList()[0];
             UPnPAction oTransportAction = oTransportService.ActionList.Where(e => e.ActionName.ToLower() == "setavtransporturi").ToList()[0];
-            oTransportAction.OnResponseReceived += new ResponseReceived(OnResponseSetCurrent);
-
+            oTransportAction.OnResponseReceived += temp;
+            SetCurrentMediaResponseReceived = false;
             //Pfad setzen
             string RequestURI = oDevice.DeviceAddress.Scheme + @"://" + oDevice.DeviceAddress.Authority + oTransportService.ControlURL;
             List<Tuple<string, string>> args = new List<Tuple<string, string>>();
@@ -422,13 +501,20 @@ namespace HomeMediaApp.Classes
             args.Add(new Tuple<string, string>("CurrentURIMetaData", oMedia.MetaData));
 
             oTransportAction.Execute(RequestURI, "AVTransport", args);
+            while (!SetCurrentMediaResponseReceived)
+            {
+                Task.Delay(10);
+            }
+            oTransportAction.OnResponseReceived -= temp;
         }
+
         private int GetVolume()
         {
+            ResponseReceived temp = new ResponseReceived(OnResponseGetVolume);
             UPnPService oRendererService = oDevice.DeviceMethods.Where(e => e.ServiceID.ToLower() == "renderingcontrol").ToList()[0];
             UPnPAction oTransportAction = oRendererService.ActionList.Where(e => e.ActionName.ToLower() == "getvolume").ToList()[0];
-            oTransportAction.OnResponseReceived += new ResponseReceived(OnResponseSetCurrent);
-
+            oTransportAction.OnResponseReceived += temp;
+            GetVolumeResponse = false;
             //Pfad setzen
             string RequestURI = oDevice.DeviceAddress.Scheme + @"://" + oDevice.DeviceAddress.Authority + oRendererService.ControlURL;
             List<Tuple<string, string>> args = new List<Tuple<string, string>>();
@@ -436,16 +522,22 @@ namespace HomeMediaApp.Classes
             args.Add(new Tuple<string, string>("Channel", "Master"));
             GetVolumeResponse = false;
             oTransportAction.Execute(RequestURI, "RenderingControl", args);
-            while (!GetVolumeResponse) { };
-            GetVolumeResponse = false;
+            while (!GetVolumeResponse)
+            {
+                Task.Delay(10);
+            };
+            oTransportAction.OnResponseReceived -= temp;
             return Volumevalue;
         }
+
+        private bool SetVolumeResponseReceived { get; set; } = false;
         private void SetVolume(int Volume)
         {
+            ResponseReceived temp = new ResponseReceived(OnResponseSetVolume);
             UPnPService oRendererService = oDevice.DeviceMethods.Where(e => e.ServiceID.ToLower() == "renderingcontrol").ToList()[0];
             UPnPAction oTransportAction = oRendererService.ActionList.Where(e => e.ActionName.ToLower() == "setvolume").ToList()[0];
-            oTransportAction.OnResponseReceived += new ResponseReceived(OnResponseSetVolume);
-
+            oTransportAction.OnResponseReceived += temp;
+            SetVolumeResponseReceived = false;
             //Pfad setzen
             string RequestURI = oDevice.DeviceAddress.Scheme + @"://" + oDevice.DeviceAddress.Authority + oRendererService.ControlURL;
             List<Tuple<string, string>> args = new List<Tuple<string, string>>();
@@ -454,12 +546,18 @@ namespace HomeMediaApp.Classes
             args.Add(new Tuple<string, string>("DesiredVolume", Volume.ToString()));
             TempVolume = Volume;
             oTransportAction.Execute(RequestURI, "RenderingControl", args);
+            while (!SetVolumeResponseReceived)
+            {
+                Task.Delay(10);
+            }
+            oTransportAction.OnResponseReceived -= temp;
         }
         private bool GetMute()
         {
+            ResponseReceived temp = new ResponseReceived(OnResponseGetMute);
             UPnPService oRendererService = oDevice.DeviceMethods.Where(e => e.ServiceID.ToLower() == "renderingcontrol").ToList()[0];
             UPnPAction oTransportAction = oRendererService.ActionList.Where(e => e.ActionName.ToLower() == "getmute").ToList()[0];
-            oTransportAction.OnResponseReceived += new ResponseReceived(OnResponseSetCurrent);
+            oTransportAction.OnResponseReceived += temp;
 
             //Pfad setzen
             string RequestURI = oDevice.DeviceAddress.Scheme + @"://" + oDevice.DeviceAddress.Authority + oRendererService.ControlURL;
@@ -468,16 +566,23 @@ namespace HomeMediaApp.Classes
             args.Add(new Tuple<string, string>("Channel", "Master"));
             GetMuteResponse = false;
             oTransportAction.Execute(RequestURI, "RenderingControl", args);
-            while (!GetMuteResponse) { };
+            while (!GetMuteResponse)
+            {
+                Task.Delay(10);
+            }
             GetMuteResponse = false;
+            oTransportAction.OnResponseReceived -= temp;
             return Mutevalue;
         }
+
+        private bool SetMuteResponseReceived { get; set; } = false;
         private void SetMute(bool Mute)
         {
+            ResponseReceived temp = new ResponseReceived(OnResponseSetMute);
             UPnPService oRendererService = oDevice.DeviceMethods.Where(e => e.ServiceID.ToLower() == "renderingcontrol").ToList()[0];
             UPnPAction oTransportAction = oRendererService.ActionList.Where(e => e.ActionName.ToLower() == "setmute").ToList()[0];
-            oTransportAction.OnResponseReceived += new ResponseReceived(OnResponseSetMute);
-
+            oTransportAction.OnResponseReceived += temp;
+            SetMuteResponseReceived = false;
             //Pfad setzen
             string RequestURI = oDevice.DeviceAddress.Scheme + @"://" + oDevice.DeviceAddress.Authority + oRendererService.ControlURL;
             List<Tuple<string, string>> args = new List<Tuple<string, string>>();
@@ -487,7 +592,11 @@ namespace HomeMediaApp.Classes
 
             TempMute = Mute;
             oTransportAction.Execute(RequestURI, "RenderingControl", args);
-
+            while (!SetMuteResponseReceived)
+            {
+                Task.Delay(10);
+            }
+            oTransportAction.OnResponseReceived -= temp;
         }
 
 
@@ -521,6 +630,7 @@ namespace HomeMediaApp.Classes
         }
         private void OnResponseReceived(XDocument oResponseDocument, ActionState oState)
         {
+            PauseResponse = true;
             IsPlaying = false;
         }
         private void OnResponseSetAVTransportURI(XDocument oResponseDocument, ActionState oState)
@@ -538,6 +648,7 @@ namespace HomeMediaApp.Classes
         }
         private void OnResponseGetCurrentTransportAction(XDocument oResponseDocument, ActionState oState)
         {
+            PlayableResponseReceived = true;
             if (oState.Successful && oState.oWebResponse.StatusCode == System.Net.HttpStatusCode.OK)
             {
                 Play();
@@ -549,6 +660,7 @@ namespace HomeMediaApp.Classes
         }
         private void OnResponsePlay(XDocument oResponseDocument, ActionState oState)
         {
+            PlayResponseReceived = true;
             if (oState.Successful && oState.oWebResponse.StatusCode == System.Net.HttpStatusCode.OK)
             {
                 IsPlaying = true;
@@ -564,7 +676,6 @@ namespace HomeMediaApp.Classes
                     if (oResponseDocument != null)
                     {
                         TimeSpan PosTemp = TimeSpan.Parse(oResponseDocument.Root.Elements().Elements().Elements().Where(e => e.Name.LocalName.ToLower() == "reltime").ToList()[0].Value);
-                        //int Position = int.Parse(oResponseDocument.Root.Elements().Elements().Elements().Where(e => e.Name.LocalName.ToLower() == "reltime").ToList()[0].Value);
                         LastPosition = (int)PosTemp.TotalSeconds;
                     }
                 }
@@ -589,14 +700,17 @@ namespace HomeMediaApp.Classes
         }
         private void OnResponseSetNext(XDocument oResponseDocument, ActionState oState)
         {
+            SetNextMediaResponseReceived = true;
             if (oState.Successful && oState.oWebResponse.StatusCode == HttpStatusCode.OK) Play();
         }
         private void OnResponseStop(XDocument oResponseDocument, ActionState oState)
         {
+            StopResponseReceived = true;
             if (oState.Successful && oState.oWebResponse.StatusCode == HttpStatusCode.OK) IsPlaying = false;
         }
         private void OnResponseSetCurrent(XDocument oResponseDocument, ActionState oState)
         {
+            SetCurrentMediaResponseReceived = true;
             if (oState.Successful && oState.oWebResponse.StatusCode == System.Net.HttpStatusCode.OK)
             {
                 Playable();
@@ -610,15 +724,16 @@ namespace HomeMediaApp.Classes
         }
         private void OnResponseGetVolume(XDocument oResponseDocument, ActionState oState)
         {
-            if(oState.Successful && oState.oWebResponse.StatusCode == HttpStatusCode.OK)
+            GetVolumeResponse = true;
+            if (oState.Successful && oState.oWebResponse.StatusCode == HttpStatusCode.OK)
             {
                 XElement Volume = oResponseDocument.Root.Elements().Elements().Elements().Where(e => e.Name.LocalName.ToLower() == "currentvolume").FirstOrDefault();
                 if (Volume != null) Volumevalue = int.Parse(Volume.Value);
             }
-            GetVolumeResponse = true;
         }
         private void OnResponseSetVolume(XDocument oResponseDocument, ActionState oState)
         {
+            SetVolumeResponseReceived = true;
             if (oState.Successful && oState.oWebResponse.StatusCode == HttpStatusCode.OK)
             {
                 Volumevalue = TempVolume;
@@ -637,6 +752,7 @@ namespace HomeMediaApp.Classes
         }
         private void OnResponseSetMute(XDocument oResponseDocument, ActionState oState)
         {
+            SetMuteResponseReceived = true;
             if (oState.Successful && oState.oWebResponse.StatusCode == HttpStatusCode.OK)
             {
                 Mutevalue = TempMute;

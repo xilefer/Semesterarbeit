@@ -154,6 +154,7 @@ namespace HomeMediaApp.Pages
 
         public void OnResponeReceived(XDocument oResponseDocument, ActionState oState)
         {
+            BrowseChildrenReceived = true;
             if (oResponseDocument != null)
             {
                 XDocument ResultXML = XDocument.Parse(oResponseDocument.Root.Descendants().Where(e => e.Name.LocalName.ToLower() == "result").ToList()[0].Value);
@@ -164,7 +165,11 @@ namespace HomeMediaApp.Pages
                 {
                     string Name = Node.Name.LocalName.ToLower();
                     string Class = Node.Descendants().Where(e => e.Name.LocalName.ToLower() == "class").ToList()[0].Value;
-                    Name = Class.Split(new[] {"."}, StringSplitOptions.RemoveEmptyEntries).Last().ToLower();
+                    if (Class.Split(new[] {"."}, StringSplitOptions.RemoveEmptyEntries).Last().ToLower() ==
+                        "playlistcontainer")
+                    {
+                        Name = Class.Split(new[] {"."}, StringSplitOptions.RemoveEmptyEntries).Last().ToLower();
+                    }
                     if (Name == "container")
                     {   // Zwischen Playlist und Folder unterscheiden
                         string Title = Node.Descendants().Where(e => e.Name.LocalName.ToLower() == "title").ToList()[0].Value;
@@ -249,10 +254,13 @@ namespace HomeMediaApp.Pages
             });
         }
 
+        private bool BrowseChildrenReceived { get; set; } = false;
         public void BrowseChildrens(FolderItem FolderItem)
         {
+            ResponseReceived temp = new ResponseReceived(OnResponeReceived);
             UPnPAction BrowseAction = CurrentDevice.DeviceMethods.Where(e => e.ServiceType.ToLower() == "contentdirectory").ToList()[0].ActionList.Where(x => x.ActionName.ToLower() == "browse").ToList()[0];
-            BrowseAction.OnResponseReceived += new ResponseReceived(OnResponeReceived);
+            BrowseAction.OnResponseReceived += temp;
+            BrowseChildrenReceived = false;
             List<UPnPActionArgument> InArgs = new List<UPnPActionArgument>();
             foreach (UPnPActionArgument oArg in BrowseAction.ArgumentList)
             {
@@ -289,6 +297,11 @@ namespace HomeMediaApp.Pages
             if (!CurrentDevice.DeviceMethods.Where(x => x.ServiceID == "ContentDirectory").ToList()[0].ControlURL.StartsWith("/")) sRequestURI += "/";
             sRequestURI += CurrentDevice.DeviceMethods.Where(x => x.ServiceID == "ContentDirectory").ToList()[0].ControlURL;
             BrowseAction.Execute(sRequestURI, "ContentDirectory", ArgList);
+            while (!BrowseChildrenReceived)
+            {
+                Task.Delay(5);
+            }
+            BrowseAction.OnResponseReceived -= temp;
         }
 
         private void FileListView_OnItemTapped(object sender, ItemTappedEventArgs e)
@@ -335,12 +348,14 @@ namespace HomeMediaApp.Pages
             });
         }
 
+        private bool BrowseActionPlayListReceived { get; set; } = false;
         private void PlayListDeviceSelected(PlaylistItem TappedItem, string SelectedRenderer)
         {
             if (SelectedRenderer != null && SelectedRenderer == "Wiedergabe Abbrechen")
             {
 
             }
+            else if(string.IsNullOrEmpty(SelectedRenderer)) { }
             else if (SelectedRenderer == "Dieses Gerät")
             {
                 // TappedItem ist eine Playlist d.h. Die Kinder von TappedItem browsen und Wiedergeben
@@ -388,7 +403,9 @@ namespace HomeMediaApp.Pages
                     DisplayAlert("Fehler", "Die Playlist kann nicht geöffnet werden!", "OK");
                     return;
                 }
-                BrowseAction.OnResponseReceived += OnResponseReceivedPlaylist;
+                ResponseReceived temp = new ResponseReceived(OnResponseReceivedPlaylist);
+                BrowseAction.OnResponseReceived += temp;
+                BrowseActionPlayListReceived = false;
                 List<UPnPActionArgument> InArgs = new List<UPnPActionArgument>();
                 foreach (UPnPActionArgument oArg in BrowseAction.ArgumentList)
                 {
@@ -429,12 +446,18 @@ namespace HomeMediaApp.Pages
                 sRequestURI +=
                     CurrentDevice.DeviceMethods.Where(x => x.ServiceID == "ContentDirectory").ToList()[0].ControlURL;
                 BrowseAction.Execute(sRequestURI, "ContentDirectory", ArgList, SelectedRenderer);
+                while (!BrowseActionPlayListReceived)
+                {
+                    Task.Delay(5);
+                }
+                BrowseAction.OnResponseReceived -= temp;
             }
 
         }
 
         private void OnResponseReceivedPlaylist(XDocument oResponseDocument, ActionState oState)
         {
+            BrowseActionPlayListReceived = true;
             if (oResponseDocument != null)
             {
                 PlaylistItem TappedPlayList = FileListView.SelectedItem as PlaylistItem;

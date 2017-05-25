@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using HomeMediaApp.Classes;
 using Xamarin.Forms;
@@ -17,7 +19,8 @@ namespace HomeMediaApp.Pages
         private int nSliderValue = 0;
         private bool PositionTimerRun = false;
         private bool EventSet = false;
-
+        private object LockObject = new object();
+        
         public int SliderValue
         {
             get { return nSliderValue; }
@@ -90,7 +93,7 @@ namespace HomeMediaApp.Pages
             {
                 if (GlobalVariables.GlobalPlayerControl != null)
                 {
-                    if (GlobalVariables.GlobalPlayerControl.IsPlaying) return ImageSource.FromResource("HomeMediaApp.Icons.pause_icon.png");
+                    if (GlobalVariables.GlobalPlayerControl.Playing) return ImageSource.FromResource("HomeMediaApp.Icons.pause_icon.png");
                     return ImageSource.FromResource("HomeMediaApp.Icons.play_icon.png");
                 }
                 return ImageSource.FromResource("HomeMediaApp.Icons.play_icon.png");
@@ -132,7 +135,7 @@ namespace HomeMediaApp.Pages
                 () =>
                 {
                     OnPropertyChanged("PlayPauseSource");
-                    if (GlobalVariables.GlobalPlayerControl.IsPlaying) StartPositionTimer();
+                    if (GlobalVariables.GlobalPlayerControl.Playing) StartPositionTimer();
                     else StopPositionTimer();
                 }));
             }
@@ -218,13 +221,17 @@ namespace HomeMediaApp.Pages
                 if (Next)
                 {
                     // bekannt --> Sicherstellen dass es als nächstes Wiedergegeben wird
-                    GlobalVariables.GlobalPlayerControl.NextMedia = GlobalVariables.GlobalPlayerControl.MediaList[nIndex];
-                    GlobalVariables.GlobalPlayerControl.SetNextMedia(GlobalVariables.GlobalPlayerControl.MediaList[nIndex]);
+                    if (GlobalVariables.GlobalPlayerControl.NextMedia != GlobalVariables.GlobalPlayerControl.MediaList[nIndex])
+                    {
+                        GlobalVariables.GlobalPlayerControl.NextMedia = GlobalVariables.GlobalPlayerControl.MediaList[nIndex];
+                    }
                 }
                 else
                 {
-                    // bekannt --> Sicherstellen dass es vor dem aktuellen Element ist
-                    //TODO: Siehe Kommentar
+                    if (GlobalVariables.GlobalPlayerControl.PreviousMedia != GlobalVariables.GlobalPlayerControl.MediaList[nIndex])
+                    {
+                        GlobalVariables.GlobalPlayerControl.PreviousMedia = GlobalVariables.GlobalPlayerControl.MediaList[nIndex];
+                    }
                 }
             }
             if (Next) GlobalVariables.GlobalPlayerControl.Next(); // Wiedergabe des nächsten Titels starten
@@ -312,27 +319,46 @@ namespace HomeMediaApp.Pages
                 () =>
                 {
                     OnPropertyChanged("PlayPauseSource");
-                    if (GlobalVariables.GlobalPlayerControl.IsPlaying) StartPositionTimer();
+                    if (GlobalVariables.GlobalPlayerControl.Playing) StartPositionTimer();
                     else StopPositionTimer();
                 }));
             }
             // Event einmal triggern, damit es evtl automatisch läuft
-            if(GlobalVariables.GlobalPlayerControl != null && GlobalVariables.GlobalPlayerControl.IsPlaying) StartPositionTimer();
+            if (GlobalVariables.GlobalPlayerControl != null && GlobalVariables.GlobalPlayerControl.IsPlaying) StartPositionTimer();
         }
 
         private void StartPositionTimer()
         {
-            if (PositionTimerRun) return;   // Keine weiteren Timer starten!
-            PositionTimerRun = true;
-            Device.StartTimer(TimeSpan.FromSeconds(1), () =>
+            if (Monitor.TryEnter(LockObject))
             {
-                if (GlobalVariables.GlobalPlayerControl != null)
+                try
                 {
-                    int PosTemp = GlobalVariables.GlobalPlayerControl.GetCurrentPosition();
-                    if (PosTemp > 0) SliderValue = PosTemp;
+                    if (PositionTimerRun) return; // Keine weiteren Timer starten!
+                    PositionTimerRun = true;
+                    Device.StartTimer(TimeSpan.FromSeconds(1), () =>
+                    {
+                        Debug.WriteLine("Request Position" + DateTime.Now);
+                        if (GlobalVariables.GlobalPlayerControl != null)
+                        {
+                            Device.BeginInvokeOnMainThread(() =>
+                            {
+                                int PosTemp = GlobalVariables.GlobalPlayerControl.GetCurrentPosition();
+                                if (PosTemp > 0) SliderValue = PosTemp;
+                            });
+                        }
+                        Debug.WriteLine("Returning Position" + DateTime.Now);
+                        return PositionTimerRun;
+                    });
                 }
-                return PositionTimerRun;
-            });
+                finally
+                {
+                    Monitor.Exit(LockObject);
+                }
+            }
+            else
+            {
+                
+            }
         }
 
         private void StopPositionTimer()

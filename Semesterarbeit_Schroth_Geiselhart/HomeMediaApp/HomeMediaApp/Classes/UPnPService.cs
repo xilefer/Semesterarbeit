@@ -75,6 +75,8 @@ namespace HomeMediaApp.Classes
 
         public void Execute(string ControlURL,string ServiceName,List<Tuple<string,string>> args)
         {
+            System.Diagnostics.Stopwatch oWatch = new Stopwatch();
+            oWatch.Start();
             HttpWebRequest httpRequest = (HttpWebRequest)WebRequest.Create(ControlURL);
             httpRequest.Method = "POST";
             httpRequest.ContentType = "text/xml; charset=\"utf-8\"";
@@ -101,6 +103,14 @@ namespace HomeMediaApp.Classes
                 RequestBody = bytes
             };
             httpRequest.BeginGetRequestStream(RequestCallback, oState);
+            oWatch.Stop();
+            string Message = "Execute Time: " + oWatch.ElapsedMilliseconds + " " + ServiceName + " Control URL: " +
+                             ControlURL + " Args: ";
+            foreach (Tuple<string, string> Arg in args)
+            {
+                Message += Arg.Item1 + " " + Arg.Item2 + "; ";
+            }
+            Debug.WriteLine(Message);
         }
 
         private void RequestCallback(IAsyncResult oResult)

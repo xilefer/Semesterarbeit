@@ -294,23 +294,30 @@ namespace HomeMediaApp.Pages
 
         private void OnResponseReceived(XDocument oResponseDocument, ActionState oState)
         {
-            if (oState.ActionName.ToLower() == "browse")
+            if (oResponseDocument != null)
             {
-                Device.BeginInvokeOnMainThread(() =>
+                if (oState.ActionName.ToLower() == "browse")
                 {
-                    FileExplorerPage oExplorerPage = new FileExplorerPage();
-                    UPnPContainer RootContainer = UPnPContainer.GenerateRootContainer(oResponseDocument);
-                    FolderItem MasterItem = new FolderItem(RootContainer.Title);
-                    FolderItem RootItem = new FolderItem(RootContainer.Title);
-                    MasterItem.RelatedContainer = RootContainer;
-                    RootItem.RelatedContainer = RootContainer;
-                    RootItem.AddChild(MasterItem);
-                    oExplorerPage.CurrentDevice = ListViewDevices.SelectedItem as UPnPDevice;
-                    oExplorerPage.MasterItem = RootItem;
-                    (Parent.Parent as MasterDetailPageHomeMediaApp).IsPresented = false;
-                    (Parent.Parent as MasterDetailPageHomeMediaApp).Detail = new NavigationPage(oExplorerPage);
-                    (ListViewDevices.SelectedItem as UPnPDevice).DeviceMethods.Where(y => y.ServiceType.ToLower() == "contentdirectory").ToList()[0].ActionList.Where(x => x.ActionName.ToLower() == "browse").ToList()[0].OnResponseReceived -= OnResponseReceived;
-                });
+                    Device.BeginInvokeOnMainThread(() =>
+                    {
+                        FileExplorerPage oExplorerPage = new FileExplorerPage();
+                        UPnPContainer RootContainer = UPnPContainer.GenerateRootContainer(oResponseDocument);
+                        FolderItem MasterItem = new FolderItem(RootContainer.Title);
+                        FolderItem RootItem = new FolderItem(RootContainer.Title);
+                        MasterItem.RelatedContainer = RootContainer;
+                        RootItem.RelatedContainer = RootContainer;
+                        RootItem.AddChild(MasterItem);
+                        oExplorerPage.CurrentDevice = ListViewDevices.SelectedItem as UPnPDevice;
+                        oExplorerPage.MasterItem = RootItem;
+                        (Parent.Parent as MasterDetailPageHomeMediaApp).IsPresented = false;
+                        (Parent.Parent as MasterDetailPageHomeMediaApp).Detail = new NavigationPage(oExplorerPage);
+                        (ListViewDevices.SelectedItem as UPnPDevice).DeviceMethods.Where(y => y.ServiceType.ToLower() == "contentdirectory").ToList()[0].ActionList.Where(x => x.ActionName.ToLower() == "browse").ToList()[0].OnResponseReceived -= OnResponseReceived;
+                    });
+                }
+            }
+            else
+            {
+                
             }
         }
 

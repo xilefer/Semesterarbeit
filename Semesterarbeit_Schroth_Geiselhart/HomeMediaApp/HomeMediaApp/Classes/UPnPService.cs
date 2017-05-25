@@ -19,6 +19,7 @@ namespace HomeMediaApp.Classes
         public string ActionName;
         public byte[] RequestBody;
         public bool Successful = false;
+        public string AdditionalInfo = "";
     }
 
     public class UPnPService
@@ -39,9 +40,41 @@ namespace HomeMediaApp.Classes
         public XDocument ActionConfig { get; set; }
 
         public event ResponseReceived OnResponseReceived;
+
+        public void Execute(string ControlURL, string ServiceName, List<Tuple<string, string>> args, string AdditionalInfo)
+        {
+            HttpWebRequest httpRequest = (HttpWebRequest)WebRequest.Create(ControlURL);
+            httpRequest.Method = "POST";
+            httpRequest.ContentType = "text/xml; charset=\"utf-8\"";
+            httpRequest.Accept = "text/xml";
+            httpRequest.UseDefaultCredentials = true;
+            httpRequest.Headers["SOAPACTION"] = "\"urn:schemas-upnp-org:service:" + ServiceName + ":1#" + this.ActionName + "\"";
+            StringBuilder soapRequest = new StringBuilder();
+            soapRequest.AppendLine(@"<?xml version=""1.0"" encoding=""utf-8""?>");
+            soapRequest.AppendLine(@"<s:Envelope xmlns:s=""http://schemas.xmlsoap.org/soap/envelope/"" s:encodingStyle=""http://schemas.xmlsoap.org/soap/encoding/"">");
+            soapRequest.AppendLine(@"<s:Body>");
+            soapRequest.AppendLine("<m:" + this.ActionName + " xmlns:m=\"urn:schemas-upnp-org:service:" + ServiceName + ":1\">");
+            foreach (Tuple<string, string> item in args)
+            {
+                soapRequest.AppendLine("<" + item.Item1 + ">" + item.Item2 + "</" + item.Item1 + ">");
+            }
+            soapRequest.AppendLine("</m:" + this.ActionName + ">");
+            soapRequest.AppendLine("</s:Body>");
+            soapRequest.AppendLine("</s:Envelope>");
+            byte[] bytes = Encoding.UTF8.GetBytes(soapRequest.ToString());
+            ActionState oState = new ActionState()
+            {
+                oWebRequest = httpRequest,
+                ActionName = this.ActionName,
+                RequestBody = bytes,
+                AdditionalInfo = AdditionalInfo
+            };
+            httpRequest.BeginGetRequestStream(RequestCallback, oState);
+
+        }
+
         public void Execute(string ControlURL,string ServiceName,List<Tuple<string,string>> args)
         {
-            XDocument oResponseDocument = new XDocument();
             HttpWebRequest httpRequest = (HttpWebRequest)WebRequest.Create(ControlURL);
             httpRequest.Method = "POST";
             httpRequest.ContentType = "text/xml; charset=\"utf-8\"";
@@ -74,11 +107,21 @@ namespace HomeMediaApp.Classes
         {
             ActionState oState = (ActionState)oResult.AsyncState;
             byte[] bytes = oState.RequestBody;
-            using (Stream oResponseStream = oState.oWebRequest.EndGetRequestStream(oResult))
+            try
             {
-                oResponseStream.Write(bytes, 0, bytes.Length);
+                using (Stream oResponseStream = oState.oWebRequest.EndGetRequestStream(oResult))
+                {
+                    oResponseStream.Write(bytes, 0, bytes.Length);
+                }
+                oState.oWebRequest.BeginGetResponse(ResponseCallback, oState);
             }
-            oState.oWebRequest.BeginGetResponse(ResponseCallback, oState);  
+            catch (Exception e)
+            {
+                Debug.WriteLine(e.ToString());
+                // Wir hatten einen Netzwerkfehler! Eventuell wartet Aufrufer auf Antwort, deshalb event trotzdem auslösen
+                OnResponseReceived(null, oState);
+            }
+            
         }
 
         private void ResponseCallback(IAsyncResult oResult)

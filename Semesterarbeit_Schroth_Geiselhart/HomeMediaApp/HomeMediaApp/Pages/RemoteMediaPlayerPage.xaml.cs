@@ -316,16 +316,20 @@ namespace HomeMediaApp.Pages
                     else StopPositionTimer();
                 }));
             }
+            // Event einmal triggern, damit es evtl automatisch läuft
+            if(GlobalVariables.GlobalPlayerControl != null && GlobalVariables.GlobalPlayerControl.IsPlaying) StartPositionTimer();
         }
 
         private void StartPositionTimer()
         {
+            if (PositionTimerRun) return;   // Keine weiteren Timer starten!
             PositionTimerRun = true;
             Device.StartTimer(TimeSpan.FromSeconds(1), () =>
             {
                 if (GlobalVariables.GlobalPlayerControl != null)
                 {
-                    this.SliderValue = GlobalVariables.GlobalPlayerControl.GetCurrentPosition();
+                    int PosTemp = GlobalVariables.GlobalPlayerControl.GetCurrentPosition();
+                    if (PosTemp > 0) SliderValue = PosTemp;
                 }
                 return PositionTimerRun;
             });

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -91,14 +92,18 @@ namespace HomeMediaApp.Classes
             CurrentIDResponse = false;
             oCurrentIDs.Execute(oDevice.DeviceAddress.Scheme + @"://" + oDevice.DeviceAddress.Authority + oConnectionService.ControlURL, "ConnectionManager", argsid);
             while (CurrentIDResponse == false) { };
-            XElement ConnectionIDElement = CurrentIDResponseDoc.Root.Elements().Elements().Elements().Where(e => e.Name.LocalName.ToLower() == "connectionids").FirstOrDefault();
-            string ConnectionIDs = "";
-            if (ConnectionIDElement != null) { ConnectionIDs = ConnectionIDElement.Value; }
-
-            if (ConnectionIDs != "")
+            // Der Callback kann auch null zurückgeben wenn ein Fehler aufgetreten ist! Deswegen in ein IF gepackt FG
+            if (CurrentIDResponseDoc != null)
             {
-                Stop();
+                XElement ConnectionIDElement = CurrentIDResponseDoc.Root.Elements().Elements().Elements().Where(e => e.Name.LocalName.ToLower() == "connectionids").FirstOrDefault();
+                string ConnectionIDs = "";
+                if (ConnectionIDElement != null) { ConnectionIDs = ConnectionIDElement.Value; }
+                if (ConnectionIDs != "")
+                {
+                    Stop();
+                }
             }
+
             //---------------------------------------------------------------------------------------------------------------------------------------//
             //
 
@@ -491,10 +496,24 @@ namespace HomeMediaApp.Classes
 
         private void OnResponsePlaying(XDocument oResponseDocument, ActionState oState)
         {
+            if (oState.oWebResponse == null)
+            {   // Fehler bei der Übertragung
+                PlayingReponse = true;
+                return;
+            }
             if (oState.oWebResponse.StatusCode == System.Net.HttpStatusCode.OK)
             {
-                XElement TransportState = oResponseDocument.Root.Elements().Elements().Elements().Where(e => e.Name.LocalName.ToLower() == "currenttransportstate").ToList()[0];
-                if (TransportState.Value.ToLower() == "playing") IsPlaying = true;
+                if (oResponseDocument != null)
+                {   // FG: ResponseDocument kann Null sein!
+                    XElement TransportState =
+                        oResponseDocument.Root.Elements()
+                            .Elements()
+                            .Elements()
+                            .Where(e => e.Name.LocalName.ToLower() == "currenttransportstate")
+                            .ToList()[0];
+                    if (TransportState.Value.ToLower() == "playing") IsPlaying = true;
+                    else IsPlaying = false;
+                }
                 else IsPlaying = false;
             }
             PlayingReponse = true;
@@ -506,7 +525,7 @@ namespace HomeMediaApp.Classes
         }
         private void OnResponseSetAVTransportURI(XDocument oResponseDocument, ActionState oState)
         {
-            if (oState.Successful && oState.oWebResponse.StatusCode == System.Net.HttpStatusCode.OK)
+            if (oState.Successful && oState.oWebResponse.StatusCode == HttpStatusCode.OK)
             {
                 ConnectionSuccessful = true;
                 Playable();
@@ -538,12 +557,23 @@ namespace HomeMediaApp.Classes
         }
         private void OnResponsePosition(XDocument oResponseDocument, ActionState oState)
         {
-            if (oState.Successful && oState.oWebResponse.StatusCode == System.Net.HttpStatusCode.OK && IsPlaying)
+            try
             {
-                int Position = int.Parse(oResponseDocument.Root.Elements().Elements().Elements().Where(e => e.Name.LocalName.ToLower() == "abstime").ToList()[0].Value);
-                LastPosition = Position;
+                if (oState.Successful && oState.oWebResponse.StatusCode == System.Net.HttpStatusCode.OK && IsPlaying)
+                {
+                    if (oResponseDocument != null)
+                    {
+                        TimeSpan PosTemp = TimeSpan.Parse(oResponseDocument.Root.Elements().Elements().Elements().Where(e => e.Name.LocalName.ToLower() == "reltime").ToList()[0].Value);
+                        //int Position = int.Parse(oResponseDocument.Root.Elements().Elements().Elements().Where(e => e.Name.LocalName.ToLower() == "reltime").ToList()[0].Value);
+                        LastPosition = (int)PosTemp.TotalSeconds;
+                    }
+                }
+                else LastPosition = -1;
             }
-            else LastPosition = -1;
+            catch (Exception e)
+            {
+                Debug.WriteLine(e);
+            }
             PositionResponse = true;
         }
         private void OnResponseNext(XDocument oResponseDocument, ActionState oState)

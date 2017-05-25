@@ -154,17 +154,79 @@ namespace HomeMediaApp.Pages
 
         public void OnResponeReceived(XDocument oResponseDocument, ActionState oState)
         {
-            XDocument ResultXML = XDocument.Parse(oResponseDocument.Root.Descendants().Where(e => e.Name.LocalName.ToLower() == "result").ToList()[0].Value);
-            List<XElement> Nodes = ResultXML.Root.Elements().ToList();
-            Device.BeginInvokeOnMainThread(() => MasterItem.Childrens.Clear());
-            // In Nodes sind jetzt alle Kinder "Container, Music usw." drin
-            foreach (XElement Node in Nodes)
+            if (oResponseDocument != null)
             {
-                string Name = Node.Name.LocalName.ToLower();
-                if (Name == "container")
-                {   // Zwischen Playlist und Folder unterscheiden
-                    string Title = Node.Descendants().Where(e => e.Name.LocalName.ToLower() == "title").ToList()[0].Value;
-                    if (Title.EndsWith(".m3u"))
+                XDocument ResultXML = XDocument.Parse(oResponseDocument.Root.Descendants().Where(e => e.Name.LocalName.ToLower() == "result").ToList()[0].Value);
+                List<XElement> Nodes = ResultXML.Root.Elements().ToList();
+                Device.BeginInvokeOnMainThread(() => MasterItem.Childrens.Clear());
+                // In Nodes sind jetzt alle Kinder "Container, Music usw." drin
+                foreach (XElement Node in Nodes)
+                {
+                    string Name = Node.Name.LocalName.ToLower();
+                    string Class = Node.Descendants().Where(e => e.Name.LocalName.ToLower() == "class").ToList()[0].Value;
+                    Name = Class.Split(new[] {"."}, StringSplitOptions.RemoveEmptyEntries).Last().ToLower();
+                    if (Name == "container")
+                    {   // Zwischen Playlist und Folder unterscheiden
+                        string Title = Node.Descendants().Where(e => e.Name.LocalName.ToLower() == "title").ToList()[0].Value;
+                        if (Title.EndsWith(".m3u"))
+                        {
+                            UPnPContainer Container = new UPnPContainer();
+                            Container = Container.Create(Node, Container);
+                            PlaylistItem Playlist = new PlaylistItem(Container.Title);
+                            Playlist.Parent = MasterItem;
+                            Playlist.RelatedContainer = Container;
+                            Device.BeginInvokeOnMainThread(() => MasterItem.Childrens.Add(Playlist));
+                            // Playlist
+                        }
+                        else
+                        {
+                            UPnPContainer Container = new UPnPContainer();
+                            Container = Container.Create(Node, Container);
+                            FolderItem ContainerFolder = new FolderItem(Container.Title);
+                            ContainerFolder.Parent = MasterItem;
+                            ContainerFolder.RelatedContainer = Container;
+                            Device.BeginInvokeOnMainThread(() => MasterItem.Childrens.Add(ContainerFolder));
+                        }
+                    }
+                    else if (Name == "item")
+                    {
+                        string UPnPClass =
+                            Node.Elements().Where(e => e.Name.LocalName.ToLower() == "class").ToList()[0].Value;
+                        string[] ClassDecomposed = UPnPClass.Split('.');
+                        if (ClassDecomposed[ClassDecomposed.Length - 1].ToLower() == "musictrack")
+                        {
+                            //UPnPMusicTrack MusicTrack = UPnPMusicTrack.CreateTrack(Node);
+                            UPnPMusicTrack MusicTrack = new UPnPMusicTrack();
+                            MusicTrack = MusicTrack.Create(Node, MusicTrack);
+                            MusicItem MusicItem = new MusicItem(MusicTrack.Title);
+                            MusicItem.Parent = MasterItem;
+                            MusicItem.RelatedTrack = MusicTrack;
+                            Device.BeginInvokeOnMainThread(() => MasterItem.AddChild(MusicItem));
+                        }
+                        else if (ClassDecomposed[ClassDecomposed.Length - 1].ToLower() == "photo")
+                        {
+                            UPnPPhoto Photo = new UPnPPhoto();
+                            Photo = Photo.Create(Node, Photo);
+                            PictureItem PictureItem = new PictureItem(Photo.Title);
+                            PictureItem.Parent = MasterItem;
+                            PictureItem.RelatedPhoto = Photo;
+                            Device.BeginInvokeOnMainThread(() => MasterItem.AddChild(PictureItem));
+                        }
+                        else if (ClassDecomposed[ClassDecomposed.Length - 1].ToLower() == "videoitem")
+                        {
+                            UPnPVideoItem Video = new UPnPVideoItem();
+                            Video = Video.Create(Node, Video);
+                            VideoItem VideoItem1 = new VideoItem(Video.Title);
+                            VideoItem1.Parent = MasterItem;
+                            VideoItem1.RelatedVideo = Video;
+                            Device.BeginInvokeOnMainThread(() => MasterItem.AddChild(VideoItem1));
+                        }
+                        else
+                        {
+
+                        }
+                    }
+                    else if (Name == "playlistcontainer")
                     {
                         UPnPContainer Container = new UPnPContainer();
                         Container = Container.Create(Node, Container);
@@ -176,51 +238,10 @@ namespace HomeMediaApp.Pages
                     }
                     else
                     {
-                        UPnPContainer Container = new UPnPContainer();
-                        Container = Container.Create(Node, Container);
-                        FolderItem ContainerFolder = new FolderItem(Container.Title);
-                        ContainerFolder.Parent = MasterItem;
-                        ContainerFolder.RelatedContainer = Container;
-                        Device.BeginInvokeOnMainThread(() => MasterItem.Childrens.Add(ContainerFolder));
+                        Debug.WriteLine(Name);
                     }
                 }
-                else if (Name == "item")
-                {
-                    string UPnPClass = Node.Elements().Where(e => e.Name.LocalName.ToLower() == "class").ToList()[0].Value;
-                    string[] ClassDecomposed = UPnPClass.Split('.');
-                    if (ClassDecomposed[ClassDecomposed.Length - 1].ToLower() == "musictrack")
-                    {
-                        //UPnPMusicTrack MusicTrack = UPnPMusicTrack.CreateTrack(Node);
-                        UPnPMusicTrack MusicTrack = new UPnPMusicTrack();
-                        MusicTrack = MusicTrack.Create(Node, MusicTrack);
-                        MusicItem MusicItem = new MusicItem(MusicTrack.Title);
-                        MusicItem.Parent = MasterItem;
-                        MusicItem.RelatedTrack = MusicTrack;
-                        Device.BeginInvokeOnMainThread(() => MasterItem.AddChild(MusicItem));
-                    }
-                    else if (ClassDecomposed[ClassDecomposed.Length - 1].ToLower() == "photo")
-                    {
-                        UPnPPhoto Photo = new UPnPPhoto();
-                        Photo = Photo.Create(Node, Photo);
-                        PictureItem PictureItem = new PictureItem(Photo.Title);
-                        PictureItem.Parent = MasterItem;
-                        PictureItem.RelatedPhoto = Photo;
-                        Device.BeginInvokeOnMainThread(() => MasterItem.AddChild(PictureItem));
-                    }
-                    else if (ClassDecomposed[ClassDecomposed.Length - 1].ToLower() == "videoitem")
-                    {
-                        UPnPVideoItem Video = new UPnPVideoItem();
-                        Video = Video.Create(Node, Video);
-                        VideoItem VideoItem1 = new VideoItem(Video.Title);
-                        VideoItem1.Parent = MasterItem;
-                        VideoItem1.RelatedVideo = Video;
-                        Device.BeginInvokeOnMainThread(() => MasterItem.AddChild(VideoItem1));
-                    }
-                    else
-                    {
 
-                    }
-                }
             }
             Device.BeginInvokeOnMainThread(() =>
             {
@@ -348,7 +369,7 @@ namespace HomeMediaApp.Pages
                     });
                 }*/
             }
-            else if(SelectedRenderer == "Dieses Gerät")
+            else
             {
                 UPnPAction BrowseAction = null;
                 try
@@ -407,36 +428,59 @@ namespace HomeMediaApp.Pages
                         .StartsWith("/")) sRequestURI += "/";
                 sRequestURI +=
                     CurrentDevice.DeviceMethods.Where(x => x.ServiceID == "ContentDirectory").ToList()[0].ControlURL;
-                BrowseAction.Execute(sRequestURI, "ContentDirectory", ArgList);
+                BrowseAction.Execute(sRequestURI, "ContentDirectory", ArgList, SelectedRenderer);
             }
 
         }
 
         private void OnResponseReceivedPlaylist(XDocument oResponseDocument, ActionState oState)
         {
-            PlaylistItem TappedPlayList = FileListView.SelectedItem as PlaylistItem;
-            if (TappedPlayList == null) return;
-            XDocument ResultXML = XDocument.Parse(oResponseDocument.Root.Descendants().Where(e => e.Name.LocalName.ToLower() == "result").ToList()[0].Value);
-            List<XElement> Nodes = ResultXML.Root.Elements().ToList();
-            foreach (XElement Node in Nodes)
+            if (oResponseDocument != null)
             {
-                string Name = Node.Name.LocalName.ToLower();
-                if (Name == "item")
+                PlaylistItem TappedPlayList = FileListView.SelectedItem as PlaylistItem;
+                if (TappedPlayList == null) return;
+                XDocument ResultXML =
+                    XDocument.Parse(
+                        oResponseDocument.Root.Descendants().Where(e => e.Name.LocalName.ToLower() == "result").ToList()
+                            [0].Value);
+                List<XElement> Nodes = ResultXML.Root.Elements().ToList();
+                foreach (XElement Node in Nodes)
                 {
-                    string UPnPClass = Node.Elements().Where(e => e.Name.LocalName.ToLower() == "class").ToList()[0].Value;
-                    string[] ClassDecomposed = UPnPClass.Split('.');
-                    if (ClassDecomposed[ClassDecomposed.Length - 1].ToLower() == "musictrack")
+                    string Name = Node.Name.LocalName.ToLower();
+                    if (Name == "item")
                     {
-                        UPnPMusicTrack MusicTrack = new UPnPMusicTrack();
-                        MusicTrack = MusicTrack.Create(Node, MusicTrack);
-                        MusicItem MusicItem = new MusicItem(MusicTrack.Title);
-                        MusicItem.Parent = MasterItem;
-                        MusicItem.RelatedTrack = MusicTrack;
-                        if(TappedPlayList.MusicItems.Where(e => e.DisplayName == MusicItem.DisplayName).Count() == 0) TappedPlayList.MusicItems.Add(MusicItem);
+                        string UPnPClass =
+                            Node.Elements().Where(e => e.Name.LocalName.ToLower() == "class").ToList()[0].Value;
+                        string[] ClassDecomposed = UPnPClass.Split('.');
+                        if (ClassDecomposed[ClassDecomposed.Length - 1].ToLower() == "musictrack")
+                        {
+                            UPnPMusicTrack MusicTrack = new UPnPMusicTrack();
+                            MusicTrack = MusicTrack.Create(Node, MusicTrack);
+                            MusicItem MusicItem = new MusicItem(MusicTrack.Title);
+                            MusicItem.Parent = MasterItem;
+                            MusicItem.RelatedTrack = MusicTrack;
+                            if (TappedPlayList.MusicItems.Where(e => e.DisplayName == MusicItem.DisplayName).Count() ==
+                                0) TappedPlayList.MusicItems.Add(MusicItem);
+                        }
                     }
                 }
+                if (TappedPlayList.MusicItems.Count > 0)
+                {
+                    Device.BeginInvokeOnMainThread(() =>
+                    {
+                        GlobalVariables.GlobalPlayerControl = new PlayerControl(GlobalVariables.UPnPMediaRenderer.Where(e => e.DeviceName == oState.AdditionalInfo).ToList()[0], new MediaObject() { Index = 0, Path = TappedPlayList.MusicItems[0].RelatedTrack.Res });
+                        for (int i = 1; i < TappedPlayList.MusicItems.Count; i++)
+                        {
+                            GlobalVariables.GlobalPlayerControl.AddMedia(new MediaObject() {Index = i, Path = TappedPlayList.MusicItems[i].RelatedTrack.Res});
+                        }
+                        OpenRemotePlayerView(TappedPlayList);
+                    });
+                }
             }
-            OpenRemotePlayerView(TappedPlayList);
+            else
+            {
+                
+            }
         }
 
         private void VideoItemTapped(VideoItem TappedItem, string[] Options)

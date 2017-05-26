@@ -316,7 +316,6 @@ namespace HomeMediaApp.Classes
             List<Tuple<string, string>> args = new List<Tuple<string, string>>();
             args.Add(new Tuple<string, string>("InstanceID", "0"));
             PositionResponse = false;
-            Debug.WriteLine("Calling Position Execute");    
             oPositionAction.Execute(RequestURI, "AVTransport", args);
             while (PositionResponse == false )
             {

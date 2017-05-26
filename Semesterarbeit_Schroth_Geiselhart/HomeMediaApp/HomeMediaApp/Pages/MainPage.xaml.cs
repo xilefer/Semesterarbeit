@@ -182,26 +182,6 @@ namespace HomeMediaApp.Pages
                 finally { Monitor.Exit(UPnPMediaRendererList);}
             }
             finally { Monitor.Exit(UPnPServerList); }
-            //if (Monitor.TryEnter(UPnPServerList))
-            //{
-            //    try
-            //    {
-            //        if (Monitor.TryEnter(UPnPMediaRendererList))
-            //        {
-            //            try
-            //            {
-                          
-            //            }
-            //            finally { Monitor.Exit(UPnPMediaRendererList); }
-            //        }
-            //    }
-            //    finally { Monitor.Exit(UPnPServerList); }
-            //}
-            //else
-            //{
-
-            //}
-
             UPnPDevice oTempDevice = TempList[0];
             // Ebenfalls zwischen renderer und Server unterscheiden
             if (oDevice.Type.ToLower() == "mediaserver")
@@ -290,7 +270,6 @@ namespace HomeMediaApp.Pages
             //if (Config != null) DisplayAlert("Test", Config, "Abbrechen");
         }
 
-        //Test zum Anzeigen der Response einer Action
 
         private void OnResponseReceived(XDocument oResponseDocument, ActionState oState)
         {
@@ -329,9 +308,45 @@ namespace HomeMediaApp.Pages
         private void ListViewRenderer_OnItemTapped(object sender, ItemTappedEventArgs e)
         {
             UPnPDevice TappedDevice = e.Item as UPnPDevice;
-            //TappedDevice
+            SetRendererInfo(TappedDevice);
             DisplayAlert("Eigenschaften: " + TappedDevice.DeviceName, TappedDevice.DetailText, "OK");
             // TODO: Für Mediarenderer Tapped-Event verarbeiten
+        }
+
+        private bool SetRendererInfoResponseReceived = false;
+        private void SetRendererInfo(UPnPDevice Renderer)
+        {
+            List<UPnPService> ConnManList = Renderer.DeviceMethods.Where(e => e.ServiceType.ToLower() == "connectionmanager").ToList();
+            if (ConnManList.Count == 0) return;
+            List<UPnPAction> ProtocolInfoActions = ConnManList[0].ActionList.Where(e => e.ActionName.ToLower() == "getprotocolinfo").ToList();
+            if (ProtocolInfoActions.Count == 0) return;
+            SetRendererInfoResponseReceived = false;
+            UPnPAction GetProtocolInfoAction = ProtocolInfoActions[0];
+            ResponseReceived temp = SetRendererInfoResponse;
+            GetProtocolInfoAction.OnResponseReceived += temp;
+            string RequestURL = Renderer.DeviceAddress.Scheme + @"://" + Renderer.DeviceAddress.Authority + ConnManList[0].ControlURL;
+            GetProtocolInfoAction.Execute(RequestURL, ConnManList[0].ServiceType, new List<Tuple<string, string>>(), Renderer.DeviceName);
+
+            while (!SetRendererInfoResponseReceived)
+            {
+                Task.Delay(5);
+            }
+            GetProtocolInfoAction.OnResponseReceived -= temp;
+        }
+
+        private void SetRendererInfoResponse(XDocument oResponseDocument, ActionState oState)
+        {
+            try
+            {
+                List<XElement> Sinks = oResponseDocument.Descendants().Where(e => e.Name.LocalName.ToLower() == "sink").ToList();
+                if (Sinks.Count == 0) return;
+                string[] Protocols = Sinks[0].Value.Split(new string[] {","}, StringSplitOptions.RemoveEmptyEntries);
+                UPnPMediaRendererList.Where(e => e.DeviceName == oState.AdditionalInfo).ToList()[0].DetailText = "Unterstütze Protokolle: " + string.Join(Environment.NewLine, Protocols);
+            }
+            finally
+            {
+                SetRendererInfoResponseReceived = true;
+            }
         }
     }
 }

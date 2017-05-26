@@ -277,7 +277,10 @@ namespace HomeMediaApp.Pages
             BrowseChildrenReceived = true;
             if (oResponseDocument != null)
             {
-                XDocument ResultXML = XDocument.Parse(oResponseDocument.Root.Descendants().Where(e => e.Name.LocalName.ToLower() == "result").ToList()[0].Value);
+                XElement ResultElement = oResponseDocument.Root.Descendants().Where(e => e.Name.LocalName.ToLower() == "result").FirstOrDefault();
+                if (ResultElement == null) return;
+                XDocument ResultXML = XDocument.Parse(ResultElement.Value);
+
                 List<XElement> Nodes = ResultXML.Root.Elements().ToList();
                 Device.BeginInvokeOnMainThread(() => MasterItem.Childrens.Clear());
                 // In Nodes sind jetzt alle Kinder "Container, Music usw." drin

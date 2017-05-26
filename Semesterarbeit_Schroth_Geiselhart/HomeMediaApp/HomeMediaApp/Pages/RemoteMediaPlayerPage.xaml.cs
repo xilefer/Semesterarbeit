@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,7 +21,7 @@ namespace HomeMediaApp.Pages
         private bool PositionTimerRun = false;
         private bool EventSet = false;
         private object LockObject = new object();
-        
+
         public int SliderValue
         {
             get { return nSliderValue; }
@@ -255,7 +256,8 @@ namespace HomeMediaApp.Pages
             {
                 PlayList = new PlaylistItem("Aktuelle Wiedergabe");
             }
-            PlayList.MusicItems.Add(MusicTrack);
+            if (PlayList.MusicItems.Where(e => e.DisplayName == MusicTrack.DisplayName).ToList().Count == 0) PlayList.MusicItems.Add(MusicTrack);
+            else return;
             if (!bFirst)
             {
                 if (GlobalVariables.GlobalPlayerControl != null)
@@ -315,11 +317,12 @@ namespace HomeMediaApp.Pages
             if (GlobalVariables.GlobalPlayerControl != null && !EventSet)
             {
                 EventSet = true;
+                Task.Delay(10);
                 GlobalVariables.GlobalPlayerControl.PlayingStatusChanged += new PlayingStatusChangedEvent(() => Device.BeginInvokeOnMainThread(
                 () =>
                 {
                     OnPropertyChanged("PlayPauseSource");
-                    if (GlobalVariables.GlobalPlayerControl.Playing) StartPositionTimer();
+                    if (GlobalVariables.GlobalPlayerControl.IsPlaying) StartPositionTimer();
                     else StopPositionTimer();
                 }));
             }
@@ -357,7 +360,7 @@ namespace HomeMediaApp.Pages
             }
             else
             {
-                
+
             }
         }
 
@@ -409,8 +412,57 @@ namespace HomeMediaApp.Pages
 
         private void ChangeOutputDevice(string NewDevice)
         {
-            // TODO: Das ausgabegerät wechseln
-            throw new NotImplementedException();
+            if (GlobalVariables.GlobalPlayerControl == null)
+            {   // Wiedergabe auf Gerät starten
+                if (PlayList.MusicItems.Count == 0)
+                {
+                    DisplayAlert("Fehler", "Die Wiedergabeliste ist leer", "OK");
+                    return;
+                }
+                GlobalVariables.GlobalPlayerControl = new PlayerControl(GlobalVariables.UPnPMediaRenderer.Where(e => e.DeviceName == NewDevice).ToList()[0], new MediaObject() { Index = 0, Path = PlayList.MusicItems[0].RelatedTrack.Res });
+                for (int i = 1; i < PlayList.MusicItems.Count; i++)
+                {   // Alle Elemente der Playlist einfügen
+                    GlobalVariables.GlobalPlayerControl.AddMedia(new MediaObject() { Index = 1, Path = PlayList.MusicItems[i].RelatedTrack.Res });
+                }
+                GlobalVariables.GlobalPlayerControl.Play();
+                PlayList.MusicItems[0].IsPlaying = true;
+                CurrentMusicTrack = PlayList.MusicItems[0].RelatedTrack;
+                OnAppearing();
+                OnPropertyChanged("RemotePlayerControl");
+                OnPropertyChanged("CurrentDeviceName");
+                OnPropertyChanged("CurrentMusicTrackName");
+            }
+            else
+            {   // Ausgabegerät ändern
+                // TODO: Das ausgabegerät wechseln
+                throw new NotImplementedException();
+            }
+        }
+
+        private void ButtonVolumeDown_OnClicked(object sender, EventArgs e)
+        {
+            if (GlobalVariables.GlobalPlayerControl != null)
+            {
+                GlobalVariables.GlobalPlayerControl.CurrentVolume = (GlobalVariables.GlobalPlayerControl.CurrentVolume - 1) < 0 ? 0 : GlobalVariables.GlobalPlayerControl.CurrentVolume - 1;
+            }
+        }
+
+        private void ButtonVolumeUp_OnClicked(object sender, EventArgs e)
+        {
+            if (GlobalVariables.GlobalPlayerControl != null)
+            {
+                GlobalVariables.GlobalPlayerControl.CurrentVolume = GlobalVariables.GlobalPlayerControl.CurrentVolume + 1;
+            }
+        }
+
+        private void TapGestureRecognizer_OnTapped(object sender, EventArgs e)
+        {
+            // Wird erst ausgelöst wenn der Anwender den Slider loslässt
+            int Position = SliderValue;
+            if (GlobalVariables.GlobalPlayerControl != null)
+            {
+                throw new NotImplementedException("Die Funktion im Playercontrol Fehlt noch");
+            }
         }
     }
 }

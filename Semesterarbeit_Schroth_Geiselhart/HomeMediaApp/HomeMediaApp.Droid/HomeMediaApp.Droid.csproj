@@ -172,7 +172,10 @@
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
     </EmbeddedResource>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\volume_down_icon.png" />
+    <AndroidResource Include="Resources\drawable\volume_up_icon.png" />
+  </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\play_icon.png" />
   </ItemGroup>

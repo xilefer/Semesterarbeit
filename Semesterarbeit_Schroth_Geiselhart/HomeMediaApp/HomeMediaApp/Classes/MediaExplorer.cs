@@ -185,7 +185,7 @@ namespace HomeMediaApp.Classes
         {
             
         }
-        List<MusicItem> MusicTitles = new List<MusicItem>();
+        public List<MusicItem> MusicTitles = new List<MusicItem>();
         private string Name = "";
     }
 }

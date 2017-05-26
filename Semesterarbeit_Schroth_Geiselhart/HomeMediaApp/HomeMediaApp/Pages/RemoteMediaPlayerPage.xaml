@@ -30,11 +30,31 @@
         <Grid Grid.Row="2"  BackgroundColor="White"> 
             <!-- Hier sind die Buttons zur Steuerung untergebracht -->
             <Grid.RowDefinitions>
+                <RowDefinition Height="100"/>
                 <RowDefinition Height="80"/>
                 <RowDefinition Height="20"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <Grid Grid.Row="0" BackgroundColor="Black">
+            <Grid Grid.Row ="0" BackgroundColor="Black" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="200"/>
+                    <ColumnDefinition Width="120"/>
+                    <ColumnDefinition Width="120"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Label Grid.Column="0" TextColor="White" FontSize="25" VerticalOptions="CenterAndExpand" HorizontalOptions="CenterAndExpand" Margin="20,0,20,0" Text="Lautstärke: "></Label>
+                <Button Grid.Column="1" HorizontalOptions="CenterAndExpand" Clicked="ButtonVolumeDown_OnClicked" BackgroundColor="Black" BorderColor="White" BorderWidth="5" VerticalOptions="CenterAndExpand" >
+                    <Button.Image>
+                        <OnPlatform x:TypeArguments="FileImageSource" WinPhone="Assets/volume_down_icon.png" Android="volume_down_icon.png" iOS="Images/volume_down_icon.png"/>
+                    </Button.Image>
+                </Button>
+                <Button Grid.Column="2" HorizontalOptions="CenterAndExpand" Clicked="ButtonVolumeUp_OnClicked" BackgroundColor="Black" BorderColor="White" BorderWidth="5" VerticalOptions="CenterAndExpand">
+                    <Button.Image>
+                        <OnPlatform x:TypeArguments="FileImageSource" WinPhone="Assets/volume_up_icon.png" Android="volume_up_icon.png" iOS="Images/volume_up_icon.png"/>
+                    </Button.Image>
+                </Button>
+            </Grid>
+            <Grid Grid.Row="1" BackgroundColor="Black">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="50"/>
                     <RowDefinition Height="30"/>
@@ -47,15 +67,18 @@
                         <OnPlatform x:TypeArguments="Color" Android="White" WinPhone="Black" iOS="White"/>
                     </StackLayout.BackgroundColor>
                     <Slider x:Name="PositionSlider" Value="{Binding SliderValue}" Maximum="{Binding SliderMaximum}" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" Margin="20,0,20,0" ValueChanged="PositionSlider_OnValueChanged">
+                    <Slider.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="TapGestureRecognizer_OnTapped"></TapGestureRecognizer>
+                    </Slider.GestureRecognizers>
                     </Slider>
                 </StackLayout>
             </Grid>
-            <Grid Grid.Row="1">
+            <Grid Grid.Row="2">
                 <Grid.BackgroundColor>
                     <OnPlatform x:TypeArguments="Color" Android="White" WinPhone="Black" iOS="White"/>
                 </Grid.BackgroundColor>
             </Grid>
-            <Grid Grid.Row="2" BackgroundColor="White">
+            <Grid Grid.Row="3" BackgroundColor="White">
                 <StackLayout Orientation="Horizontal" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
                     <Image x:Name="ImageLast" HorizontalOptions="StartAndExpand" VerticalOptions="CenterAndExpand" Source="{classes:ImageResource HomeMediaApp.Icons.last_icon.png}">
                         <Image.GestureRecognizers>

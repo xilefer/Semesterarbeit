@@ -80,8 +80,7 @@ namespace HomeMediaApp.Classes
         public bool ConnectionError { get; set; } = false;
         private XDocument CurrentIDResponseDoc { get; set; }
 
-        private object LockObject = new object();
-
+        
 
         public PlayerControl(UPnPDevice RendererDevice, MediaObject Media)
         {
@@ -660,12 +659,12 @@ namespace HomeMediaApp.Classes
         }
         private void OnResponsePlay(XDocument oResponseDocument, ActionState oState)
         {
-            PlayResponseReceived = true;
             if (oState.Successful && oState.oWebResponse.StatusCode == System.Net.HttpStatusCode.OK)
             {
                 IsPlaying = true;
                 //Gut
             }
+            PlayResponseReceived = true;
         }
         private void OnResponsePosition(XDocument oResponseDocument, ActionState oState)
         {

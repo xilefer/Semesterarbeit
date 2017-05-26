@@ -21,6 +21,7 @@ namespace HomeMediaApp.Classes
         public const string VideoPlayActionName = "MEDIAEXPLORER_VIDEO_PLAY";
         public const string PlaylistPlayActionName = "MEDIAEXPLORER_PLAYLIST_PLAY";
         public const string MusicAddToPlayLIstActionName = "MEDIAEXPLORER_MUSIC_ADD_TO_PLAYLIST";
+        public const string PlaylistAddToPlayLIstActionName = "MEDIAEXPLORER_PLAYLIST_ADD_TO_PLAYLIST";
         public const string RemoveTrackFromPlayListActionName = "PLAYLIST_VIEW_REMOVE_TRACK";
         #endregion
 

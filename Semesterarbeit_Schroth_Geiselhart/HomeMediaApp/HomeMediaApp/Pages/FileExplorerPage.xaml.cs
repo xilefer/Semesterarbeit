@@ -132,6 +132,124 @@ namespace HomeMediaApp.Pages
                     MediaRenderer.Add("Dieses Gerät");
                     PlaylistItemTapped(arg, MediaRenderer.ToArray());
                 });
+            // Playlist zur Wiedergabeliste anfügen
+            MessagingCenter.Subscribe<PlayListViewCell, PlaylistItem>(this, GlobalVariables.PlaylistAddToPlayLIstActionName, (sender, arg) =>
+            {
+                PlayList playlist = CreatePlayList(arg);
+                if (playlist.MusicTitles.Count == 0) return;
+                foreach (MusicItem oItem in playlist.MusicTitles)
+                {
+                    GlobalVariables.GlobalRemoteMediaPlayerPage.AddMusicTrackToPlayList(oItem, false);
+                }
+            });
+        }
+
+        private bool CreatePlayListResponseReceived = false;
+        private PlayList CreatedPlayList = null;
+        private PlayList CreatePlayList(PlaylistItem playlist)
+        {
+            UPnPAction BrowseAction = null;
+            try
+            {
+                BrowseAction =
+                    CurrentDevice.DeviceMethods.Where(e => e.ServiceType.ToLower() == "contentdirectory").ToList()[0]
+                        .ActionList.Where(x => x.ActionName.ToLower() == "browse").ToList()[0];
+
+            }
+            catch (Exception e)
+            {
+                DisplayAlert("Fehler", e.ToString(), "Vorgang abbrechen");
+                return new PlayList(new UPnPContainer(), CurrentDevice);
+            }
+            CreatePlayListResponseReceived = false;
+            CreatedPlayList = null;
+            ResponseReceived temp = OnResponseReceivedCreatePlayList;
+            BrowseAction.OnResponseReceived += temp;
+            List<UPnPActionArgument> InArgs = new List<UPnPActionArgument>();
+            foreach (UPnPActionArgument oArg in BrowseAction.ArgumentList)
+            {
+                if (oArg.Direction == "in")
+                {
+                    InArgs.Add(oArg);
+                }
+            }
+            UPnPStateVariables.A_ARG_TYPE_BrowseFlag = UPnPBrowseFlag.BrowseDirectChildren;
+            UPnPStateVariables.A_ARG_TYPE_Count = "100";
+            UPnPStateVariables.A_ARG_TYPE_Index = "0";
+            UPnPStateVariables.A_ARG_TYPE_ObjectID = playlist.RelatedContainer.id;
+            UPnPStateVariables.A_ARG_TYPE_SortCriteria = ""; //Keine Sortierung
+            Type TypeInfo = typeof(UPnPStateVariables);
+            List<Tuple<string, string>> ArgList = new List<Tuple<string, string>>();
+            foreach (UPnPActionArgument Arg in InArgs)
+            {
+                PropertyInfo ResultProperty = TypeInfo.GetRuntimeProperty(Arg.RelatedStateVariable);
+                if (ResultProperty != null)
+                {
+                    ArgList.Add(new Tuple<string, string>(Arg.Name, ResultProperty.GetValue(null).ToString()));
+                }
+                else
+                {
+                    throw new Exception("Die Funktion konnte nicht ausgeführt werden!");
+                }
+            }
+            string sRequestURI = CurrentDevice.DeviceAddress.Scheme + "://" + CurrentDevice.DeviceAddress.Authority;
+            if (sRequestURI.Length == 0)
+            {
+                throw new Exception("Die Funktion konnte nicht ausgeführt werden!");
+            }
+            if (sRequestURI.EndsWith("/"))
+                sRequestURI = sRequestURI.Substring(0, sRequestURI.Length - 1); // Schrägstrich entfernen
+            if (
+                !CurrentDevice.DeviceMethods.Where(x => x.ServiceID == "ContentDirectory").ToList()[0].ControlURL
+                    .StartsWith("/")) sRequestURI += "/";
+            sRequestURI +=
+                CurrentDevice.DeviceMethods.Where(x => x.ServiceID == "ContentDirectory").ToList()[0].ControlURL;
+            BrowseAction.Execute(sRequestURI, "ContentDirectory", ArgList);
+            
+            while (!CreatePlayListResponseReceived)
+            {
+                Task.Delay(5);
+            }
+            BrowseAction.OnResponseReceived -= temp;
+            return CreatedPlayList;
+        }
+
+        private void OnResponseReceivedCreatePlayList(XDocument oResponseDocument, ActionState oState)
+        {
+            try
+            {
+                if (oResponseDocument != null)
+                {
+                    List<XElement> oTemp = oResponseDocument.Descendants().Where(e => e.Name.LocalName.ToLower() == "result").ToList();
+                    if (oTemp.Count == 1)
+                    {
+
+                        UPnPContainer PlayListContainer = new UPnPContainer();
+                        CreatedPlayList = new PlayList(PlayListContainer, CurrentDevice);
+                        XDocument ResultDocument = XDocument.Parse(oTemp[0].Value);
+                        List<XElement> Items = ResultDocument.Descendants().Where(e => e.Name.LocalName.ToLower() == "item").ToList();
+                        foreach (XElement item in Items)
+                        {
+                            UPnPMusicTrack oTrack = new UPnPMusicTrack();
+                            oTrack = oTrack.Create(item, oTrack);
+                            MusicItem oItem = new MusicItem(oTrack.Title);
+                            oItem.RelatedTrack = oTrack;
+                            PlayListContainer.MusicTracks.Add(oTrack);
+                            CreatedPlayList.MusicTitles.Add(oItem);
+                        }
+
+                    }
+                    else
+                    {
+
+                    }
+                }
+                //CreatedPlayList = new PlayList();
+            }
+            finally
+            {
+                CreatePlayListResponseReceived = true;
+            }
         }
 
         protected override void OnDisappearing()
@@ -150,6 +268,8 @@ namespace HomeMediaApp.Pages
             MessagingCenter.Unsubscribe<VideoViewCell, VideoItem>(this, GlobalVariables.VideoPlayActionName);
             // Playlist wiedergeben
             MessagingCenter.Unsubscribe<PlayListViewCell, PlaylistItem>(this, GlobalVariables.PlaylistPlayActionName);
+            // Playlist zur Wiedergabeliste anfügen
+            MessagingCenter.Unsubscribe<PlayListViewCell, PlaylistItem>(this, GlobalVariables.PlaylistAddToPlayLIstActionName);
         }
 
         public void OnResponeReceived(XDocument oResponseDocument, ActionState oState)

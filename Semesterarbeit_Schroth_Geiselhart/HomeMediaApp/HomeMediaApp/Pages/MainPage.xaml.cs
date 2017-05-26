@@ -330,6 +330,7 @@ namespace HomeMediaApp.Pages
         {
             UPnPDevice TappedDevice = e.Item as UPnPDevice;
             //TappedDevice
+            DisplayAlert("Eigenschaften: " + TappedDevice.DeviceName, TappedDevice.DetailText, "OK");
             // TODO: Für Mediarenderer Tapped-Event verarbeiten
         }
     }

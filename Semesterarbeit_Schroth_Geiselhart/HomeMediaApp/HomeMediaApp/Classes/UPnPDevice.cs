@@ -15,5 +15,6 @@ namespace HomeMediaApp.Classes
         public string               DeviceName { get; set; }
         public Uri                  DeviceAddress { get; set; }
 
+        public string DetailText = "";
     }
 }

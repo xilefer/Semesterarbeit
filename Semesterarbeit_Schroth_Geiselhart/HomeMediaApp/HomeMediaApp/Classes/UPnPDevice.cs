@@ -15,6 +15,6 @@ namespace HomeMediaApp.Classes
         public string               DeviceName { get; set; }
         public Uri                  DeviceAddress { get; set; }
 
-        public string DetailText = "";
+        public Dictionary<string, List<string>> Protocoltypes = new Dictionary<string, List<string>>();
     }
 }

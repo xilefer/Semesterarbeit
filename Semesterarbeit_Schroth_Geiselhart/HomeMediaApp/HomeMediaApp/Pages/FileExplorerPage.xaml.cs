@@ -431,21 +431,32 @@ namespace HomeMediaApp.Pages
         {
             if (e.Item as FileExplorerItemBase == null) return;
             List<string> MediaRenderer = new List<string>();
-            foreach (UPnPDevice upnPMediaServer in GlobalVariables.UPnPMediaRenderer)
-            {   // TODO: Hier muss noch auf die Möglichkeiten des Renderers geprüft werden bsp. Kann er auch videos wiedergeben?
-                if (upnPMediaServer.Type == "DUMMY") continue;
-                MediaRenderer.Add(upnPMediaServer.DeviceName);
-            }
+
             MediaRenderer.Add("Dieses Gerät");
             switch ((e.Item as FileExplorerItemBase).ItemType)
             {
                 case FileExplorerItemType.MUSIC:
+                    foreach (UPnPDevice oTempDevice in GlobalVariables.UPnPMediaRenderer)
+                    {
+                        if (oTempDevice.Type == "DUMMY") continue;
+                        if (oTempDevice.Protocoltypes.Keys.Contains("audio")) MediaRenderer.Add(oTempDevice.DeviceName);
+                    }
                     MusicItemTapped(e.Item as MusicItem, MediaRenderer.ToArray());
                     break;
                 case FileExplorerItemType.PICTURE:
+                    foreach (UPnPDevice oTempDevice in GlobalVariables.UPnPMediaRenderer)
+                    {
+                        if (oTempDevice.Type == "DUMMY") continue;
+                        if (oTempDevice.Protocoltypes.Keys.Contains("image")) MediaRenderer.Add(oTempDevice.DeviceName);
+                    }
                     PictureItemTapped(e.Item as PictureItem, MediaRenderer.ToArray());
                     break;
                 case FileExplorerItemType.VIDEO:
+                    foreach (UPnPDevice oTempDevice in GlobalVariables.UPnPMediaRenderer)
+                    {
+                        if (oTempDevice.Type == "DUMMY") continue;
+                        if (oTempDevice.Protocoltypes.Keys.Contains("video")) MediaRenderer.Add(oTempDevice.DeviceName);
+                    }
                     VideoItemTapped(e.Item as VideoItem, MediaRenderer.ToArray());
                     break;
                 case FileExplorerItemType.FOLDER:
@@ -454,6 +465,11 @@ namespace HomeMediaApp.Pages
                     BrowseChildrens(MasterItem);
                     break;
                 case FileExplorerItemType.PLAYLIST:
+                    foreach (UPnPDevice oTempDevice in GlobalVariables.UPnPMediaRenderer)
+                    {
+                        if (oTempDevice.Type == "DUMMY") continue;
+                        if (oTempDevice.Protocoltypes.Keys.Contains("audio")) MediaRenderer.Add(oTempDevice.DeviceName);
+                    }
                     PlaylistItemTapped(e.Item as PlaylistItem, MediaRenderer.ToArray());
                     break;
                 case FileExplorerItemType.ELSE:

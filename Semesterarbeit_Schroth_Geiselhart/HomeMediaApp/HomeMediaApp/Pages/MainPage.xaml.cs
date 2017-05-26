@@ -202,6 +202,7 @@ namespace HomeMediaApp.Pages
 
         private void ListViewDevices_OnItemTapped(object sender, ItemTappedEventArgs e)
         {
+            foreach(UPnPDevice oRenderer in GlobalVariables.UPnPMediaRenderer) {  SetRendererInfo(oRenderer);}
             if ((e.Item as UPnPDevice).Type == "DUMMY") return;
             string Config = (e.Item as UPnPDevice).Config.ToString();
             UPnPDevice oDevice = (e.Item as UPnPDevice);
@@ -309,13 +310,23 @@ namespace HomeMediaApp.Pages
         {
             UPnPDevice TappedDevice = e.Item as UPnPDevice;
             SetRendererInfo(TappedDevice);
-            DisplayAlert("Eigenschaften: " + TappedDevice.DeviceName, TappedDevice.DetailText, "OK");
-            // TODO: Für Mediarenderer Tapped-Event verarbeiten
+            string Message = "";
+            foreach (string Key in TappedDevice.Protocoltypes.Keys)
+            {
+                Message += Key + ": " + Environment.NewLine;
+                foreach (string Value in TappedDevice.Protocoltypes[Key])
+                {
+                    Message += Value + ";  ";
+                }
+                Message += Environment.NewLine;
+            }
+            DisplayAlert("Unterstützte Protokolle: " + TappedDevice.DeviceName, Message, "OK");
         }
 
         private bool SetRendererInfoResponseReceived = false;
         private void SetRendererInfo(UPnPDevice Renderer)
         {
+            if (Renderer.Protocoltypes.Count > 0) return;
             List<UPnPService> ConnManList = Renderer.DeviceMethods.Where(e => e.ServiceType.ToLower() == "connectionmanager").ToList();
             if (ConnManList.Count == 0) return;
             List<UPnPAction> ProtocolInfoActions = ConnManList[0].ActionList.Where(e => e.ActionName.ToLower() == "getprotocolinfo").ToList();
@@ -341,7 +352,20 @@ namespace HomeMediaApp.Pages
                 List<XElement> Sinks = oResponseDocument.Descendants().Where(e => e.Name.LocalName.ToLower() == "sink").ToList();
                 if (Sinks.Count == 0) return;
                 string[] Protocols = Sinks[0].Value.Split(new string[] {","}, StringSplitOptions.RemoveEmptyEntries);
-                UPnPMediaRendererList.Where(e => e.DeviceName == oState.AdditionalInfo).ToList()[0].DetailText = "Unterstütze Protokolle: " + string.Join(Environment.NewLine, Protocols);
+                Dictionary<string, List<string>> ProtocolInfoDic = new Dictionary<string, List<string>>();
+                foreach (string Protocol in Protocols)
+                {
+                    string[] Temp = Protocol.Split(new string[] {"*"}, StringSplitOptions.RemoveEmptyEntries);
+                    if (Temp.Length > 1)
+                    {
+                        string Info = Temp[1].Substring(1);
+                        Info = Info.Split(new string[] {":"}, StringSplitOptions.RemoveEmptyEntries)[0];
+                        string[] KeyValue = Info.Split(new string[] {"/"}, StringSplitOptions.RemoveEmptyEntries);
+                        if(!ProtocolInfoDic.Keys.Contains(KeyValue[0])) ProtocolInfoDic.Add(KeyValue[0], new List<string>());
+                        ProtocolInfoDic[KeyValue[0]].Add(KeyValue[1]);
+                    }
+                }
+                GlobalVariables.UPnPMediaRenderer.Where(e => e.DeviceName == oState.AdditionalInfo).ToList()[0].Protocoltypes = ProtocolInfoDic;
             }
             finally
             {

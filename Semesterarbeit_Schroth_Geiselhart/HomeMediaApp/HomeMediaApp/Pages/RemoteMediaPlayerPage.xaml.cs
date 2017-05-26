@@ -372,6 +372,7 @@ namespace HomeMediaApp.Pages
 
         private void PlayListView_OnItemTapped(object sender, ItemTappedEventArgs e)
         {
+            return;
             if (PlayList == null) return;
             foreach (var playListMusicItem in PlayList.MusicItems)
             {
@@ -461,7 +462,6 @@ namespace HomeMediaApp.Pages
             int Position = SliderValue;
             if (GlobalVariables.GlobalPlayerControl != null)
             {
-                throw new NotImplementedException("Die Funktion im Playercontrol Fehlt noch");
             }
         }
     }

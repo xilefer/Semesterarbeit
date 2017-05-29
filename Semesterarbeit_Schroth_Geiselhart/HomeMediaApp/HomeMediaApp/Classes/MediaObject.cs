@@ -8,9 +8,9 @@ namespace HomeMediaApp.Classes
 {
     public class MediaObject
     {
-        public string Path { get; set; }
+        public string Path { get; set; } = "";
         public int Index { get; set; }
-        public string MetaData { get; set; }
+        public string MetaData { get; set; } = "";
 
     }
 }

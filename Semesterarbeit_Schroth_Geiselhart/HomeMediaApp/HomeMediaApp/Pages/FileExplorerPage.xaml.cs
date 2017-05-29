@@ -726,7 +726,7 @@ namespace HomeMediaApp.Pages
                         {
                             Index = 0,
                             // TODO: Metadaten definieren
-                            MetaData = MusicItem.RelatedTrack.Res,
+                            MetaData = "",
                             Path = MusicItem.RelatedTrack.Res
                         };
                         GlobalVariables.GlobalPlayerControl = MediaPlayer.Play(Song, SelectedRendererList[0]);
@@ -781,11 +781,21 @@ namespace HomeMediaApp.Pages
             PlayList.MusicItems[0].IsPlaying = true;
             GlobalVariables.GlobalRemoteMediaPlayerPage.PlayList = PlayList;
             GlobalVariables.GlobalRemoteMediaPlayerPage.CurrentMusicTrack = PlayList.MusicItems[0].RelatedTrack;
+            while (!GlobalVariables.GlobalPlayerControl.IsPlaying)
+            {
+                Task.Delay(100);
+            }
+            GlobalVariables.GlobalRemoteMediaPlayerPage.OnPlayingstatuschanged();
             (Parent.Parent as MasterDetailPageHomeMediaApp).Detail = GlobalVariables.GlobalRemoteMediaPlayerPage;
         }
 
         public void OpenRemotePlayerView()
         {
+            while (!GlobalVariables.GlobalPlayerControl.IsPlaying)
+            {
+                Task.Delay(100);
+            }
+            GlobalVariables.GlobalRemoteMediaPlayerPage.OnPlayingstatuschanged();
             (Parent.Parent as MasterDetailPageHomeMediaApp).Detail = GlobalVariables.GlobalRemoteMediaPlayerPage;
         }
 

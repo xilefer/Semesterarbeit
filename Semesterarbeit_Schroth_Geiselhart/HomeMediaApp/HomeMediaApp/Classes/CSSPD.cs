@@ -86,7 +86,6 @@ namespace HomeMediaApp
                             sLocation = "http://" + sLocation.Substring(9);
                             sLocation = "LOCATION: " + sLocation;
                         }
-                        Debug.WriteLine(sLocation.Substring(9));
                         HttpWebRequest oHttpWebRequest = WebRequest.CreateHttp(sLocation.Substring(9));
                         oHttpWebRequest.Method = "GET";
                         CSSDPState oState = new CSSDPState()

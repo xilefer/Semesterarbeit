@@ -106,7 +106,10 @@
     </AppxManifest>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Assets\last_icon.png" />
     <Content Include="Assets\Logo.scale-240.png" />
+    <Content Include="Assets\next_icon.png" />
+    <Content Include="Assets\play_icon.png" />
     <Content Include="Assets\SmallLogo.scale-240.png" />
     <Content Include="Assets\SplashScreen.scale-240.png" />
     <Content Include="Assets\Square71x71Logo.scale-240.png" />

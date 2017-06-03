@@ -51,11 +51,10 @@ namespace HomeMediaApp.Pages
         public MainPage()
         {
             InitializeComponent();
-            oDeviceSearcher.ReceivedXml += new ReceivedXml(OnReceivedXML);
+            oDeviceSearcher.ReceivedXml += OnReceivedXML;
             BindingContext = this;
             UPnPServerList.CollectionChanged += ItemsOnCollectionChanged;
             OuterGrid.ForceLayout();
-            string IPAddress = DependencyService.Get<IGetDeviceIPAddress>().GetDeviceIP();
         }
 
         protected override void OnAppearing()
@@ -358,11 +357,18 @@ namespace HomeMediaApp.Pages
                     string[] Temp = Protocol.Split(new string[] {"*"}, StringSplitOptions.RemoveEmptyEntries);
                     if (Temp.Length > 1)
                     {
-                        string Info = Temp[1].Substring(1);
-                        Info = Info.Split(new string[] {":"}, StringSplitOptions.RemoveEmptyEntries)[0];
-                        string[] KeyValue = Info.Split(new string[] {"/"}, StringSplitOptions.RemoveEmptyEntries);
-                        if(!ProtocolInfoDic.Keys.Contains(KeyValue[0])) ProtocolInfoDic.Add(KeyValue[0], new List<string>());
-                        ProtocolInfoDic[KeyValue[0]].Add(KeyValue[1]);
+                        try
+                        {
+                            string Info = Temp[1].Substring(1);
+                            Info = Info.Split(new string[] { ":" }, StringSplitOptions.None)[0];
+                            string[] KeyValue = Info.Split(new string[] { "/" }, StringSplitOptions.None);
+                            if (!ProtocolInfoDic.Keys.Contains(KeyValue[0])) ProtocolInfoDic.Add(KeyValue[0], new List<string>());
+                            ProtocolInfoDic[KeyValue[0]].Add(KeyValue[1]);
+                        }
+                        catch (Exception e)
+                        {
+                            Debug.WriteLine(e.ToString());                            
+                        }
                     }
                 }
                 GlobalVariables.UPnPMediaRenderer.Where(e => e.DeviceName == oState.AdditionalInfo).ToList()[0].Protocoltypes = ProtocolInfoDic;

@@ -94,7 +94,7 @@ namespace HomeMediaApp.Pages
             {
                 if (GlobalVariables.GlobalPlayerControl != null)
                 {
-                    if (GlobalVariables.GlobalPlayerControl.Playing) return ImageSource.FromResource("HomeMediaApp.Icons.pause_icon.png");
+                    if (GlobalVariables.GlobalPlayerControl.IsPlaying) return ImageSource.FromResource("HomeMediaApp.Icons.pause_icon.png");
                     return ImageSource.FromResource("HomeMediaApp.Icons.play_icon.png");
                 }
                 return ImageSource.FromResource("HomeMediaApp.Icons.play_icon.png");
@@ -132,13 +132,7 @@ namespace HomeMediaApp.Pages
             if (GlobalVariables.GlobalPlayerControl != null)
             {
                 EventSet = true;
-                GlobalVariables.GlobalPlayerControl.PlayingStatusChanged += new PlayingStatusChangedEvent(() => Device.BeginInvokeOnMainThread(
-                () =>
-                {
-                    OnPropertyChanged("PlayPauseSource");
-                    if (GlobalVariables.GlobalPlayerControl.Playing) StartPositionTimer();
-                    else StopPositionTimer();
-                }));
+                GlobalVariables.GlobalPlayerControl.PlayingStatusChanged += OnPlayingstatuschanged;
             }
             OnPropertyChanged("PlayPauseSource");
             // Subscription für die ContextActions!
@@ -150,7 +144,17 @@ namespace HomeMediaApp.Pages
         }
 
 
-
+        public void OnPlayingstatuschanged()
+        {
+            Device.BeginInvokeOnMainThread(() =>
+            {
+                bool Temp = GlobalVariables.GlobalPlayerControl.IsPlaying;
+                Debug.WriteLine(Temp);
+                if (Temp) StartPositionTimer();
+                else StopPositionTimer();
+                OnPropertyChanged("PlayPauseSource");
+            });
+        }
 
         private void ImageLastGestureRecognizer_OnTapped(object sender, EventArgs e)
         {
@@ -243,7 +247,11 @@ namespace HomeMediaApp.Pages
         {
             if (GlobalVariables.GlobalPlayerControl == null) return;
             if (GlobalVariables.GlobalPlayerControl.IsPlaying) GlobalVariables.GlobalPlayerControl.Pause();
-            else GlobalVariables.GlobalPlayerControl.Play();
+            else
+            {
+                GlobalVariables.GlobalPlayerControl.Play();
+                StartPositionTimer();
+            }
         }
 
         /// <summary>
@@ -318,13 +326,7 @@ namespace HomeMediaApp.Pages
             {
                 EventSet = true;
                 Task.Delay(10);
-                GlobalVariables.GlobalPlayerControl.PlayingStatusChanged += new PlayingStatusChangedEvent(() => Device.BeginInvokeOnMainThread(
-                () =>
-                {
-                    OnPropertyChanged("PlayPauseSource");
-                    if (GlobalVariables.GlobalPlayerControl.IsPlaying) StartPositionTimer();
-                    else StopPositionTimer();
-                }));
+                GlobalVariables.GlobalPlayerControl.PlayingStatusChanged += OnPlayingstatuschanged;
             }
             // Event einmal triggern, damit es evtl automatisch läuft
             if (GlobalVariables.GlobalPlayerControl != null && GlobalVariables.GlobalPlayerControl.IsPlaying) StartPositionTimer();
@@ -340,7 +342,6 @@ namespace HomeMediaApp.Pages
                     PositionTimerRun = true;
                     Device.StartTimer(TimeSpan.FromSeconds(1), () =>
                     {
-                        Debug.WriteLine("Request Position" + DateTime.Now);
                         if (GlobalVariables.GlobalPlayerControl != null)
                         {
                             Device.BeginInvokeOnMainThread(() =>
@@ -392,11 +393,6 @@ namespace HomeMediaApp.Pages
             Button_OnClicked(this, null);
         }
 
-        private void PositionSlider_OnValueChanged(object sender, ValueChangedEventArgs e)
-        {
-            // TODO: Erkennen wenn der Slider losgelassen wird   
-        }
-
         private void DeviceChangeButton_OnClicked(object sender, EventArgs e)
         {
             List<string> MediaRenderers = new List<string>();
@@ -434,9 +430,23 @@ namespace HomeMediaApp.Pages
                 OnPropertyChanged("CurrentMusicTrackName");
             }
             else
-            {   // Ausgabegerät ändern
-                // TODO: Das ausgabegerät wechseln
-                throw new NotImplementedException();
+            {   // TODO: Das ausgabegerät wechseln
+                if (NewDevice == GlobalVariables.GlobalPlayerControl.oDevice.DeviceName) return;
+                GlobalVariables.GlobalPlayerControl.Pause();
+                PlayerControl oNewControl = new PlayerControl(GlobalVariables.UPnPMediaRenderer.Where(e => e.DeviceName == NewDevice).ToList()[0], new MediaObject() {Index = 0, Path = CurrentMusicTrack.Res}, GlobalVariables.GlobalPlayerControl.GetCurrentPosition());
+                GlobalVariables.GlobalPlayerControl.Stop();
+                GlobalVariables.GlobalPlayerControl.DeInit();
+                GlobalVariables.GlobalPlayerControl.PlayingStatusChanged -= OnPlayingstatuschanged;
+                GlobalVariables.GlobalPlayerControl = null;
+                GlobalVariables.GlobalPlayerControl = oNewControl;
+                GlobalVariables.GlobalPlayerControl.PlayingStatusChanged += OnPlayingstatuschanged;
+                while (!GlobalVariables.GlobalPlayerControl.IsPlaying)
+                {
+                    Task.Delay(200);
+                }
+                OnPlayingstatuschanged();
+                OnPropertyChanged("CurrentDeviceName");
+                OnPropertyChanged("RemotePlayerControl");
             }
         }
 
@@ -462,6 +472,7 @@ namespace HomeMediaApp.Pages
             int Position = SliderValue;
             if (GlobalVariables.GlobalPlayerControl != null)
             {
+                GlobalVariables.GlobalPlayerControl.SetPosition(Position);
             }
         }
     }

@@ -70,19 +70,17 @@ namespace HomeMediaApp.Classes
                 AdditionalInfo = AdditionalInfo
             };
             httpRequest.BeginGetRequestStream(RequestCallback, oState);
-
         }
 
         public void Execute(string ControlURL,string ServiceName,List<Tuple<string,string>> args)
         {
-            System.Diagnostics.Stopwatch oWatch = new Stopwatch();
-            oWatch.Start();
             HttpWebRequest httpRequest = (HttpWebRequest)WebRequest.Create(ControlURL);
             httpRequest.Method = "POST";
             httpRequest.ContentType = "text/xml; charset=\"utf-8\"";
             httpRequest.Accept = "text/xml";
+            //httpRequest.Headers["Connection"] = "\"close\"";
             httpRequest.UseDefaultCredentials = true;
-            httpRequest.Headers["SOAPACTION"] = "\"urn:schemas-upnp-org:service:"+ ServiceName + ":1#" + this.ActionName +"\"";
+            httpRequest.Headers["SOAPAction"] = "\"urn:schemas-upnp-org:service:"+ ServiceName + ":1#" + this.ActionName +"\"";
             StringBuilder soapRequest = new StringBuilder();
             soapRequest.AppendLine(@"<?xml version=""1.0"" encoding=""utf-8""?>");
             soapRequest.AppendLine(@"<s:Envelope xmlns:s=""http://schemas.xmlsoap.org/soap/envelope/"" s:encodingStyle=""http://schemas.xmlsoap.org/soap/encoding/"">");
@@ -103,14 +101,6 @@ namespace HomeMediaApp.Classes
                 RequestBody = bytes
             };
             httpRequest.BeginGetRequestStream(RequestCallback, oState);
-            oWatch.Stop();
-            string Message = "Execute Time: " + oWatch.ElapsedMilliseconds + " " + ServiceName + " Control URL: " +
-                             ControlURL + " Args: ";
-            foreach (Tuple<string, string> Arg in args)
-            {
-                Message += Arg.Item1 + " " + Arg.Item2 + "; ";
-            }
-            Debug.WriteLine(Message);
         }
 
         private void RequestCallback(IAsyncResult oResult)
@@ -144,7 +134,7 @@ namespace HomeMediaApp.Classes
             catch (Exception gEx)
             {
                 Debug.WriteLine(gEx);
-                OnResponseReceived(new XDocument(), oState);
+                OnResponseReceived?.Invoke(new XDocument(), oState);
                 return;
             }
             Stream st = oState.oWebResponse.GetResponseStream();
@@ -152,7 +142,7 @@ namespace HomeMediaApp.Classes
             st.CopyTo(ms);
             string oResponse = Encoding.UTF8.GetString(ms.ToArray(), 0, (int)ms.Length);
             oState.Successful = true;
-            OnResponseReceived(XDocument.Parse(oResponse), oState);
+            OnResponseReceived?.Invoke(XDocument.Parse(oResponse), oState);
         }
     }
 

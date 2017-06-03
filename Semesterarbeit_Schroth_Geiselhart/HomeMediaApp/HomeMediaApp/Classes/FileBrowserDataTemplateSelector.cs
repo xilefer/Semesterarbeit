@@ -12,10 +12,10 @@ namespace HomeMediaApp.Classes
     {
         public ViewCellBase()
         {
-            MenuItem DetailsMenuItem = new MenuItem() {Text = "DETAILS"};
+            MenuItem DetailsMenuItem = new MenuItem() { Text = "DETAILS" };
             DetailsMenuItem.Clicked += (sender, e) =>
             {
-                MenuItem mi = (MenuItem) sender;
+                MenuItem mi = (MenuItem)sender;
                 MessagingCenter.Send(this, GlobalVariables.BaseShowDetailsActionName, mi.BindingContext as FileExplorerItemBase);
             };
             this.ContextActions.Add(DetailsMenuItem);
@@ -47,7 +47,7 @@ namespace HomeMediaApp.Classes
                 MessagingCenter.Send(this, GlobalVariables.MusicPlayActionName, mi.BindingContext as MusicItem);
             };
             this.ContextActions.Add(PlayMenuItem);
-            MenuItem AddToPlayListMenuItem = new MenuItem() {Text = "ZUR WIEDERGABELISTE HINZUFÜGEN"};
+            MenuItem AddToPlayListMenuItem = new MenuItem() { Text = "ZUR WIEDERGABELISTE HINZUFÜGEN" };
             AddToPlayListMenuItem.Clicked += (sender, e) =>
             {
                 MenuItem mi = sender as MenuItem;
@@ -75,7 +75,7 @@ namespace HomeMediaApp.Classes
     {
         public VideoViewCell()
         {
-            MenuItem PlayMenuItem = new MenuItem() {Text = "WIEDERGEBEN"};
+            MenuItem PlayMenuItem = new MenuItem() { Text = "WIEDERGEBEN" };
             PlayMenuItem.Clicked += (sender, e) =>
             {
                 MenuItem mi = sender as MenuItem;
@@ -96,7 +96,7 @@ namespace HomeMediaApp.Classes
                 MessagingCenter.Send(this, GlobalVariables.PlaylistPlayActionName, mi.BindingContext as PlaylistItem);
             };
             this.ContextActions.Add(PlayMenuItem);
-            MenuItem AddToPlaylistItem = new MenuItem() {Text = "ZUR WIEDERGABELISTE HINZUFÜGEN"};
+            MenuItem AddToPlaylistItem = new MenuItem() { Text = "ZUR WIEDERGABELISTE HINZUFÜGEN" };
             AddToPlaylistItem.Clicked += (sender, e) =>
             {
                 MenuItem mi = sender as MenuItem;
@@ -145,6 +145,7 @@ namespace HomeMediaApp.Classes
             FileExplorerItemBase Item = item as FileExplorerItemBase;
             if (Item != null)
             {
+                #region Entscheidung anhand des Item-Typs
                 DataTemplate ReturnTemplate = null;
                 switch (Item.ItemType)
                 {
@@ -171,8 +172,8 @@ namespace HomeMediaApp.Classes
                 {
                     return ReturnTemplate;
                 }
+                #endregion
             }
-            // KP ob das so gut ist?
             return new DataTemplate(typeof(TextCell));
         }
     }

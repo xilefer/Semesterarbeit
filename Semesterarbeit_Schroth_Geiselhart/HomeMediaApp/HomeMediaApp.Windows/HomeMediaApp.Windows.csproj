@@ -133,6 +133,9 @@
     <None Include="Windows_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Assets\last_icon.png" />
+    <Content Include="Assets\next_icon.png" />
+    <Content Include="Assets\play_icon.png" />
     <Content Include="Assets\volume_up_icon.png" />
     <Content Include="Assets\volume_down_icon.png" />
     <Content Include="Assets\Logo.scale-100.png" />

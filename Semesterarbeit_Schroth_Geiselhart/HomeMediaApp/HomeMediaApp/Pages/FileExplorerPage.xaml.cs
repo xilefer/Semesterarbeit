@@ -83,6 +83,7 @@ namespace HomeMediaApp.Pages
                     foreach (UPnPDevice upnPMediaServer in GlobalVariables.UPnPMediaRenderer)
                     {
                         if (upnPMediaServer.Type == "DUMMY") continue;
+                        if (!upnPMediaServer.Protocoltypes.ContainsKey("audio")) continue;
                         MediaRenderer.Add(upnPMediaServer.DeviceName);
                     }
                     MediaRenderer.Add("Dieses Gerät");

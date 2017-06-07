@@ -29,9 +29,8 @@ namespace HomeMediaApp.WinPhone.Pages
 	        MediaElementControl.Source = FileUri;
 	    }
 
-	    public void ShwoVideoFromPath(string FilePath)
+	    public void ShowVideoFromPath(string FilePath)
 	    {
-	        throw new NotImplementedException();
 	    }
 
 	    public void Play()

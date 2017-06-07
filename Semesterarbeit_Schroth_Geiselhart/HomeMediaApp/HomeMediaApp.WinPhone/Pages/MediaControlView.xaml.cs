@@ -40,7 +40,7 @@ namespace HomeMediaApp.WinPhone.Pages
 
         public void Pause()
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
 
         public void Play()

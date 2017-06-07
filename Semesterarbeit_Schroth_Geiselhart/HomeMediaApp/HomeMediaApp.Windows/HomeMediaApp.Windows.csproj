@@ -19,6 +19,8 @@
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
     <PackageCertificateThumbprint>2EA7B70F75BFB21344A3A69F3133F50C92C5508B</PackageCertificateThumbprint>
+    <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
+    <AppxBundlePlatforms>neutral</AppxBundlePlatforms>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -110,6 +112,7 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="Classes\GetDeviceIP.cs" />
+    <Compile Include="Classes\UPWGetFileImageSource.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
@@ -133,8 +136,10 @@
     <None Include="Windows_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Assets\folder_up_icon.png" />
     <Content Include="Assets\last_icon.png" />
     <Content Include="Assets\next_icon.png" />
+    <Content Include="Assets\pause_icon.png" />
     <Content Include="Assets\play_icon.png" />
     <Content Include="Assets\volume_up_icon.png" />
     <Content Include="Assets\volume_down_icon.png" />

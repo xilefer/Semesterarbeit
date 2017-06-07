@@ -94,8 +94,6 @@ namespace HomeMediaApp.Droid.Pages
             }
         }
 
-        public Action OnFinishedPlaying { get; set; }
-
         private void NextSongTapGestureRecognizer_OnTapped(object sender, EventArgs e)
         {
             throw new NotImplementedException();
@@ -116,6 +114,26 @@ namespace HomeMediaApp.Droid.Pages
             if (AndroidMediaPlayer.IsPlaying) Pause();
             Play();
         }
-        
+
+        public PlayingState GetPlayingState()
+        {
+            return new PlayingState()
+            {
+                Current = AndroidMediaPlayer.CurrentPosition,
+                Max = AndroidMediaPlayer.Duration
+            };
+        }
+
+        public void SeekTo(int Position)
+        {
+            try
+            {
+                AndroidMediaPlayer.SeekTo(Position * 1000);
+            }
+            catch (Exception gEx)
+            {
+                
+            }
+        }
     }
 }

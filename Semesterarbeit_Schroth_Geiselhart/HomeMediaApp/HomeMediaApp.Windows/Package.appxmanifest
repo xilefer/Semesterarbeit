@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest" xmlns:m2="http://schemas.microsoft.com/appx/2013/manifest">
-  <Identity Name="6e4cba78-0ede-46f8-a7c8-59d61a7aa588" Publisher="CN=felix" Version="1.0.0.0" />
+  <Identity Name="6e4cba78-0ede-46f8-a7c8-59d61a7aa588" Publisher="CN=felix" Version="1.0.0.1" />
   <Properties>
     <DisplayName>HomeMediaApp.Windows</DisplayName>
     <PublisherDisplayName>felix</PublisherDisplayName>

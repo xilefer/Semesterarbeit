@@ -40,12 +40,22 @@ namespace HomeMediaApp.Windows.Pages
 
         public void Pause()
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
 
         public void Play()
         {
             MediaElementControl.Play();
+        }
+
+        public void SeekTo(int Position)
+        {
+            throw new NotImplementedException();
+        }
+
+        public PlayingState GetPlayingState()
+        {
+            throw new NotImplementedException();
         }
 
         public Action OnFinishedPlaying { get; set; }

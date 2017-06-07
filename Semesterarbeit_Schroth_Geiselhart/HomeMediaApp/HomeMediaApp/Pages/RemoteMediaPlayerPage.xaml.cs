@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using HomeMediaApp.Classes;
+using HomeMediaApp.Interfaces;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
@@ -88,6 +89,23 @@ namespace HomeMediaApp.Pages
             set { GlobalVariables.GlobalPlayerControl = value; }
         }
 
+        public FileImageSource PlayPauseFileImageSource
+        {
+            get
+            {
+                if (GlobalVariables.GlobalPlayerControl != null)
+                {
+                    if (GlobalVariables.GlobalPlayerControl.IsPlaying)
+                    {
+                        return DependencyService.Get<IGetFileImageSource>().GetPauseSource();
+                    }
+                    return DependencyService.Get<IGetFileImageSource>().GetPlaySource();
+                }
+                return DependencyService.Get<IGetFileImageSource>().GetPlaySource();
+            }
+            set { }
+        }
+
         public ImageSource PlayPauseSource
         {
             get
@@ -134,7 +152,7 @@ namespace HomeMediaApp.Pages
                 EventSet = true;
                 GlobalVariables.GlobalPlayerControl.PlayingStatusChanged += OnPlayingstatuschanged;
             }
-            OnPropertyChanged("PlayPauseSource");
+            OnPropertyChanged("PlayPauseFileImageSource");
             // Subscription für die ContextActions!
             MessagingCenter.Subscribe<PlayListViewViewCell, MusicItem>(this, GlobalVariables.RemoveTrackFromPlayListActionName, (sender, arg) =>
             {
@@ -152,7 +170,7 @@ namespace HomeMediaApp.Pages
                 Debug.WriteLine(Temp);
                 if (Temp) StartPositionTimer();
                 else StopPositionTimer();
-                OnPropertyChanged("PlayPauseSource");
+                OnPropertyChanged("PlayPauseFileImageSource");
             });
         }
 

@@ -26,7 +26,7 @@ namespace HomeMediaApp.Droid.Pages
             VideoContentViewControl.VideoViewControl.SetZOrderOnTop(true);
         }
 
-        public void ShwoVideoFromPath(string FilePath)
+        public void ShowVideoFromPath(string FilePath)
         {
             VideoContentViewControl.VideoViewControl.SetVideoPath(FilePath);
         }
@@ -54,6 +54,25 @@ namespace HomeMediaApp.Droid.Pages
             {
                 VideoContentViewControl.VideoViewControl.Start();
             }
+        }
+
+        public void Pause()
+        {
+            VideoContentViewControl.VideoViewControl.Pause();
+        }
+
+        public PlayingState GetPlayingState()
+        {
+            return new PlayingState()
+            {
+                Current = VideoContentViewControl.VideoViewControl.CurrentPosition,
+                Max = VideoContentViewControl.VideoViewControl.Duration
+            };
+        }
+
+        public void SeekTo(int Position)
+        {
+            VideoContentViewControl.VideoViewControl.SeekTo(Position * 1000);
         }
     }
 }

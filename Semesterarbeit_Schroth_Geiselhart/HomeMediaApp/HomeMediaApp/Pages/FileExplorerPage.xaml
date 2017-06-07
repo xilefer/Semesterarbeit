@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:classes="clr-namespace:HomeMediaApp.Classes;assembly=HomeMediaApp"
              x:Class="HomeMediaApp.Pages.FileExplorerPage"
-             Title="Dateiexplorer" BackgroundColor="White">
+             Title="Mediaexplorer" BackgroundColor="White">
     <ContentPage.Resources>
         <ResourceDictionary>
             <classes:FileBrowserDataTemplateSelector x:Key="FileBrowserTemplateSelector"/>
@@ -12,23 +12,24 @@
     <ContentPage.Content>
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="50"/>
+                <RowDefinition Height="130"/>
+                <RowDefinition Height="3"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="70"/>
             </Grid.RowDefinitions>
             <StackLayout Orientation="Horizontal">
-                <Label TextColor="Black" FontSize="20" Text="{Binding CurrentDirectory}" />
-                <Image x:Name="BackButtonImage">
-                    <Image.GestureRecognizers>
-                        <TapGestureRecognizer Tapped="BackButton_OnClicked"/>
-                    </Image.GestureRecognizers>
-                </Image>
+                <Button Clicked="BackButton_OnClicked" HorizontalOptions="Start" BorderColor="Black" BorderWidth="2">
+                    <Button.Image>
+                        <OnPlatform x:TypeArguments="FileImageSource" WinPhone="Assets\folder_up_icon.png" iOS="Images/folder_up_icon.png" Android="folder_up_icon.png"/>
+                    </Button.Image>
+                </Button>
+                <Label VerticalOptions="Center" TextColor="Black" FontSize="20" Text="{Binding CurrentDirectory}" />
             </StackLayout>
-            <ListView Grid.Row="1" x:Name="FileListView" ItemTemplate="{StaticResource FileBrowserTemplateSelector}" ItemsSource="{Binding ExplorerItems}" BackgroundColor="White" ItemTapped="FileListView_OnItemTapped"/>
-            <StackLayout x:Name="PlayerStackLayout" Grid.Row="2" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
+            <Grid Grid.Row="1" BackgroundColor="Black"/>
+            <ListView Grid.Row="2" x:Name="FileListView" ItemTemplate="{StaticResource FileBrowserTemplateSelector}" ItemsSource="{Binding ExplorerItems}" BackgroundColor="White" ItemTapped="FileListView_OnItemTapped"/>
+            <StackLayout x:Name="PlayerStackLayout" Grid.Row="3" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
                 <Label>Platzhalten</Label>
             </StackLayout>
-
         </Grid>
     </ContentPage.Content>
 </ContentPage>

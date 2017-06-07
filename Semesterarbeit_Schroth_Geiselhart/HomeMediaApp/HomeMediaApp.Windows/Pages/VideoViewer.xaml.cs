@@ -33,7 +33,7 @@ namespace HomeMediaApp.Windows.Pages
 
         }
 
-        public void ShwoVideoFromPath(string FilePath)
+        public void ShowVideoFromPath(string FilePath)
         {
             throw new NotImplementedException();
         }
@@ -41,6 +41,21 @@ namespace HomeMediaApp.Windows.Pages
         public void Play()
         {
             MediaElementControl.Play();
+        }
+
+        public void Pause()
+        {
+            throw new NotImplementedException();
+        }
+
+        public PlayingState GetPlayingState()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SeekTo(int Position)
+        {
+            throw new NotImplementedException();
         }
     }
 }

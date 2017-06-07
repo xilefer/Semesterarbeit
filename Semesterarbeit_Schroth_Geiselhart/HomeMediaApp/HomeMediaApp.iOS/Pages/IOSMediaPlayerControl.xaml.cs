@@ -46,6 +46,16 @@ namespace HomeMediaApp.iOS.Pages
             MusicPlayerStatus = MusicPlayerControl.Start();
         }
 
+        public void SeekTo(int Position)
+        {
+            throw new NotImplementedException();
+        }
+
+        public PlayingState GetPlayingState()
+        {
+            throw new NotImplementedException();
+        }
+
         public Action OnFinishedPlaying { get; set; }
     }
 }

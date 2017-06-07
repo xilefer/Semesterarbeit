@@ -680,7 +680,6 @@ namespace HomeMediaApp.Classes
                 Task.Delay(10);
             }
             oTransportAction.OnResponseReceived -= temp;
-            //Playable();
         }
 
         private int GetVolume()

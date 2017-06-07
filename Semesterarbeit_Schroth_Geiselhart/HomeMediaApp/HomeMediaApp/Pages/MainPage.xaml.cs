@@ -325,6 +325,7 @@ namespace HomeMediaApp.Pages
         private bool SetRendererInfoResponseReceived = false;
         private void SetRendererInfo(UPnPDevice Renderer)
         {
+            if (Renderer.Type == "DUMMY") return;
             if (Renderer.Protocoltypes.Count > 0) return;
             List<UPnPService> ConnManList = Renderer.DeviceMethods.Where(e => e.ServiceType.ToLower() == "connectionmanager").ToList();
             if (ConnManList.Count == 0) return;

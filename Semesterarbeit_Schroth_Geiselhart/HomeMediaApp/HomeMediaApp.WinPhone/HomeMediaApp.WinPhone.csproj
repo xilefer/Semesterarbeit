@@ -86,6 +86,7 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="Classes\GetDeviceIP.cs" />
+    <Compile Include="Classes\WinPhoneGetFileImageSource.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
@@ -106,9 +107,11 @@
     </AppxManifest>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Assets\folder_up_icon.png" />
     <Content Include="Assets\last_icon.png" />
     <Content Include="Assets\Logo.scale-240.png" />
     <Content Include="Assets\next_icon.png" />
+    <Content Include="Assets\pause_icon.png" />
     <Content Include="Assets\play_icon.png" />
     <Content Include="Assets\SmallLogo.scale-240.png" />
     <Content Include="Assets\SplashScreen.scale-240.png" />

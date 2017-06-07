@@ -36,7 +36,20 @@ namespace HomeMediaApp.Pages
             }
         }
 
-        public string CurrentDirectory { get { return MasterItem.DisplayName; } }
+        public string CurrentDirectory
+        {
+            get
+            {
+                string Path = MasterItem.DisplayName;
+                FolderItem Parent = MasterItem.Parent;
+                while (Parent != null)
+                {
+                    Path = Parent.DisplayName + "/" + Path;
+                    Parent = Parent.Parent;
+                }
+                return Path;
+            }
+        }
 
         private ObservableCollection<FileExplorerItemBase> mExplorerItems = new ObservableCollection<FileExplorerItemBase>();
         public ObservableCollection<FileExplorerItemBase> ExplorerItems
@@ -57,7 +70,6 @@ namespace HomeMediaApp.Pages
         public FileExplorerPage()
         {
             InitializeComponent();
-            BackButtonImage.Source = ImageSource.FromResource("HomeMediaApp.Icons.folder_up_icon.png");
             BindingContext = this;
             GlobalVariables.GlobalMediaPlayerDevice = DependencyService.Get<IMediaPlayerControl>() as ContentView;
             GlobalVariables.GlobalVideoViewerDevice = DependencyService.Get<IVideoViewer>() as ContentView; ;

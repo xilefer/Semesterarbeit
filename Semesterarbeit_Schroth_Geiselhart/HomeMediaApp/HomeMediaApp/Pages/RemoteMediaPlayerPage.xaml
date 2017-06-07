@@ -88,11 +88,7 @@
                             <OnPlatform x:TypeArguments="FileImageSource" Android="last_icon.png" WinPhone="Assets/last_icon.png" iOS="Images/last_icon.png"/>
                         </Button.Image>
                     </Button>
-                    <!--<Image x:Name="ImagePlay" HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand" Source="{Binding PlayPauseSource}">
-                        <Image.GestureRecognizers>
-                            <TapGestureRecognizer x:Name="ImagePlayGestureRecognizer" Tapped="ImagePlayGestureRecognizer_OnTapped"/>
-                        </Image.GestureRecognizers>
-                    </Image>-->
+                    <Button HeightRequest="120" WidthRequest="120" BorderColor="Black" BorderWidth="5" HorizontalOptions="CenterAndExpand" VerticalOptions="StartAndExpand" Clicked="ImagePlayGestureRecognizer_OnTapped" Image="{Binding PlayPauseFileImageSource}"/>
                     <Button HeightRequest="120" WidthRequest="120" x:Name="ButtonNext" BorderColor="Black" BorderWidth="5" HorizontalOptions="EndAndExpand" VerticalOptions="StartAndExpand" Clicked="ImageNextGestureRecognizer_OnTapped">
                         <Button.Image>
                             <OnPlatform x:TypeArguments="FileImageSource" Android="next_icon.png" WinPhone="Assets/next_icon.png" iOS="Images/next_icon.png" />

@@ -181,11 +181,11 @@ namespace HomeMediaApp.Classes
 
     public class PlayList
     {
-        public PlayList(UPnPContainer PlayListContainer, UPnPDevice SourceDevice)
-        {
-            
-        }
         public List<MusicItem> MusicTitles = new List<MusicItem>();
         private string Name = "";
+        public PlayList(UPnPContainer PlayListContainer, UPnPDevice SourceDevice)
+        {
+            Name = PlayListContainer.Title;
+        }
     }
 }

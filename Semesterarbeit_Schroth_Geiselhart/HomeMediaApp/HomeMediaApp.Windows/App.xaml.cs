@@ -63,7 +63,6 @@ namespace HomeMediaApp.Windows
                 rootFrame.CacheSize = 1;
 
                 Xamarin.Forms.Forms.Init(e);
-
                 if (e.PreviousExecutionState == ApplicationExecutionState.Terminated)
                 {
                     // TODO: Load state from previously suspended application

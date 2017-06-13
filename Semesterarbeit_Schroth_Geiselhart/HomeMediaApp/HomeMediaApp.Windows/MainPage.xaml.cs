@@ -23,12 +23,5 @@ namespace HomeMediaApp.Windows
             this.InitializeComponent();
             LoadApplication(new HomeMediaApp.App());
         }
-
-        private void OCsspdOnReceivedXml(XDocument oReceivedXml)
-        {
-            return;
-        }
-
-
     }
 }

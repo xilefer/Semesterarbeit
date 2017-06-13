@@ -12,6 +12,7 @@ using Xamarin.Forms;
 using Xamarin.Forms.Platform.Android;
 using Application = Android.App.Application;
 using View = Xamarin.Forms.View;
+using System.Diagnostics;
 
 [assembly: Dependency(typeof(AndroidMediaPlayerControl))]
 namespace HomeMediaApp.Droid.Pages
@@ -21,7 +22,7 @@ namespace HomeMediaApp.Droid.Pages
         MediaPlayer AndroidMediaPlayer = new MediaPlayer();
         ImageView ImageViewPlayPause = new ImageView(Application.Context);
         TapGestureRecognizer TapRecognizer = new TapGestureRecognizer();
-        private Xamarin.Forms.View TempView = null;
+        private View TempView = null;
         private bool Prepared = false;
 
         private string mSongName = "";
@@ -46,7 +47,8 @@ namespace HomeMediaApp.Droid.Pages
             TempView.VerticalOptions = LayoutOptions.FillAndExpand;
             TempView.HorizontalOptions = LayoutOptions.FillAndExpand;
             TempView.BackgroundColor = Color.White;
-            TapRecognizer.TappedCallback = new Action<View, object>((sender, args) => View_OnClick(sender, null));
+            TapRecognizer.Command = new Command((sender) => View_OnClick(sender, null));
+            //TapRecognizer.TappedCallback = new Action<View, object>((sender, args) => View_OnClick(sender, null));
             TempView.GestureRecognizers.Add(TapRecognizer);
             StackLayoutPlayer.Children.Add(TempView);
             ImageViewPlayPause.SetImageResource(Resource.Drawable.play_icon);
@@ -72,8 +74,7 @@ namespace HomeMediaApp.Droid.Pages
         {
             if (AndroidMediaPlayer.IsPlaying) AndroidMediaPlayer.Stop();
             AndroidMediaPlayer.SetAudioStreamType(Stream.Music);
-            var fd = global::Android.App.Application.Context.Assets.OpenFd(FilePath);
-            AndroidMediaPlayer.SetDataSource(fd);
+            AndroidMediaPlayer.SetDataSource(FilePath);
             AndroidMediaPlayer.Prepare();
             return true;
         }
@@ -130,9 +131,10 @@ namespace HomeMediaApp.Droid.Pages
             {
                 AndroidMediaPlayer.SeekTo(Position * 1000);
             }
-            catch (Exception gEx)
+            catch (Java.Lang.IllegalStateException gEx)
             {
-                
+                Exception BaseException = gEx.GetBaseException();
+                Debug.WriteLine("Fehler in SeekTo in AndroidMediaPlayerControl.xaml.cs" + BaseException.ToString());
             }
         }
     }

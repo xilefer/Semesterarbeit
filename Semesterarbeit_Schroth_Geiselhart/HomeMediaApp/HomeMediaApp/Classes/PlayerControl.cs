@@ -410,6 +410,8 @@ namespace HomeMediaApp.Classes
             oClient.ReadStream.Read(bytes, 0, bytes.Length);
             string Message = Encoding.UTF8.GetString(bytes, 0, bytes.Length);
             return;
+            // TODO: XML-Antwort parsen
+            /*
             string xmlmessage = Message.Substring(Message.IndexOf("<?")).Trim(System.Convert.ToChar(System.Convert.ToUInt32("00", 16)));
             XDocument Response = XDocument.Parse(xmlmessage);
             XElement oElement = Response.Root.Elements().Elements().FirstOrDefault();
@@ -427,6 +429,7 @@ namespace HomeMediaApp.Classes
                     if (oVolume.Value != Volumevalue.ToString()) VolumeValueChanged?.Invoke(); Volumevalue = int.Parse(oVolume.Value);
                 }
             }
+            */
         }
 
         private void TCPRec(object sender, TcpSocketListenerConnectEventArgs args)

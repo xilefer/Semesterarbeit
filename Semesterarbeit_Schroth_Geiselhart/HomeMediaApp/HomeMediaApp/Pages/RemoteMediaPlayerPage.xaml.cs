@@ -17,11 +17,12 @@ namespace HomeMediaApp.Pages
     // TODO: Datatemplate selector für PlayListView implementieren
     public partial class RemoteMediaPlayerPage : ContentPage
     {
-        private int CurrentMediaIndex = 0;
+        //private int CurrentMediaIndex = 0;
         private int nSliderValue = 0;
         private bool PositionTimerRun = false;
         private bool EventSet = false;
         private object LockObject = new object();
+        private double ManualVal = 0;
 
         public int SliderValue
         {
@@ -156,7 +157,7 @@ namespace HomeMediaApp.Pages
             // Subscription für die ContextActions!
             MessagingCenter.Subscribe<PlayListViewViewCell, MusicItem>(this, GlobalVariables.RemoveTrackFromPlayListActionName, (sender, arg) =>
             {
-                PlayList.MusicItems.Remove(arg);
+                if(PlayList != null && PlayList.MusicItems != null) PlayList.MusicItems.Remove(arg);
                 OnPropertyChanged("MusicItems");
             });
         }
@@ -391,7 +392,9 @@ namespace HomeMediaApp.Pages
 
         private void PlayListView_OnItemTapped(object sender, ItemTappedEventArgs e)
         {
+            //TODO: PlayListItem-Tapped Event verarbeiten
             return;
+            /*
             if (PlayList == null) return;
             foreach (var playListMusicItem in PlayList.MusicItems)
             {
@@ -409,6 +412,7 @@ namespace HomeMediaApp.Pages
             //ChangeMusicTrack(PlayList.MusicItems[index]);
             // TODO: Wiedergabe starten
             Button_OnClicked(this, null);
+            */
         }
 
         private void DeviceChangeButton_OnClicked(object sender, EventArgs e)
@@ -416,6 +420,7 @@ namespace HomeMediaApp.Pages
             List<string> MediaRenderers = new List<string>();
             foreach (var upnPDevice in GlobalVariables.UPnPMediaRenderer)
             {
+                if (upnPDevice.Type == "DUMMY") continue;
                 MediaRenderers.Add(upnPDevice.DeviceName);
             }
             Device.BeginInvokeOnMainThread(async () =>
@@ -491,6 +496,27 @@ namespace HomeMediaApp.Pages
             if (GlobalVariables.GlobalPlayerControl != null)
             {
                 GlobalVariables.GlobalPlayerControl.SetPosition(Position);
+            }
+        }
+
+        private void PositionSlider_ValueChanged(object sender, ValueChangedEventArgs e)
+        {
+            if((e.OldValue - e.NewValue) > 2 || (e.OldValue - e.NewValue) < 0)
+            {   //Manuelle Usereingabe
+                // Timer starten der nach 20ms nachschaut ob sich der Wert nicht mehr geändert hat
+                double TempVal = e.NewValue;
+                ManualVal = e.NewValue;
+                Device.StartTimer(TimeSpan.FromMilliseconds(20), () =>
+                {
+                    if (ManualVal == TempVal)
+                    {   // Wir nehmen an dass dies die letzte Wertänderung sein soll
+                        if(GlobalVariables.GlobalPlayerControl != null)
+                        {
+                            GlobalVariables.GlobalPlayerControl.SetPosition((int)TempVal);
+                        }
+                    }
+                    return false;
+                });
             }
         }
     }

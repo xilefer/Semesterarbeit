@@ -49,5 +49,19 @@ namespace HomeMediaApp.WinPhone.Pages
         }
 
         public Action OnFinishedPlaying { get; set; }
+
+        public void SeekTo(int Position)
+        {
+            if(MediaElementControl.CanSeek) MediaElementControl.Position = TimeSpan.FromSeconds(Position);
+        }
+
+        public PlayingState GetPlayingState()
+        {
+            return new PlayingState()
+            {
+                Current = (int)MediaElementControl.Position.TotalSeconds,
+                Max =  (int)MediaElementControl.NaturalDuration.TimeSpan.TotalSeconds
+            };
+        }
     }
 }

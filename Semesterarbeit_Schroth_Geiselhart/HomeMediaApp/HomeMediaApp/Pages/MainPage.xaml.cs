@@ -18,8 +18,9 @@ namespace HomeMediaApp.Pages
 {
     public partial class MainPage : ContentPage
     {
-        private bool BrowseResponseReceived = true;
-
+        private bool BrowseResponseReceived = false;
+        private bool SetRendererInfoResponseReceived = false;
+        private CSSPD oDeviceSearcher = new CSSPD();
 
         public ObservableCollection<UPnPDevice> UPnPServerList
         {
@@ -49,7 +50,7 @@ namespace HomeMediaApp.Pages
             }
         }
 
-        private CSSPD oDeviceSearcher = new CSSPD();
+
         public MainPage()
         {
             InitializeComponent();
@@ -206,7 +207,10 @@ namespace HomeMediaApp.Pages
             foreach(UPnPDevice oRenderer in GlobalVariables.UPnPMediaRenderer) {  SetRendererInfo(oRenderer);}
             if ((e.Item as UPnPDevice).Type == "DUMMY") return;
             UPnPDevice oDevice = (e.Item as UPnPDevice);
-            UPnPAction BrowseAction = oDevice.DeviceMethods.Where(y => y.ServiceType.ToLower() == "contentdirectory").ToList()[0].ActionList.Where(x => x.ActionName.ToLower() == "browse").ToList()[0];
+            UPnPService ContentDirectoryService = oDevice.DeviceMethods.FirstOrDefault(y => y.ServiceType.ToLower() == "contentdirectory");
+            if (ContentDirectoryService == null) return;
+            UPnPAction BrowseAction = ContentDirectoryService.ActionList.FirstOrDefault(x => x.ActionName.ToLower() == "browse");
+            if (BrowseAction == null) return;
             ResponseReceived Temp = OnResponseReceived;
             BrowseAction.OnResponseReceived += Temp;
 
@@ -250,7 +254,6 @@ namespace HomeMediaApp.Pages
             BrowseResponseReceived = false;
             BrowseAction.OnResponseReceived -= Temp;
         }
-
 
         private void OnResponseReceived(XDocument oResponseDocument, ActionState oState)
         {
@@ -305,8 +308,7 @@ namespace HomeMediaApp.Pages
             }
             DisplayAlert("Unterstützte Protokolle: " + TappedDevice.DeviceName, Message, "OK");
         }
-
-        private bool SetRendererInfoResponseReceived = false;
+        
         private void SetRendererInfo(UPnPDevice Renderer)
         {
             if (Renderer.Type == "DUMMY") return;

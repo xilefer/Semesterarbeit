@@ -37,5 +37,24 @@ namespace HomeMediaApp.WinPhone.Pages
 	    {
 	        MediaElementControl.Play();
 	    }
+
+	    public void Pause()
+	    {
+	        MediaElementControl.Pause();
+	    }
+
+	    public PlayingState GetPlayingState()
+	    {
+	        return new PlayingState()
+	        {
+	            Current = (int)MediaElementControl.Position.TotalSeconds,
+                Max = (int)MediaElementControl.NaturalDuration.TimeSpan.TotalSeconds
+	        };
+	    }
+
+	    public void SeekTo(int Position)
+	    {
+	        if(MediaElementControl.CanSeek) MediaElementControl.Position = TimeSpan.FromSeconds(Position);
+	    }
 	}
 }

@@ -12,7 +12,11 @@
     <ContentPage.Content>
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="130"/>
+                <RowDefinition>
+                    <RowDefinition.Height>
+                        <OnPlatform x:TypeArguments="GridLength" Android="50" WinPhone="130" iOS="60"/>
+                    </RowDefinition.Height>
+                </RowDefinition>
                 <RowDefinition Height="3"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="70"/>
@@ -20,14 +24,21 @@
             <StackLayout Orientation="Horizontal">
                 <Button Clicked="BackButton_OnClicked" HorizontalOptions="Start" BorderColor="Black" BorderWidth="2">
                     <Button.Image>
-                        <OnPlatform x:TypeArguments="FileImageSource" WinPhone="Assets\folder_up_icon.png" iOS="Images/folder_up_icon.png" Android="folder_up_icon.png"/>
+                        <OnPlatform x:TypeArguments="FileImageSource" WinPhone="Assets\folder_up_icon.png" iOS="Images/folder_up_icon.png" Android="folder_up_icon_48.png"/>
                     </Button.Image>
+                    <Button.WidthRequest>
+                        <OnPlatform x:TypeArguments="x:Double" iOS="60" Android="60" WinPhone="130"/>
+                    </Button.WidthRequest>
                 </Button>
                 <Label VerticalOptions="Center" TextColor="Black" FontSize="20" Text="{Binding CurrentDirectory}" />
             </StackLayout>
             <Grid Grid.Row="1" BackgroundColor="Black"/>
-            <ListView Grid.Row="2" x:Name="FileListView" SeparatorVisibility="Default" ItemTemplate="{StaticResource FileBrowserTemplateSelector}" ItemsSource="{Binding ExplorerItems}" BackgroundColor="White" ItemTapped="FileListView_OnItemTapped"/>
-            <StackLayout x:Name="PlayerStackLayout" Grid.Row="3" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
+            <ListView Grid.Row="2" x:Name="FileListView" SeparatorVisibility="Default" ItemTemplate="{StaticResource FileBrowserTemplateSelector}" ItemsSource="{Binding ExplorerItems}" BackgroundColor="White" ItemTapped="FileListView_OnItemTapped">
+                <ListView.RowHeight>
+                    <OnPlatform x:TypeArguments="x:Int32" Android="80" iOS="100"/>
+                </ListView.RowHeight>
+            </ListView>
+                <StackLayout x:Name="PlayerStackLayout" Grid.Row="3" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
                 <Label>Platzhalten</Label>
             </StackLayout>
         </Grid>

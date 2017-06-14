@@ -901,19 +901,31 @@ namespace HomeMediaApp.Classes
         }
         private void OnResponseGetVolume(XDocument oResponseDocument, ActionState oState)
         {
-            GetVolumeResponse = true;
             if (oState.Successful && oState.oWebResponse.StatusCode == HttpStatusCode.OK)
+            try
             {
-                XElement Volume = oResponseDocument.Root.Elements().Elements().Elements().Where(e => e.Name.LocalName.ToLower() == "currentvolume").FirstOrDefault();
-                if (Volume != null) Volumevalue = int.Parse(Volume.Value);
+                {
+                    XElement Volume = oResponseDocument.Root.Elements().Elements().Elements().Where(e => e.Name.LocalName.ToLower() == "currentvolume").FirstOrDefault();
+                    if (Volume != null) Volumevalue = int.Parse(Volume.Value);
+                }
+            }
+            finally
+            {
+                GetVolumeResponse = true;
             }
         }
         private void OnResponseSetVolume(XDocument oResponseDocument, ActionState oState)
         {
-            SetVolumeResponseReceived = true;
-            if (oState.Successful && oState.oWebResponse.StatusCode == HttpStatusCode.OK)
+            try
             {
-                Volumevalue = TempVolume;
+                if (oState.Successful && oState.oWebResponse.StatusCode == HttpStatusCode.OK)
+                {
+                    Volumevalue = TempVolume;
+                }
+            }
+            finally
+            {
+                SetVolumeResponseReceived = true;
             }
         }
         private void OnResponseGetMute(XDocument oResponseDocument, ActionState oState)

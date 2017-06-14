@@ -98,8 +98,7 @@ namespace HomeMediaApp.Classes
             this.ContextActions.Add(OpenMenuItem);
         }
     }
-
-    [SuppressMessage("ReSharper", "InconsistentNaming")]
+    
     public class MusicViewCell : ViewCellBase
     {
         public MusicViewCell()

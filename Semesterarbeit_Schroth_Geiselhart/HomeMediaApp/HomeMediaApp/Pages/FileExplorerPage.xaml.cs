@@ -23,6 +23,14 @@ namespace HomeMediaApp.Pages
     {
 
         private FolderItem mMasterItem = new FolderItem("Master");
+        private bool DetailResponseReceived = false;
+        private string CurrentDetailText = "";
+        private ObservableCollection<FileExplorerItemBase> mExplorerItems = new ObservableCollection<FileExplorerItemBase>();
+        private PlayList CreatedPlayList = null;
+        private bool CreatePlayListResponseReceived = false;
+        private bool BrowseChildrenReceived { get; set; } = false;
+        private bool BrowseActionPlayListReceived { get; set; } = false;
+
         public FolderItem MasterItem
         {
             get { return mMasterItem; }
@@ -51,7 +59,6 @@ namespace HomeMediaApp.Pages
             }
         }
 
-        private ObservableCollection<FileExplorerItemBase> mExplorerItems = new ObservableCollection<FileExplorerItemBase>();
         public ObservableCollection<FileExplorerItemBase> ExplorerItems
         {
             get { return mMasterItem.Childrens; }
@@ -62,8 +69,6 @@ namespace HomeMediaApp.Pages
                 OnPropertyChanged();
             }
         }
-
-
 
         public UPnPDevice CurrentDevice { get; set; }
 
@@ -80,7 +85,7 @@ namespace HomeMediaApp.Pages
             // Detailfunktion
             MessagingCenter.Subscribe<ViewCellBase, FileExplorerItemBase>(this, GlobalVariables.BaseShowDetailsActionName, (sender, arg) =>
             {
-                throw new NotImplementedException("Detail-Funktion gibts noch nicht");
+                ShowDetails(arg);
             });
             // Ordner öffnen
             MessagingCenter.Subscribe<FolderViewCell, FolderItem>(this, GlobalVariables.FolderOpenActionName, (sender, arg) =>
@@ -157,8 +162,121 @@ namespace HomeMediaApp.Pages
             });
         }
 
-        private bool CreatePlayListResponseReceived = false;
-        private PlayList CreatedPlayList = null;
+        private void ShowDetails(FileExplorerItemBase Item)
+        {
+            UPnPService ContentDirectoryService = CurrentDevice.DeviceMethods.FirstOrDefault(e => e.ServiceID.ToLower() == "contentdirectory");
+            if (ContentDirectoryService == null) return;
+            UPnPAction BrowseAction = ContentDirectoryService.ActionList.FirstOrDefault(e => e.ActionName.ToLower() == "browse");
+            if (BrowseAction == null) return;
+            #region BrowseVariablen
+            UPnPStateVariables.A_ARG_TYPE_BrowseFlag = UPnPBrowseFlag.BrowseDirectChildren;
+            UPnPStateVariables.A_ARG_TYPE_Count = "100";
+            UPnPStateVariables.A_ARG_TYPE_Index = "0";
+            switch (Item.ItemType)
+            {
+                case FileExplorerItemType.MUSIC:
+                    UPnPStateVariables.A_ARG_TYPE_ObjectID = (Item as MusicItem).RelatedTrack.id;
+                    break;
+                case FileExplorerItemType.VIDEO:
+                    UPnPStateVariables.A_ARG_TYPE_ObjectID = (Item as VideoItem).RelatedVideo.id;
+                    break;
+                case FileExplorerItemType.PICTURE:
+                    UPnPStateVariables.A_ARG_TYPE_ObjectID = (Item as PictureItem).RelatedPhoto.id;
+                    break;
+                case FileExplorerItemType.FOLDER:
+                    UPnPStateVariables.A_ARG_TYPE_ObjectID = (Item as FolderItem).RelatedContainer.id;
+                    break;
+                case FileExplorerItemType.PLAYLIST:
+                    UPnPStateVariables.A_ARG_TYPE_ObjectID = (Item as PlaylistItem).RelatedContainer.id;
+                    break;
+                case FileExplorerItemType.ELSE:
+                    return;
+            }
+            UPnPStateVariables.A_ARG_TYPE_SortCriteria = "+upnp:artist";
+            Type TypeInfo = typeof(UPnPStateVariables);
+            List<Tuple<string, string>> ArgList = new List<Tuple<string, string>>();
+            List<UPnPActionArgument> InArgs = new List<UPnPActionArgument>();
+            foreach (UPnPActionArgument oArg in BrowseAction.ArgumentList)
+            {
+                if (oArg.Direction == "in")
+                {
+                    InArgs.Add(oArg);
+                }
+            }
+            foreach (UPnPActionArgument Arg in InArgs)
+            {
+                PropertyInfo ResultProperty = TypeInfo.GetRuntimeProperty(Arg.RelatedStateVariable);
+                if (ResultProperty != null)
+                {
+                    ArgList.Add(new Tuple<string, string>(Arg.Name, ResultProperty.GetValue(null).ToString()));
+                }
+                else
+                {
+                    throw new Exception("Die Funktion konnte nicht ausgeführt werden!");
+                }
+            }
+            string sRequestURI = CurrentDevice.DeviceAddress.Scheme + "://" + CurrentDevice.DeviceAddress.Authority;
+            if (sRequestURI.Length == 0)
+            {
+                throw new Exception("Die Funktion konnte nicht ausgeführt werden!");
+            }
+            if (sRequestURI.EndsWith("/")) sRequestURI = sRequestURI.Substring(0, sRequestURI.Length - 1); // Schrägstrich entfernen
+            if (!CurrentDevice.DeviceMethods.Where(x => x.ServiceID == "ContentDirectory").ToList()[0].ControlURL.StartsWith("/")) sRequestURI += "/";
+            sRequestURI += CurrentDevice.DeviceMethods.Where(x => x.ServiceID == "ContentDirectory").ToList()[0].ControlURL;
+            #endregion
+
+            ResponseReceived temp = OnResponseReceivedDetail;
+            BrowseAction.OnResponseReceived += temp;
+            DetailResponseReceived = false;
+            CurrentDetailText = "";
+            BrowseAction.Execute(sRequestURI, ContentDirectoryService.ServiceID, ArgList);
+            while (!DetailResponseReceived) Task.Delay(10);
+            BrowseAction.OnResponseReceived -= temp;
+            if (!string.IsNullOrEmpty(CurrentDetailText))
+            {
+                Device.BeginInvokeOnMainThread(() =>
+                {
+                    DisplayAlert("Details", CurrentDetailText, "OK");
+                });
+            }
+        }
+
+        private void OnResponseReceivedDetail(XDocument ResultXML, ActionState AnswerState)
+        {
+            try
+            {
+                CurrentDetailText = "";
+                XElement ResultElement = ResultXML.Descendants().FirstOrDefault(e => e.Name.LocalName.ToLower() == "result");
+                if (ResultElement == null) return;
+                List<XElement> ResultElements = XDocument.Parse(ResultElement.Value).Root.Elements().ToList();
+                if (ResultElements.Count == 0)
+                {
+                    CurrentDetailText += "Kein Inhalt";
+                }
+                else
+                {
+                    CurrentDetailText += "Inhalt:" + Environment.NewLine;
+                    foreach (XElement element in ResultElements)
+                    {
+                        if (element.Name.LocalName.ToLower() == "container")
+                        {
+                            CurrentDetailText += "Ordner: " + (element.Elements().FirstOrDefault(e => e.Name.LocalName.ToLower() == "title") == null ? "-" : element.Elements().FirstOrDefault(e => e.Name.LocalName.ToLower() == "title").Value);
+                            CurrentDetailText += Environment.NewLine;
+                        }
+                        else if (element.Name.LocalName.ToLower() == "item")
+                        {
+                            CurrentDetailText += "Element: " + (element.Elements().FirstOrDefault(e => e.Name.LocalName.ToLower() == "title") == null ? "-" : element.Elements().FirstOrDefault(e => e.Name.LocalName.ToLower() == "title").Value);
+                            CurrentDetailText += Environment.NewLine;
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                DetailResponseReceived = true;
+            }
+        }
+        
         private PlayList CreatePlayList(PlaylistItem playlist)
         {
             UPnPAction BrowseAction = null;
@@ -218,7 +336,7 @@ namespace HomeMediaApp.Pages
             sRequestURI +=
                 CurrentDevice.DeviceMethods.Where(x => x.ServiceID == "ContentDirectory").ToList()[0].ControlURL;
             BrowseAction.Execute(sRequestURI, "ContentDirectory", ArgList);
-            
+
             while (!CreatePlayListResponseReceived)
             {
                 Task.Delay(5);
@@ -285,7 +403,7 @@ namespace HomeMediaApp.Pages
             MessagingCenter.Unsubscribe<PlayListViewCell, PlaylistItem>(this, GlobalVariables.PlaylistAddToPlayLIstActionName);
         }
 
-        public void OnResponeReceived(XDocument oResponseDocument, ActionState oState)
+        private void OnResponeReceived(XDocument oResponseDocument, ActionState oState)
         {
             BrowseChildrenReceived = true;
             if (oResponseDocument != null)
@@ -301,10 +419,10 @@ namespace HomeMediaApp.Pages
                 {
                     string Name = Node.Name.LocalName.ToLower();
                     string Class = Node.Descendants().Where(e => e.Name.LocalName.ToLower() == "class").ToList()[0].Value;
-                    if (Class.Split(new[] {"."}, StringSplitOptions.RemoveEmptyEntries).Last().ToLower() ==
+                    if (Class.Split(new[] { "." }, StringSplitOptions.RemoveEmptyEntries).Last().ToLower() ==
                         "playlistcontainer")
                     {
-                        Name = Class.Split(new[] {"."}, StringSplitOptions.RemoveEmptyEntries).Last().ToLower();
+                        Name = Class.Split(new[] { "." }, StringSplitOptions.RemoveEmptyEntries).Last().ToLower();
                     }
                     if (Name == "container")
                     {   // Zwischen Playlist und Folder unterscheiden
@@ -389,9 +507,8 @@ namespace HomeMediaApp.Pages
                 CurrentDevice.DeviceMethods.Where(e => e.ServiceType.ToLower() == "contentdirectory").ToList()[0].ActionList.Where(x => x.ActionName.ToLower() == "browse").ToList()[0].OnResponseReceived -= OnResponeReceived;
             });
         }
-
-        private bool BrowseChildrenReceived { get; set; } = false;
-        public void BrowseChildrens(FolderItem FolderItem)
+        
+        private void BrowseChildrens(FolderItem FolderItem)
         {
             ResponseReceived temp = new ResponseReceived(OnResponeReceived);
             UPnPAction BrowseAction = CurrentDevice.DeviceMethods.Where(e => e.ServiceType.ToLower() == "contentdirectory").ToList()[0].ActionList.Where(x => x.ActionName.ToLower() == "browse").ToList()[0];
@@ -500,14 +617,13 @@ namespace HomeMediaApp.Pages
             });
         }
 
-        private bool BrowseActionPlayListReceived { get; set; } = false;
         private void PlayListDeviceSelected(PlaylistItem TappedItem, string SelectedRenderer)
         {
             if (SelectedRenderer != null && SelectedRenderer == "Wiedergabe Abbrechen")
             {
 
             }
-            else if(string.IsNullOrEmpty(SelectedRenderer)) { }
+            else if (string.IsNullOrEmpty(SelectedRenderer)) { }
             else if (SelectedRenderer == "Dieses Gerät")
             {
                 // TappedItem ist eine Playlist d.h. Die Kinder von TappedItem browsen und Wiedergeben
@@ -646,7 +762,7 @@ namespace HomeMediaApp.Pages
                         GlobalVariables.GlobalPlayerControl = new PlayerControl(GlobalVariables.UPnPMediaRenderer.Where(e => e.DeviceName == oState.AdditionalInfo).ToList()[0], new MediaObject() { Index = 0, Path = TappedPlayList.MusicItems[0].RelatedTrack.Res });
                         for (int i = 1; i < TappedPlayList.MusicItems.Count; i++)
                         {
-                            GlobalVariables.GlobalPlayerControl.AddMedia(new MediaObject() {Index = i, Path = TappedPlayList.MusicItems[i].RelatedTrack.Res});
+                            GlobalVariables.GlobalPlayerControl.AddMedia(new MediaObject() { Index = i, Path = TappedPlayList.MusicItems[i].RelatedTrack.Res });
                         }
                         OpenRemotePlayerView(TappedPlayList);
                     });
@@ -654,7 +770,7 @@ namespace HomeMediaApp.Pages
             }
             else
             {
-                
+
             }
         }
 
@@ -743,7 +859,7 @@ namespace HomeMediaApp.Pages
                             Path = MusicItem.RelatedTrack.Res
                         };
                         GlobalVariables.GlobalPlayerControl = MediaPlayer.Play(Song, SelectedRendererList[0]);
-                        if (GlobalVariables.GlobalPlayerControl.ConnectionError) { DisplayAlert("Fehler", "Wiedergabe konnte aufgrund eines Gerätefehlers nicht gestartet werden.", "OK");return; }
+                        if (GlobalVariables.GlobalPlayerControl.ConnectionError) { DisplayAlert("Fehler", "Wiedergabe konnte aufgrund eines Gerätefehlers nicht gestartet werden.", "OK"); return; }
                         if (GlobalVariables.GlobalRemoteMediaPlayerPage.PlayList == null)
                         {
                             GlobalVariables.GlobalRemoteMediaPlayerPage.AddMusicTrackToPlayList(MusicItem, true);
@@ -789,7 +905,7 @@ namespace HomeMediaApp.Pages
             }
         }
 
-        public void OpenRemotePlayerView(PlaylistItem PlayList)
+        private void OpenRemotePlayerView(PlaylistItem PlayList)
         {
             PlayList.MusicItems[0].IsPlaying = true;
             GlobalVariables.GlobalRemoteMediaPlayerPage.PlayList = PlayList;
@@ -802,7 +918,7 @@ namespace HomeMediaApp.Pages
             (Parent.Parent as MasterDetailPageHomeMediaApp).Detail = GlobalVariables.GlobalRemoteMediaPlayerPage;
         }
 
-        public void OpenRemotePlayerView()
+        private void OpenRemotePlayerView()
         {
             while (!GlobalVariables.GlobalPlayerControl.IsPlaying)
             {

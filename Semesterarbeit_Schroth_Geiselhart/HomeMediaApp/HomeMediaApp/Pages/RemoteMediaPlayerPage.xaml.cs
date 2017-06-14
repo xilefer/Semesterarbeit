@@ -157,7 +157,7 @@ namespace HomeMediaApp.Pages
             // Subscription für die ContextActions!
             MessagingCenter.Subscribe<PlayListViewViewCell, MusicItem>(this, GlobalVariables.RemoveTrackFromPlayListActionName, (sender, arg) =>
             {
-                if(PlayList != null && PlayList.MusicItems != null) PlayList.MusicItems.Remove(arg);
+                if (PlayList != null && PlayList.MusicItems != null) PlayList.MusicItems.Remove(arg);
                 OnPropertyChanged("MusicItems");
             });
         }
@@ -369,7 +369,7 @@ namespace HomeMediaApp.Pages
                                 if (PosTemp > 0) SliderValue = PosTemp;
                             });
                         }
-                        Debug.WriteLine("Returning Position" + DateTime.Now);
+                        //Debug.WriteLine("Returning Position" + DateTime.Now);
                         return PositionTimerRun;
                     });
                 }
@@ -456,7 +456,7 @@ namespace HomeMediaApp.Pages
             {   // TODO: Das ausgabegerät wechseln
                 if (NewDevice == GlobalVariables.GlobalPlayerControl.oDevice.DeviceName) return;
                 GlobalVariables.GlobalPlayerControl.Pause();
-                PlayerControl oNewControl = new PlayerControl(GlobalVariables.UPnPMediaRenderer.Where(e => e.DeviceName == NewDevice).ToList()[0], new MediaObject() {Index = 0, Path = CurrentMusicTrack.Res}, GlobalVariables.GlobalPlayerControl.GetCurrentPosition());
+                PlayerControl oNewControl = new PlayerControl(GlobalVariables.UPnPMediaRenderer.Where(e => e.DeviceName == NewDevice).ToList()[0], new MediaObject() { Index = 0, Path = CurrentMusicTrack.Res }, GlobalVariables.GlobalPlayerControl.GetCurrentPosition());
                 GlobalVariables.GlobalPlayerControl.Stop();
                 GlobalVariables.GlobalPlayerControl.DeInit();
                 GlobalVariables.GlobalPlayerControl.PlayingStatusChanged -= OnPlayingstatuschanged;
@@ -477,7 +477,15 @@ namespace HomeMediaApp.Pages
         {
             if (GlobalVariables.GlobalPlayerControl != null)
             {
-                GlobalVariables.GlobalPlayerControl.CurrentVolume = (GlobalVariables.GlobalPlayerControl.CurrentVolume - 1) < 0 ? 0 : GlobalVariables.GlobalPlayerControl.CurrentVolume - 1;
+                int CurrentVolume = GlobalVariables.GlobalPlayerControl.CurrentVolume;
+                if ((CurrentVolume - 5) > -1)
+                {
+                    GlobalVariables.GlobalPlayerControl.CurrentVolume = CurrentVolume - 5;
+                }
+                else
+                {
+                    GlobalVariables.GlobalPlayerControl.CurrentVolume = 0;
+                }
             }
         }
 
@@ -485,23 +493,32 @@ namespace HomeMediaApp.Pages
         {
             if (GlobalVariables.GlobalPlayerControl != null)
             {
-                GlobalVariables.GlobalPlayerControl.CurrentVolume = GlobalVariables.GlobalPlayerControl.CurrentVolume + 1;
+                int CurrentVolume = GlobalVariables.GlobalPlayerControl.CurrentVolume;
+                if (CurrentVolume + 5 < 101)
+                {
+                    GlobalVariables.GlobalPlayerControl.CurrentVolume = CurrentVolume + 5;
+                }
+                else
+                {  
+                    GlobalVariables.GlobalPlayerControl.CurrentVolume = 100;
+                }
             }
         }
 
         private void PositionSlider_ValueChanged(object sender, ValueChangedEventArgs e)
         {
-            if((e.OldValue - e.NewValue) > 3 || (e.NewValue - e.OldValue) < 0)
+            if ((e.NewValue - e.OldValue) > 3 || (e.NewValue - e.OldValue) < -5)
             {   //Manuelle Usereingabe
                 // Timer starten der nach 20ms nachschaut ob sich der Wert nicht mehr geändert hat
-                double TempVal = e.NewValue;
                 ManualVal = e.NewValue;
                 Device.StartTimer(TimeSpan.FromMilliseconds(20), () =>
                 {
+                    double TempVal = e.NewValue;
                     if (ManualVal == TempVal)
                     {   // Wir nehmen an dass dies die letzte Wertänderung sein soll
-                        if(GlobalVariables.GlobalPlayerControl != null)
+                        if (GlobalVariables.GlobalPlayerControl != null)
                         {
+                            Debug.WriteLine("Updating Position To: " + (int)TempVal);
                             GlobalVariables.GlobalPlayerControl.SetPosition((int)TempVal);
                         }
                     }

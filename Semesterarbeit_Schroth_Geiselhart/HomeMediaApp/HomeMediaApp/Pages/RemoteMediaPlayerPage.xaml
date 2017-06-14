@@ -11,7 +11,12 @@
     </ContentPage.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="50"/>
+            <RowDefinition>
+                <RowDefinition.Height>
+                    <OnPlatform x:TypeArguments="GridLength" iOS="100" WinPhone="50" Android="100"/>
+                </RowDefinition.Height>
+            </RowDefinition>
+            
             <RowDefinition Height="*"/>
             <RowDefinition Height="330"/>
         </Grid.RowDefinitions>
@@ -19,9 +24,20 @@
             <Grid.BackgroundColor>
                 <OnPlatform x:TypeArguments="Color" WinPhone="Black" iOS="White" Android="White"/>
             </Grid.BackgroundColor>
-            <StackLayout Orientation="Horizontal" VerticalOptions="FillAndExpand" HorizontalOptions="EndAndExpand">
-                <Button BackgroundColor="Gray" TextColor="White" HorizontalOptions="EndAndExpand" VerticalOptions="EndAndExpand" Text="{Binding CurrentDeviceName}" Clicked="DeviceChangeButton_OnClicked"/>
-                <Button BackgroundColor="Gray" TextColor="White" HorizontalOptions="EndAndExpand" VerticalOptions="EndAndExpand" x:Name="PlaylistButton" Text="Aktuelle Wiedergabeliste" Clicked="Button_OnClicked"></Button>
+            <StackLayout VerticalOptions="FillAndExpand" HorizontalOptions="EndAndExpand">
+                <StackLayout.Orientation>
+                    <OnPlatform x:TypeArguments="StackOrientation" Android="Vertical" iOS="Vertical" WinPhone="Horizontal"/>
+                </StackLayout.Orientation>
+                <Button BackgroundColor="Gray" TextColor="White" HorizontalOptions="EndAndExpand" VerticalOptions="EndAndExpand" Text="{Binding CurrentDeviceName}" Clicked="DeviceChangeButton_OnClicked">
+                    <Button.FontSize>
+                        <OnPlatform x:TypeArguments="x:Double" Android="10" iOS="10"/>
+                    </Button.FontSize>
+                </Button>
+                <Button BackgroundColor="Gray" TextColor="White" HorizontalOptions="EndAndExpand" VerticalOptions="EndAndExpand" x:Name="PlaylistButton" Text="Aktuelle Wiedergabeliste" Clicked="Button_OnClicked">
+                    <Button.FontSize>
+                        <OnPlatform x:TypeArguments="x:Double" Android="10" iOS="10"/>
+                    </Button.FontSize>
+                </Button>
             </StackLayout>
         </Grid>
         <Grid Grid.Row="1" BackgroundColor="White">

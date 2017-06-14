@@ -26,7 +26,7 @@
                 <Label VerticalOptions="Center" TextColor="Black" FontSize="20" Text="{Binding CurrentDirectory}" />
             </StackLayout>
             <Grid Grid.Row="1" BackgroundColor="Black"/>
-            <ListView Grid.Row="2" x:Name="FileListView" ItemTemplate="{StaticResource FileBrowserTemplateSelector}" ItemsSource="{Binding ExplorerItems}" BackgroundColor="White" ItemTapped="FileListView_OnItemTapped"/>
+            <ListView Grid.Row="2" x:Name="FileListView" SeparatorVisibility="Default" ItemTemplate="{StaticResource FileBrowserTemplateSelector}" ItemsSource="{Binding ExplorerItems}" BackgroundColor="White" ItemTapped="FileListView_OnItemTapped"/>
             <StackLayout x:Name="PlayerStackLayout" Grid.Row="3" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
                 <Label>Platzhalten</Label>
             </StackLayout>

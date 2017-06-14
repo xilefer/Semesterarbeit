@@ -18,6 +18,8 @@ namespace HomeMediaApp.Pages
 {
     public partial class MainPage : ContentPage
     {
+        private bool BrowseResponseReceived = true;
+
 
         public ObservableCollection<UPnPDevice> UPnPServerList
         {
@@ -203,10 +205,10 @@ namespace HomeMediaApp.Pages
         {
             foreach(UPnPDevice oRenderer in GlobalVariables.UPnPMediaRenderer) {  SetRendererInfo(oRenderer);}
             if ((e.Item as UPnPDevice).Type == "DUMMY") return;
-            string Config = (e.Item as UPnPDevice).Config.ToString();
             UPnPDevice oDevice = (e.Item as UPnPDevice);
             UPnPAction BrowseAction = oDevice.DeviceMethods.Where(y => y.ServiceType.ToLower() == "contentdirectory").ToList()[0].ActionList.Where(x => x.ActionName.ToLower() == "browse").ToList()[0];
-            BrowseAction.OnResponseReceived += new ResponseReceived(OnResponseReceived);
+            ResponseReceived Temp = OnResponseReceived;
+            BrowseAction.OnResponseReceived += Temp;
 
             List<UPnPActionArgument> InArgs = new List<UPnPActionArgument>();
             foreach (UPnPActionArgument oArg in BrowseAction.ArgumentList)
@@ -244,59 +246,41 @@ namespace HomeMediaApp.Pages
             if (!oDevice.DeviceMethods.Where(x => x.ServiceID == "ContentDirectory").ToList()[0].ControlURL.StartsWith("/")) sRequestURI += "/";
             sRequestURI += oDevice.DeviceMethods.Where(x => x.ServiceID == "ContentDirectory").ToList()[0].ControlURL;
             BrowseAction.Execute(sRequestURI, "ContentDirectory", ArgList);
-
-            //Methode für das event übergeben.
-            //UPnPAction oAction = oDevice.DeviceMethods.Where(x => x.ServiceID == "ContentDirectory").ToList()[0].ActionList.Where(x => x.ActionName == "Browse").ToList()[0];
-            //oAction.OnResponseReceived += OnResponseReceived;
-
-
-            //Request URI muss wie folgt aussehen wobei das nach dem Port = Service.ControlURL ist
-            //string RequestURI = @"http://129.144.51.89:49000/MediaServer/ContentDirectory/Control";
-
-            //Beispiel Tupel für die in Arguments der Action bspw aus Action.Argumentlist.Name
-
-            //List<Tuple<string,string>> args = new List<Tuple<string, string>>();
-            //args.Add(new Tuple<string, string>("ObjectID", "0"));
-            //args.Add(new Tuple<string, string>("BrowseFlag", "BrowseDirectChildren"));
-            //args.Add(new Tuple<string, string>("Filter", "*"));
-            //args.Add(new Tuple<string, string>("StartingIndex", "0"));
-            //args.Add(new Tuple<string, string>("RequestCount", "10"));
-            //args.Add(new Tuple<string, string>("SortCriteria", "*"));
-
-            //Execute brauch die ControlURL und die ServiceID des Services und die Argumentlist der Action
-            //oAction.Execute(RequestURI,"ContentDirectory", args);
-
-
-            //if (Config != null) DisplayAlert("Test", Config, "Abbrechen");
+            while (!BrowseResponseReceived) { Task.Delay(20); }
+            BrowseResponseReceived = false;
+            BrowseAction.OnResponseReceived -= Temp;
         }
 
 
         private void OnResponseReceived(XDocument oResponseDocument, ActionState oState)
         {
-            if (oResponseDocument != null)
+            try
             {
-                if (oState.ActionName.ToLower() == "browse")
+                if (oResponseDocument != null)
                 {
-                    Device.BeginInvokeOnMainThread(() =>
+                    if (oState.ActionName.ToLower() == "browse")
                     {
-                        FileExplorerPage oExplorerPage = new FileExplorerPage();
-                        UPnPContainer RootContainer = UPnPContainer.GenerateRootContainer(oResponseDocument);
-                        FolderItem MasterItem = new FolderItem(RootContainer.Title);
-                        FolderItem RootItem = new FolderItem(RootContainer.Title);
-                        MasterItem.RelatedContainer = RootContainer;
-                        RootItem.RelatedContainer = RootContainer;
-                        RootItem.AddChild(MasterItem);
-                        oExplorerPage.CurrentDevice = ListViewDevices.SelectedItem as UPnPDevice;
-                        oExplorerPage.MasterItem = RootItem;
-                        (Parent.Parent as MasterDetailPageHomeMediaApp).IsPresented = false;
-                        (Parent.Parent as MasterDetailPageHomeMediaApp).Detail = new NavigationPage(oExplorerPage);
-                        (ListViewDevices.SelectedItem as UPnPDevice).DeviceMethods.Where(y => y.ServiceType.ToLower() == "contentdirectory").ToList()[0].ActionList.Where(x => x.ActionName.ToLower() == "browse").ToList()[0].OnResponseReceived -= OnResponseReceived;
-                    });
+                        Device.BeginInvokeOnMainThread(() =>
+                        {
+                            FileExplorerPage oExplorerPage = new FileExplorerPage();
+                            UPnPContainer RootContainer = UPnPContainer.GenerateRootContainer(oResponseDocument);
+                            FolderItem MasterItem = new FolderItem(RootContainer.Title);
+                            FolderItem RootItem = new FolderItem(RootContainer.Title);
+                            MasterItem.RelatedContainer = RootContainer;
+                            RootItem.RelatedContainer = RootContainer;
+                            RootItem.AddChild(MasterItem);
+                            oExplorerPage.CurrentDevice = ListViewDevices.SelectedItem as UPnPDevice;
+                            oExplorerPage.MasterItem = RootItem;
+                            (Parent.Parent as MasterDetailPageHomeMediaApp).IsPresented = false;
+                            (Parent.Parent as MasterDetailPageHomeMediaApp).Detail = new NavigationPage(oExplorerPage);
+                            (ListViewDevices.SelectedItem as UPnPDevice).DeviceMethods.Where(y => y.ServiceType.ToLower() == "contentdirectory").ToList()[0].ActionList.Where(x => x.ActionName.ToLower() == "browse").ToList()[0].OnResponseReceived -= OnResponseReceived;
+                        });
+                    }
                 }
             }
-            else
+            finally
             {
-                
+                BrowseResponseReceived = true;
             }
         }
 

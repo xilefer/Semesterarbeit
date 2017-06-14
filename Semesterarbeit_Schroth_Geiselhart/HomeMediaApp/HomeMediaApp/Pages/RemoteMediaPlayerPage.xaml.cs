@@ -489,19 +489,9 @@ namespace HomeMediaApp.Pages
             }
         }
 
-        private void TapGestureRecognizer_OnTapped(object sender, EventArgs e)
-        {
-            // Wird erst ausgelöst wenn der Anwender den Slider loslässt
-            int Position = SliderValue;
-            if (GlobalVariables.GlobalPlayerControl != null)
-            {
-                GlobalVariables.GlobalPlayerControl.SetPosition(Position);
-            }
-        }
-
         private void PositionSlider_ValueChanged(object sender, ValueChangedEventArgs e)
         {
-            if((e.OldValue - e.NewValue) > 2 || (e.OldValue - e.NewValue) < 0)
+            if((e.OldValue - e.NewValue) > 3 || (e.NewValue - e.OldValue) < 0)
             {   //Manuelle Usereingabe
                 // Timer starten der nach 20ms nachschaut ob sich der Wert nicht mehr geändert hat
                 double TempVal = e.NewValue;

@@ -227,7 +227,6 @@ namespace HomeMediaApp.Classes
             {
                 #region Entscheidung anhand des Item-Typs
                 DataTemplate ReturnTemplate = null;
-                /*
                 switch (Item.ItemType)
                 {
                     case FileExplorerItemType.FOLDER:
@@ -248,8 +247,7 @@ namespace HomeMediaApp.Classes
                     case FileExplorerItemType.ELSE:
                         ReturnTemplate = ElseTemplate;
                         break;
-                }*/
-                ReturnTemplate = TestTemplate;
+                }
                 if (ReturnTemplate != null)
                 {
                     return ReturnTemplate;

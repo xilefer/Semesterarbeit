@@ -18,10 +18,8 @@ using HomeMediaApp.Interfaces;
 namespace HomeMediaApp.Pages
 {
 
-    [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class FileExplorerPage : ContentPage
     {
-
         private FolderItem mMasterItem = new FolderItem("Master");
         private bool DetailResponseReceived = false;
         private string CurrentDetailText = "";
@@ -72,6 +70,9 @@ namespace HomeMediaApp.Pages
 
         public UPnPDevice CurrentDevice { get; set; }
 
+        /// <summary>
+        /// Konstruktor
+        /// </summary>
         public FileExplorerPage()
         {
             InitializeComponent();
@@ -162,6 +163,10 @@ namespace HomeMediaApp.Pages
             });
         }
 
+        /// <summary>
+        /// Ruft die Details eines Objekts ab und zeigt diese an
+        /// </summary>
+        /// <param name="Item">Objekt zu dem Details abgerufen werden sollen</param>
         private void ShowDetails(FileExplorerItemBase Item)
         {
             UPnPService ContentDirectoryService = CurrentDevice.DeviceMethods.FirstOrDefault(e => e.ServiceID.ToLower() == "contentdirectory");
@@ -241,6 +246,11 @@ namespace HomeMediaApp.Pages
             }
         }
 
+        /// <summary>
+        /// Callback-Funktion zur Detailanfragen
+        /// </summary>
+        /// <param name="ResultXML">XML Antwort</param>
+        /// <param name="AnswerState">Status-Objekt der Antwort</param>
         private void OnResponseReceivedDetail(XDocument ResultXML, ActionState AnswerState)
         {
             try
@@ -277,6 +287,11 @@ namespace HomeMediaApp.Pages
             }
         }
         
+        /// <summary>
+        /// Funktion zum Erstellen einer Playlist
+        /// </summary>
+        /// <param name="playlist">Abgerufene UPnP-PlayList</param>
+        /// <returns>PlayList-Objekt mit allen enthaltenen Titeln</returns>
         private PlayList CreatePlayList(PlaylistItem playlist)
         {
             UPnPAction BrowseAction = null;
@@ -345,6 +360,11 @@ namespace HomeMediaApp.Pages
             return CreatedPlayList;
         }
 
+        /// <summary>
+        /// Callback-Funktion zum Erstellen einer PlayList
+        /// </summary>
+        /// <param name="oResponseDocument">XML Antwort</param>
+        /// <param name="oState">Status-Objekt der Antwort</param>
         private void OnResponseReceivedCreatePlayList(XDocument oResponseDocument, ActionState oState)
         {
             try
@@ -383,6 +403,9 @@ namespace HomeMediaApp.Pages
             }
         }
 
+        /// <summary>
+        /// Wird aufgerufen wenn die Oberfläche verschwindet
+        /// </summary>
         protected override void OnDisappearing()
         {
             base.OnDisappearing();
@@ -403,6 +426,11 @@ namespace HomeMediaApp.Pages
             MessagingCenter.Unsubscribe<PlayListViewCell, PlaylistItem>(this, GlobalVariables.PlaylistAddToPlayLIstActionName);
         }
 
+        /// <summary>
+        /// Callback-Funktion
+        /// </summary>
+        /// <param name="oResponseDocument">XML Antwort</param>
+        /// <param name="oState">Status-Objekt der Antwort</param>
         private void OnResponeReceived(XDocument oResponseDocument, ActionState oState)
         {
             BrowseChildrenReceived = true;
@@ -508,6 +536,10 @@ namespace HomeMediaApp.Pages
             });
         }
         
+        /// <summary>
+        /// Ruft die Kinder eines ausgewählten Elements ab
+        /// </summary>
+        /// <param name="FolderItem">Eltern-Element</param>
         private void BrowseChildrens(FolderItem FolderItem)
         {
             ResponseReceived temp = new ResponseReceived(OnResponeReceived);
@@ -557,6 +589,11 @@ namespace HomeMediaApp.Pages
             BrowseAction.OnResponseReceived -= temp;
         }
 
+        /// <summary>
+        /// Wird aufgerufen wenn ein Element aus der Liste ausgewählt wird
+        /// </summary>
+        /// <param name="sender">Das aufrufende Objekt</param>
+        /// <param name="e">Eventparameter</param>
         private void FileListView_OnItemTapped(object sender, ItemTappedEventArgs e)
         {
             if (e.Item as FileExplorerItemBase == null) return;
@@ -607,6 +644,11 @@ namespace HomeMediaApp.Pages
             }
         }
 
+        /// <summary>
+        /// Behandelt die Auswahl eines PlayList-Items
+        /// </summary>
+        /// <param name="TappedItem">Ausgewählte PlayList</param>
+        /// <param name="Options">Abspieloptionen</param>
         private void PlaylistItemTapped(PlaylistItem TappedItem, string[] Options)
         {
             Device.BeginInvokeOnMainThread(async () =>
@@ -617,6 +659,11 @@ namespace HomeMediaApp.Pages
             });
         }
 
+        /// <summary>
+        /// Behandelt die Wiedergabe eines PlayList-Elements
+        /// </summary>
+        /// <param name="TappedItem">Das ausgewählte PlayList-Element</param>
+        /// <param name="SelectedRenderer">Das ausgewählte Ausgabegerät</param>
         private void PlayListDeviceSelected(PlaylistItem TappedItem, string SelectedRenderer)
         {
             if (SelectedRenderer != null && SelectedRenderer == "Wiedergabe Abbrechen")
@@ -626,31 +673,7 @@ namespace HomeMediaApp.Pages
             else if (string.IsNullOrEmpty(SelectedRenderer)) { }
             else if (SelectedRenderer == "Dieses Gerät")
             {
-                // TappedItem ist eine Playlist d.h. Die Kinder von TappedItem browsen und Wiedergeben
-                /*
-                if ((GlobalVariables.GlobalMediaPlayerDevice as IMediaPlayerControl).PlayFromUri(new Uri(MusicItem.RelatedTrack.Res)))
-                {
-                    Device.BeginInvokeOnMainThread(async () =>
-                    {
-                        PlayerStackLayout.Children.Clear();
-                        PlayerStackLayout.Children.Add(GlobalVariables.GlobalMediaPlayerDevice);
-                        PlayerStackLayout.ForceLayout();
-                        bool Answer = await DisplayAlert("Wiedergabe", "Möchten sie die Wiedergabe sofort starten?", "Ja", "Nein");
-                        if (Answer)
-                        {
-                            //try
-                            //{
-                            //    (Parent.Parent as MasterDetailPageHomeMediaApp).Detail = new NavigationPage(GlobalVariables.GlobalMediaPlayerDevice as Page);
-                            //}
-                            //catch (Exception e)
-                            //{
-                            //    Debug.WriteLine(e);
-                            //    throw;
-                            //}
-                            GlobalVariables.GlobalMediaPlayerControl.Play();
-                        }
-                    });
-                }*/
+                DisplayAlert("Hinweis", "Die Wiedergabe von PlayLists ist auf dem Gerät nicht möglich." + Environment.NewLine + "PlayLists können nur auf Netzwerkgeräten wiedergegeben werden.", "OK");
             }
             else
             {
@@ -663,8 +686,7 @@ namespace HomeMediaApp.Pages
                 }
                 catch (Exception gEx)
                 {
-                    // TODO: Fehlerbehandlungskonzept
-                    DisplayAlert("Fehler", gEx.ToString(), "Abbruch");
+                    Debug.WriteLine(gEx.ToString());
                 }
                 if (BrowseAction == null)
                 {
@@ -723,6 +745,11 @@ namespace HomeMediaApp.Pages
 
         }
 
+        /// <summary>
+        /// Callback-Funktion zum erstellen von PlayLists
+        /// </summary>
+        /// <param name="oResponseDocument">XML Antwort</param>
+        /// <param name="oState">Status-Objekt der Antwort</param>
         private void OnResponseReceivedPlaylist(XDocument oResponseDocument, ActionState oState)
         {
             BrowseActionPlayListReceived = true;
@@ -774,6 +801,11 @@ namespace HomeMediaApp.Pages
             }
         }
 
+        /// <summary>
+        /// Behandelt die Auswahl eines Video-Elements
+        /// </summary>
+        /// <param name="TappedItem">Ausgewähltes Video Element</param>
+        /// <param name="Options">Abspieloptionen</param>
         private void VideoItemTapped(VideoItem TappedItem, string[] Options)
         {
             string SelectedRenderer = "";
@@ -784,6 +816,11 @@ namespace HomeMediaApp.Pages
             });
         }
 
+        /// <summary>
+        /// Behandelt die Auswahl eines Bild-Elements
+        /// </summary>
+        /// <param name="TappedItem">Ausgewähltes Bild-Element</param>
+        /// <param name="Options">Abspieloptionen</param>
         private void PictureItemTapped(PictureItem TappedItem, string[] Options)
         {
             string SelectedRenderer = "";
@@ -794,17 +831,28 @@ namespace HomeMediaApp.Pages
             });
         }
 
+        /// <summary>
+        /// Behandelt die Auswahl eines Musik-Element
+        /// </summary>
+        /// <param name="TappedItem">Ausgewähltes Musik-Element</param>
+        /// <param name="Options">Abspieloptionen</param>
         private void MusicItemTapped(MusicItem TappedItem, string[] Options)
         {
             //Popup anzeigen
             string SelectedRenderer = "";
             Device.BeginInvokeOnMainThread(async () =>
             {
-                SelectedRenderer = await DisplayActionSheet("Wiedergabegerät auswählen", "Wiedergabe Abbrechen", null, Options);
+                Task<string> TaskRenderer = DisplayActionSheet("Wiedergabegerät auswählen", "Wiedergabe Abbrechen", null, Options);
+                SelectedRenderer = await TaskRenderer;
                 PlayDeviceSelected(SelectedRenderer, TappedItem);
             });
         }
 
+        /// <summary>
+        /// Behandelt die Auswahl eines Wiedergabegeräts
+        /// </summary>
+        /// <param name="SelectedRenderer">Ausgewähltes Wiedergabegerät</param>
+        /// <param name="MusicItem">Wiederzugebender Musiktitel</param>
         private void PlayDeviceSelected(string SelectedRenderer, MusicItem MusicItem)
         {
             if (SelectedRenderer != null && SelectedRenderer == "Wiedergabe Abbrechen")
@@ -826,15 +874,6 @@ namespace HomeMediaApp.Pages
                             bool Answer = await DisplayAlert("Wiedergabe", "Möchten sie die Wiedergabe sofort starten?", "Ja", "Nein");
                             if (Answer)
                             {
-                                //try
-                                //{
-                                //    (Parent.Parent as MasterDetailPageHomeMediaApp).Detail = new NavigationPage(GlobalVariables.GlobalMediaPlayerDevice as Page);
-                                //}
-                                //catch (Exception e)
-                                //{
-                                //    Debug.WriteLine(e);
-                                //    throw;
-                                //}
                                 GlobalVariables.GlobalMediaPlayerControl.Play();
                             }
                         });
@@ -854,7 +893,6 @@ namespace HomeMediaApp.Pages
                         MediaObject Song = new MediaObject()
                         {
                             Index = 0,
-                            // TODO: Metadaten definieren
                             MetaData = "",
                             Path = MusicItem.RelatedTrack.Res
                         };
@@ -881,6 +919,11 @@ namespace HomeMediaApp.Pages
             }
         }
 
+        /// <summary>
+        /// Behandelt die Wiedergabe eines Bild-Elements
+        /// </summary>
+        /// <param name="SelectedRenderer">Ausgewähltes Wiedergabegerät</param>
+        /// <param name="PictureItem">Wiederzugebendes Bild</param>
         private async void PictureDeviceSelected(string SelectedRenderer, PictureItem PictureItem)
         {
             if (SelectedRenderer == null || SelectedRenderer == "Wiedergabe Abbrechen") return;
@@ -905,6 +948,10 @@ namespace HomeMediaApp.Pages
             }
         }
 
+        /// <summary>
+        /// Öffnet die RemotePlayer-Steuerungsansicht
+        /// </summary>
+        /// <param name="PlayList">Playlist zur Wiedergabe</param>
         private void OpenRemotePlayerView(PlaylistItem PlayList)
         {
             PlayList.MusicItems[0].IsPlaying = true;
@@ -912,22 +959,30 @@ namespace HomeMediaApp.Pages
             GlobalVariables.GlobalRemoteMediaPlayerPage.CurrentMusicTrack = PlayList.MusicItems[0].RelatedTrack;
             while (!GlobalVariables.GlobalPlayerControl.IsPlaying)
             {
-                Task.Delay(100);
+                Task.Delay(10);
             }
             GlobalVariables.GlobalRemoteMediaPlayerPage.OnPlayingstatuschanged();
             (Parent.Parent as MasterDetailPageHomeMediaApp).Detail = GlobalVariables.GlobalRemoteMediaPlayerPage;
         }
 
+        /// <summary>
+        /// Öffnet die RemotPlayer-Steuerungsansicht
+        /// </summary>
         private void OpenRemotePlayerView()
         {
             while (!GlobalVariables.GlobalPlayerControl.IsPlaying)
             {
-                Task.Delay(100);
+                Task.Delay(10);
             }
             GlobalVariables.GlobalRemoteMediaPlayerPage.OnPlayingstatuschanged();
             (Parent.Parent as MasterDetailPageHomeMediaApp).Detail = GlobalVariables.GlobalRemoteMediaPlayerPage;
         }
 
+        /// <summary>
+        /// Behandelt die Wiedergabe eines Videos
+        /// </summary>
+        /// <param name="SelectedRenderer">Ausgewähtles Ausgabegerät</param>
+        /// <param name="VideoItem">Wiederzugebendes Video</param>
         private void VideoDeviceSelected(string SelectedRenderer, VideoItem VideoItem)
         {
             if (SelectedRenderer == null || SelectedRenderer == "Wiedergabe Abbrechen") return;
@@ -974,6 +1029,11 @@ namespace HomeMediaApp.Pages
             }
         }
 
+        /// <summary>
+        /// Wird ausgelöst wenn der "Ordner-Hoch"-Button ausgelöst wird
+        /// </summary>
+        /// <param name="sender">Aufrufendes Objekt</param>
+        /// <param name="e">Eventparameter</param>
         private void BackButton_OnClicked(object sender, EventArgs e)
         {
             if (MasterItem.Parent != null)
@@ -982,6 +1042,10 @@ namespace HomeMediaApp.Pages
             }
         }
 
+        /// <summary>
+        /// Wird ausgelöst wenn die "Zurück"-Hardwaretaste des jeweiligen Systems ausgelöst wird
+        /// </summary>
+        /// <returns>Behandelt</returns>
         protected override bool OnBackButtonPressed()
         {
             BackButton_OnClicked(this, null);

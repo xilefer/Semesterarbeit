@@ -104,7 +104,7 @@ namespace HomeMediaApp.Classes
             List<Tuple<string, string>> argsid = new List<Tuple<string, string>>();
             CurrentIDResponse = false;
             oCurrentIDs.Execute(oDevice.DeviceAddress.Scheme + @"://" + oDevice.DeviceAddress.Authority + oConnectionService.ControlURL, "ConnectionManager", argsid);
-            while (CurrentIDResponse == false) { };
+            while (CurrentIDResponse == false) { Task.Delay(5); };
             // Der Callback kann auch null zurückgeben wenn ein Fehler aufgetreten ist! Deswegen in ein IF gepackt FG
             if (CurrentIDResponseDoc != null)
             {
@@ -179,7 +179,7 @@ namespace HomeMediaApp.Classes
 
             ConnectionSuccessful = false;
             oTransportAction.Execute(RequestURI, "AVTransport", args);
-            while (!ConnectionSuccessful && !ConnectionError) { };
+            while (!ConnectionSuccessful && !ConnectionError) { Task.Delay(5); };
             Playable();
 
             //---------------------------------------------------------------------------------------------------------------------------------------//
@@ -207,7 +207,7 @@ namespace HomeMediaApp.Classes
             List<Tuple<string, string>> argsid = new List<Tuple<string, string>>();
             CurrentIDResponse = false;
             oCurrentIDs.Execute(oDevice.DeviceAddress.Scheme + @"://" + oDevice.DeviceAddress.Authority + oConnectionService.ControlURL, "ConnectionManager", argsid);
-            while (CurrentIDResponse == false) { };
+            while (CurrentIDResponse == false) { Task.Delay(5); };
             // Der Callback kann auch null zurückgeben wenn ein Fehler aufgetreten ist! Deswegen in ein IF gepackt FG
             if (CurrentIDResponseDoc != null)
             {
@@ -282,7 +282,7 @@ namespace HomeMediaApp.Classes
 
             ConnectionSuccessful = false;
             oTransportAction.Execute(RequestURI, "AVTransport", args);
-            while (!ConnectionSuccessful && !ConnectionError) { };
+            while (!ConnectionSuccessful && !ConnectionError) { Task.Delay(5); };
             SetPosition(Position);
             Playable();
 
@@ -315,8 +315,7 @@ namespace HomeMediaApp.Classes
                 args.Add(new Tuple<string, string>("InstanceID", "0"));
                 PlayingReponse = false;
                 oPlayingAction.Execute(RequestURI, "AVTransport", args);
-                while (PlayingReponse == false)
-                { }
+                while (PlayingReponse == false) { Task.Delay(5); }
                 PlayingReponse = false;
                 oPlayingAction.OnResponseReceived -= PlayingResponse;
                 return Playing;

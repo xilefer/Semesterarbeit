@@ -43,7 +43,7 @@
         <Grid Grid.Row="1" BackgroundColor="White">
             <!-- Hier ist der Rest drin -->
             <Image x:Name="AlbumImage" IsVisible="True" VerticalOptions="CenterAndExpand" HorizontalOptions="Center" Aspect="AspectFit" Source="{Binding AlbumArtSource}"/>
-            <ListView x:Name="PlayListView" ItemTemplate="{StaticResource PlayListViewDataTemplateSelector}" ItemTapped="PlayListView_OnItemTapped" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" IsVisible="False" ItemsSource="{Binding MusicItems}"/>
+            <ListView x:Name="PlayListView" ItemTemplate="{StaticResource PlayListViewDataTemplateSelector}" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" IsVisible="False" ItemsSource="{Binding MusicItems}"/>
         </Grid>
 
         <Grid Grid.Row="2"  BackgroundColor="White">

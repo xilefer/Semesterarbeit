@@ -17,11 +17,11 @@ namespace HomeMediaApp.Pages
     // TODO: Datatemplate selector für PlayListView implementieren
     public partial class RemoteMediaPlayerPage : ContentPage
     {
-        //private int CurrentMediaIndex = 0;
         private int nSliderValue = 0;
         private bool PositionTimerRun = false;
         private bool EventSet = false;
         private object LockObject = new object();
+        private UPnPMusicTrack nCurrentMusicTrack = null;
         private double ManualVal = 0;
 
         public int SliderValue
@@ -37,7 +37,6 @@ namespace HomeMediaApp.Pages
 
         public PlaylistItem PlayList { get; set; } = null;
 
-        private UPnPMusicTrack nCurrentMusicTrack = null;
         public UPnPMusicTrack CurrentMusicTrack
         {
             get { return nCurrentMusicTrack; }
@@ -390,31 +389,6 @@ namespace HomeMediaApp.Pages
         }
 
 
-        private void PlayListView_OnItemTapped(object sender, ItemTappedEventArgs e)
-        {
-            //TODO: PlayListItem-Tapped Event verarbeiten
-            return;
-            /*
-            if (PlayList == null) return;
-            foreach (var playListMusicItem in PlayList.MusicItems)
-            {
-                playListMusicItem.IsPlaying = false;
-            }
-            int index = PlayList.MusicItems.IndexOf(e.Item as MusicItem);
-            PlayList.MusicItems[index].IsPlaying = true;
-            PlayListView.ItemsSource = null;
-            PlayListView.ItemsSource = MusicItems;
-            OnPropertyChanged("MusicItems");
-            ForceLayout();
-            CurrentMusicTrack = (e.Item as MusicItem).RelatedTrack;
-            // TODO: Wiedergabe des ausgewählten Elements starten
-            throw new NotImplementedException();
-            //ChangeMusicTrack(PlayList.MusicItems[index]);
-            // TODO: Wiedergabe starten
-            Button_OnClicked(this, null);
-            */
-        }
-
         private void DeviceChangeButton_OnClicked(object sender, EventArgs e)
         {
             List<string> MediaRenderers = new List<string>();
@@ -465,7 +439,7 @@ namespace HomeMediaApp.Pages
                 GlobalVariables.GlobalPlayerControl.PlayingStatusChanged += OnPlayingstatuschanged;
                 while (!GlobalVariables.GlobalPlayerControl.IsPlaying)
                 {
-                    Task.Delay(200);
+                    Task.Delay(20);
                 }
                 OnPlayingstatuschanged();
                 OnPropertyChanged("CurrentDeviceName");

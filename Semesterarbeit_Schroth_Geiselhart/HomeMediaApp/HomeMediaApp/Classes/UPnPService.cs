@@ -12,6 +12,9 @@ namespace HomeMediaApp.Classes
 {
     public delegate void ResponseReceived(XDocument oResponseDocument, ActionState oState);
 
+    /// <summary>
+    /// Klasse zum speichern von Ergebnissen einer Anfrage
+    /// </summary>
     public class ActionState
     {
         public HttpWebRequest oWebRequest;
@@ -22,6 +25,9 @@ namespace HomeMediaApp.Classes
         public string AdditionalInfo = "";
     }
 
+    /// <summary>
+    /// Klasse die einen UPnP-Service bereitstellt
+    /// </summary>
     public class UPnPService
     {
         public string ServiceType { get; set; }
@@ -33,6 +39,9 @@ namespace HomeMediaApp.Classes
         public List<UPnPServiceState> ServiceStateTable { get; set; } = new List<UPnPServiceState>();
     }
 
+    /// <summary>
+    /// Klasse die eine UPnP-Action verfügbar macht
+    /// </summary>
     public class UPnPAction
     {
         public string ActionName { get; set; }
@@ -146,6 +155,9 @@ namespace HomeMediaApp.Classes
         }
     }
 
+    /// <summary>
+    /// Argumente die für UPnP-Action benötigt werden
+    /// </summary>
     public class UPnPActionArgument
     {
         public string Name { get; set; }
@@ -153,6 +165,9 @@ namespace HomeMediaApp.Classes
         public string RelatedStateVariable { get; set; }
     }
 
+    /// <summary>
+    /// Klasse die Eigenschaften zu einem UPnP-Service bereitstellt
+    /// </summary>
     public class UPnPServiceState
     {
         public bool SendEvents { get; set; }

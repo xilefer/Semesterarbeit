@@ -19,6 +19,9 @@ namespace HomeMediaApp.Classes
         ELSE
     };
 
+    /// <summary>
+    /// Basisklasse aller UPnP-Items
+    /// </summary>
     public class FileExplorerItemBase
     {
         public FolderItem Parent { get; set; } = null;
@@ -27,6 +30,9 @@ namespace HomeMediaApp.Classes
         public FileExplorerItemType ItemType { get; set; } = FileExplorerItemType.ELSE;
     }
 
+    /// <summary>
+    /// Klasse für UPnP-Ordner
+    /// </summary>
     public class FolderItem : FileExplorerItemBase
     {
         private UPnPContainer mRelatedContainer;
@@ -54,6 +60,9 @@ namespace HomeMediaApp.Classes
         }
     }
 
+    /// <summary>
+    /// Klasse für UPnP-Musiktitel
+    /// </summary>
     public class MusicItem : FileExplorerItemBase
     {
         public MusicItem(string MusicName)
@@ -99,6 +108,9 @@ namespace HomeMediaApp.Classes
         }
     }
 
+    /// <summary>
+    /// Klasse für UPnP-Bilder
+    /// </summary>
     public class PictureItem : FileExplorerItemBase
     {
         private UPnPPhoto mRelatedPhoto { get; set; }
@@ -129,6 +141,9 @@ namespace HomeMediaApp.Classes
         }
     }
 
+    /// <summary>
+    /// Klasse für UPnP-Videos
+    /// </summary>
     public class VideoItem : FileExplorerItemBase
     {
         private UPnPVideoItem mRelatedVideo { get; set; }
@@ -146,6 +161,9 @@ namespace HomeMediaApp.Classes
         }
     }
 
+    /// <summary>
+    /// Klasse für UPnP-Playlist-Items
+    /// </summary>
     public class PlaylistItem : FileExplorerItemBase
     {
         private UPnPContainer mRelatedContainer;
@@ -169,6 +187,9 @@ namespace HomeMediaApp.Classes
         }
     }
 
+    /// <summary>
+    /// Klasse für nicht unterstützte UPnP-Items
+    /// </summary>
     public class ElseItem : FileExplorerItemBase
     {
         public ElseItem(string ElseName)
@@ -179,6 +200,9 @@ namespace HomeMediaApp.Classes
         }
     }
 
+    /// <summary>
+    /// Klasse für UPnP-Playlists
+    /// </summary>
     public class PlayList
     {
         public List<MusicItem> MusicTitles = new List<MusicItem>();

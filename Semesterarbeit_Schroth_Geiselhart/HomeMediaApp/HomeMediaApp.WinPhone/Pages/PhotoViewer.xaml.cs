@@ -25,7 +25,7 @@ namespace HomeMediaApp.WinPhone.Pages
 
         public void ShowPhoto(string FilePath)
         {
-            throw new NotImplementedException();
+            ImageControl.Source = FileImageSource.FromFile(FilePath);
         }
 
         protected override bool OnBackButtonPressed()

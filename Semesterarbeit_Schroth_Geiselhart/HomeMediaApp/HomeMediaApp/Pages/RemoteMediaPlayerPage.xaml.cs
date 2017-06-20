@@ -14,7 +14,9 @@ using Xamarin.Forms.Xaml;
 
 namespace HomeMediaApp.Pages
 {
-    // TODO: Datatemplate selector für PlayListView implementieren
+    /// <summary>
+    /// Hintergrundprogrammcode des Remote-Media-Players
+    /// </summary>
     public partial class RemoteMediaPlayerPage : ContentPage
     {
         private int nSliderValue = 0;
@@ -141,7 +143,9 @@ namespace HomeMediaApp.Pages
             }
         }
 
-
+        /// <summary>
+        /// Konstruktor
+        /// </summary>
         public RemoteMediaPlayerPage()
         {
             InitializeComponent();
@@ -160,8 +164,10 @@ namespace HomeMediaApp.Pages
                 OnPropertyChanged("MusicItems");
             });
         }
-
-
+        
+        /// <summary>
+        /// Event-Callback wird aufgerufen wenn sich der Wiedergabestatus geändert hat
+        /// </summary>
         public void OnPlayingstatuschanged()
         {
             Device.BeginInvokeOnMainThread(() =>
@@ -174,6 +180,11 @@ namespace HomeMediaApp.Pages
             });
         }
 
+        /// <summary>
+        /// Verarbeitet die Eingabe auf der "Vorheriger-Titel"-Schaltfläche
+        /// </summary>
+        /// <param name="sender">Das aufrufende Objekt</param>
+        /// <param name="e">Eventparameter</param>
         private void ImageLastGestureRecognizer_OnTapped(object sender, EventArgs e)
         {
             if (PlayList == null) return;
@@ -198,6 +209,11 @@ namespace HomeMediaApp.Pages
             }
         }
 
+        /// <summary>
+        /// Änder den aktuelle wiedergegebenen Musiktitel
+        /// </summary>
+        /// <param name="NewTrack">Der neue Musiktitel</param>
+        /// <param name="Next">Setzt den Titel als nächsten Titel</param>
         private void ChangeMusicTrack(MusicItem NewTrack, bool Next)
         {
             // Ist NewTrack dem PlayerControl bereits bekannt?
@@ -236,7 +252,14 @@ namespace HomeMediaApp.Pages
                 else
                 {
                     // nicht bekannt --> Sicherstellen dass es vor dem aktuellen Element ist
-                    //TODO: Siehe Kommentar
+                    int CurrentIndex = GlobalVariables.GlobalPlayerControl.MediaList.IndexOf(GlobalVariables.GlobalPlayerControl.NextMedia);
+                    GlobalVariables.GlobalPlayerControl.MediaList.Insert(CurrentIndex - 1, new MediaObject
+                    {
+                        Index = CurrentIndex - 1,
+                        MetaData = NewTrack.RelatedTrack.Res,
+                        Path = NewTrack.RelatedTrack.Res
+                    });
+                    GlobalVariables.GlobalPlayerControl.PreviousMedia = GlobalVariables.GlobalPlayerControl.MediaList[CurrentIndex - 1];
                 }
             }
             else
@@ -261,6 +284,11 @@ namespace HomeMediaApp.Pages
             else GlobalVariables.GlobalPlayerControl.Previous();
         }
 
+        /// <summary>
+        /// Behandelt die Play-Pause-Schaltfläche
+        /// </summary>
+        /// <param name="sender">Das aufrufende Objekt</param>
+        /// <param name="e">Eventparameter</param>
         private void ImagePlayGestureRecognizer_OnTapped(object sender, EventArgs e)
         {
             if (GlobalVariables.GlobalPlayerControl == null) return;
@@ -275,7 +303,7 @@ namespace HomeMediaApp.Pages
         /// <summary>
         /// Fügt der aktuellen Wiedergabeliste einen neuen Musiktitel hinzu
         /// </summary>
-        /// <param name="MusicTrack"></param>
+        /// <param name="MusicTrack">Der hinzuzufügende Musiktitel</param>
         public void AddMusicTrackToPlayList(MusicItem MusicTrack, bool bFirst)
         {
             if (PlayList == null)
@@ -294,6 +322,11 @@ namespace HomeMediaApp.Pages
             OnPropertyChanged("MusicItems");
         }
 
+        /// <summary>
+        /// Behandelt die Nächster-Titel-Schaltfläche
+        /// </summary>
+        /// <param name="sender">Das aufrufende Objekt</param>
+        /// <param name="e">Eventparameter</param>
         private void ImageNextGestureRecognizer_OnTapped(object sender, EventArgs e)
         {
             if (PlayList == null) return;
@@ -317,6 +350,11 @@ namespace HomeMediaApp.Pages
             }
         }
 
+        /// <summary>
+        /// Schaltet zwischen Wiedergabeliste und Albumcover um
+        /// </summary>
+        /// <param name="sender">Das aufrufende Objekt</param>
+        /// <param name="e">Eventparameter</param>
         private void Button_OnClicked(object sender, EventArgs e)
         {
             if (PlayListView.IsVisible)
@@ -335,6 +373,9 @@ namespace HomeMediaApp.Pages
             ForceLayout();
         }
 
+        /// <summary>
+        /// Wird vor dem Anzeigen der Seite ausgelöst
+        /// </summary>
         protected override void OnAppearing()
         {
             base.OnAppearing();
@@ -350,6 +391,9 @@ namespace HomeMediaApp.Pages
             if (GlobalVariables.GlobalPlayerControl != null && GlobalVariables.GlobalPlayerControl.IsPlaying) StartPositionTimer();
         }
 
+        /// <summary>
+        /// Startet die zyklische Positionsabfrage
+        /// </summary>
         private void StartPositionTimer()
         {
             if (Monitor.TryEnter(LockObject))
@@ -383,12 +427,19 @@ namespace HomeMediaApp.Pages
             }
         }
 
+        /// <summary>
+        /// Stoppt die zyklische Positionsabfrage
+        /// </summary>
         private void StopPositionTimer()
         {
             PositionTimerRun = false;
         }
 
-
+        /// <summary>
+        /// Clicked-Event des Ausgabegerät-Buttons
+        /// </summary>
+        /// <param name="sender">Das aufrufende Objekt</param>
+        /// <param name="e">Eventparameter</param>
         private void DeviceChangeButton_OnClicked(object sender, EventArgs e)
         {
             List<string> MediaRenderers = new List<string>();
@@ -404,6 +455,10 @@ namespace HomeMediaApp.Pages
             });
         }
 
+        /// <summary>
+        /// Wechselt das aktuelle Ausgabegerät
+        /// </summary>
+        /// <param name="NewDevice">Das Gerät auf welches umgezogen werden soll</param>
         private void ChangeOutputDevice(string NewDevice)
         {
             if (GlobalVariables.GlobalPlayerControl == null)
@@ -427,7 +482,7 @@ namespace HomeMediaApp.Pages
                 OnPropertyChanged("CurrentMusicTrackName");
             }
             else
-            {   // TODO: Das ausgabegerät wechseln
+            {   
                 if (NewDevice == GlobalVariables.GlobalPlayerControl.oDevice.DeviceName) return;
                 GlobalVariables.GlobalPlayerControl.Pause();
                 PlayerControl oNewControl = new PlayerControl(GlobalVariables.UPnPMediaRenderer.Where(e => e.DeviceName == NewDevice).ToList()[0], new MediaObject() { Index = 0, Path = CurrentMusicTrack.Res }, GlobalVariables.GlobalPlayerControl.GetCurrentPosition());
@@ -447,6 +502,11 @@ namespace HomeMediaApp.Pages
             }
         }
 
+        /// <summary>
+        /// Clicked-Event der "Leiser"-Schaltfläche
+        /// </summary>
+        /// <param name="sender">Das aufrufende Objekt</param>
+        /// <param name="e">Eventparameter</param>
         private void ButtonVolumeDown_OnClicked(object sender, EventArgs e)
         {
             if (GlobalVariables.GlobalPlayerControl != null)
@@ -463,6 +523,11 @@ namespace HomeMediaApp.Pages
             }
         }
 
+        /// <summary>
+        /// Clicked-Event der "Lauter"-Schaltfläche
+        /// </summary>
+        /// <param name="sender">Das aufrufende Objekt</param>
+        /// <param name="e">Eventparameter</param>
         private void ButtonVolumeUp_OnClicked(object sender, EventArgs e)
         {
             if (GlobalVariables.GlobalPlayerControl != null)
@@ -479,6 +544,11 @@ namespace HomeMediaApp.Pages
             }
         }
 
+        /// <summary>
+        /// Wird aufgerufen wenn sich der Wert des Positionsindikators ändert
+        /// </summary>
+        /// <param name="sender">Das aufrufende Objekt</param>
+        /// <param name="e">Eventparameter</param>
         private void PositionSlider_ValueChanged(object sender, ValueChangedEventArgs e)
         {
             if ((e.NewValue - e.OldValue) > 3 || (e.NewValue - e.OldValue) < -5)

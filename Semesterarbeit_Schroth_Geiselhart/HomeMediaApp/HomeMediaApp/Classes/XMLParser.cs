@@ -11,6 +11,9 @@ namespace HomeMediaApp.Classes
 {
     public delegate void DeviceFinished(UPnPDevice oDevice, UPnPService oService);
 
+    /// <summary>
+    /// Klasse die einen Requeststatus speichert
+    /// </summary>
     public class RequestState
     {
         public HttpWebRequest oWebRequest;
@@ -18,11 +21,14 @@ namespace HomeMediaApp.Classes
         public UPnPService oServiceCallback;
         public UPnPDevice oDevice;
     }
+
+    /// <summary>
+    /// Klasse die eine Gerätekonfiguration verarbeitet und bereitstellt
+    /// </summary>
     public class XMLParser
     {
-        //private UPnPDevice oDevice;
-
         public event DeviceFinished DeviceFinished;
+
         public UPnPDevice Parse(UPnPDevice oInputDevice)
         {
             UPnPDevice oDevice = new UPnPDevice();
@@ -69,6 +75,7 @@ namespace HomeMediaApp.Classes
             }
             return oDevice;
         }
+
         private async void RequestCallback(IAsyncResult oResult)
         {
             RequestState oState = (RequestState)oResult.AsyncState;

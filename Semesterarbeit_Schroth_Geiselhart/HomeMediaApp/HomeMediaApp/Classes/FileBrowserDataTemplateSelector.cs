@@ -9,6 +9,9 @@ using Xamarin.Forms;
 
 namespace HomeMediaApp.Classes
 {
+    /// <summary>
+    /// Eigene ImageCell-Klasse damit Größe des Vorschaubildes in der ListView-Ansicht definiert werden kann
+    /// </summary>
     public class CustomImageCell : ViewCell
     {
         Image Icon = new Image() {Aspect = Aspect.AspectFit, HeightRequest = 90, WidthRequest = 90, VerticalOptions = LayoutOptions.CenterAndExpand, Margin = new Thickness(10,0,0,0)};
@@ -64,6 +67,9 @@ namespace HomeMediaApp.Classes
             set { LabelText.TextColor = value; }
         }
 
+        /// <summary>
+        /// Konstruktor
+        /// </summary>
         public CustomImageCell()
         {
             StackLayout Stack = new StackLayout() {Orientation = StackOrientation.Horizontal, Children = { Icon, LabelText}, HeightRequest = 100 };
@@ -71,8 +77,14 @@ namespace HomeMediaApp.Classes
         }
     }
 
+    /// <summary>
+    /// Basisklasse aller ListView-Einträge ("DETAIL"-Kontextaktion)
+    /// </summary>
     public class ViewCellBase : CustomImageCell
     {
+        /// <summary>
+        /// Konstruktor
+        /// </summary>
         public ViewCellBase()
         {
             MenuItem DetailsMenuItem = new MenuItem() { Text = "DETAILS" };
@@ -85,8 +97,14 @@ namespace HomeMediaApp.Classes
         }
     }
 
+    /// <summary>
+    /// Kontextaktion für Ordner
+    /// </summary>
     public class FolderViewCell : ViewCellBase
     {
+        /// <summary>
+        /// Konstruktor
+        /// </summary>
         public FolderViewCell()
         {
             MenuItem OpenMenuItem = new MenuItem() { Text = "ÖFFNEN" };
@@ -99,8 +117,14 @@ namespace HomeMediaApp.Classes
         }
     }
     
+    /// <summary>
+    /// Kontextaktionen für Musiktitel
+    /// </summary>
     public class MusicViewCell : ViewCellBase
     {
+        /// <summary>
+        /// Konstruktor
+        /// </summary>
         public MusicViewCell()
         {
             MenuItem PlayMenuItem = new MenuItem() { Text = "WIEDERGEBEN" };
@@ -120,8 +144,14 @@ namespace HomeMediaApp.Classes
         }
     }
 
+    /// <summary>
+    /// Kontextaktionen für Bilder
+    /// </summary>
     public class ImageViewCell : ViewCellBase
     {
+        /// <summary>
+        /// Konstruktor
+        /// </summary>
         public ImageViewCell()
         {
             MenuItem OpenMenuItem = new MenuItem() { Text = "ÖFFNEN" };
@@ -134,8 +164,14 @@ namespace HomeMediaApp.Classes
         }
     }
 
+    /// <summary>
+    /// Kontextaktionen für Videos
+    /// </summary>
     public class VideoViewCell : ViewCellBase
     {
+        /// <summary>
+        /// Konstruktor
+        /// </summary>
         public VideoViewCell()
         {
             MenuItem PlayMenuItem = new MenuItem() { Text = "WIEDERGEBEN" };
@@ -148,8 +184,14 @@ namespace HomeMediaApp.Classes
         }
     }
 
+    /// <summary>
+    /// Kontextaktionen für PlayLists
+    /// </summary>
     public class PlayListViewCell : ViewCellBase
     {
+        /// <summary>
+        /// Konstruktor
+        /// </summary>
         public PlayListViewCell()
         {
             MenuItem PlayMenuItem = new MenuItem() { Text = "WIEDERGEBEN" };
@@ -182,6 +224,9 @@ namespace HomeMediaApp.Classes
         private DataTemplate PlaylistTemplate = new DataTemplate(typeof(PlayListViewCell));
         private DataTemplate TestTemplate = new DataTemplate(typeof(CustomImageCell));
 
+        /// <summary>
+        /// Konstruktor, Intialisierung der DataTemplates
+        /// </summary>
         public FileBrowserDataTemplateSelector()
         {
             TestTemplate.SetValue(CustomImageCell.TextColorProperty, Color.Orange);
@@ -219,6 +264,12 @@ namespace HomeMediaApp.Classes
             TestTemplate.SetValue(CustomImageCell.TextColorProperty, Color.Black);
         }
 
+        /// <summary>
+        /// Entscheidung über Datatemplate
+        /// </summary>
+        /// <param name="item">Betroffenes Item</param>
+        /// <param name="container">Container</param>
+        /// <returns></returns>
         protected override DataTemplate OnSelectTemplate(object item, BindableObject container)
         {
             FileExplorerItemBase Item = item as FileExplorerItemBase;

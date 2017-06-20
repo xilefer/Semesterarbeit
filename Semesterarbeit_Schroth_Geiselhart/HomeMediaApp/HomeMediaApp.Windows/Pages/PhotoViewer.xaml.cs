@@ -24,12 +24,11 @@ namespace HomeMediaApp.Windows.Pages
             ImageControl.HorizontalOptions = LayoutOptions.CenterAndExpand;
             ImageControl.VerticalOptions = LayoutOptions.CenterAndExpand;
             ImageControl.Source = ImageSource.FromUri(FileURI);
-            //throw new NotImplementedException();
         }
 
         public void ShowPhoto(string FilePath)
         {
-            throw new NotImplementedException();
+            ImageControl.Source = ImageSource.FromFile(FilePath);
         }
 
         private void Button_OnClicked(object sender, EventArgs e)

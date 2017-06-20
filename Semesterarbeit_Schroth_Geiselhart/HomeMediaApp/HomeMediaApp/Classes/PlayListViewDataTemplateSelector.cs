@@ -7,6 +7,9 @@ using Xamarin.Forms;
 
 namespace HomeMediaApp.Classes
 {
+    /// <summary>
+    /// ViewCell für die Darstellung der aktuellen Wiedergabeliste
+    /// </summary>
     public class PlayListViewViewCell : ImageCell
     {
         public PlayListViewViewCell()
@@ -21,6 +24,9 @@ namespace HomeMediaApp.Classes
         }
     }
 
+    /// <summary>
+    /// Datatemplateselector für die Kontextaktionen der aktuellen Wiedergabeliste
+    /// </summary>
     public class PlayListViewDataTemplateSelector : DataTemplateSelector
     {
         private DataTemplate Template = new DataTemplate(typeof(PlayListViewViewCell));

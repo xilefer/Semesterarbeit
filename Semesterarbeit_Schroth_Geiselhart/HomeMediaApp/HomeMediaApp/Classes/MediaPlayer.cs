@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace HomeMediaApp.Classes
 {
+    /// <summary>
+    /// Klasse zum zentralen Ansteuern eines Netzwerkwiedergabegeräts
+    /// </summary>
     public class MediaPlayer
     {
         public static PlayerControl Play(MediaObject oMedia, UPnPDevice oDevice)

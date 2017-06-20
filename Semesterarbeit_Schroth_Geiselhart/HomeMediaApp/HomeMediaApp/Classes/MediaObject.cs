@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace HomeMediaApp.Classes
 {
+    /// <summary>
+    /// Klasse für die Wiedergabe eines beliebigen UPnP-Objekts über das Netzwerk
+    /// </summary>
     public class MediaObject
     {
         public string Path { get; set; } = "";

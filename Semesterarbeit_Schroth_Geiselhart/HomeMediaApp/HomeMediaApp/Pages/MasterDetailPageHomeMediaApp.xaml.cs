@@ -9,31 +9,17 @@ using Xamarin.Forms;
 
 namespace HomeMediaApp.Pages
 {
+    /// <summary>
+    /// Die Hauptnavigationsseite der Anwendung
+    /// </summary>
     public partial class MasterDetailPageHomeMediaApp : MasterDetailPage
     {
-        
         public MasterDetailPageHomeMediaApp()
         {
             masterpage = new NavigationDetailPage(this);
             Master = masterpage;
             Detail = new NavigationPage(new MainPage());
             InitializeComponent();
-        }
-
-        //protected override bool OnBackButtonPressed()
-        //{
-        //    CloseApplication();
-        //    return true;
-        //    //return base.OnBackButtonPressed();
-        //}
-
-        private async void CloseApplication()
-        {
-            bool bReturn = await DisplayAlert("", "Wollen sie die Applikation schließen?", "Ja", "Nein");
-            if (bReturn)
-            {
-                DependencyService.Get<ICloseApplication>()?.Close();
-            }
         }
     }
 }

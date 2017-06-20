@@ -21,11 +21,12 @@ namespace HomeMediaApp.Classes
     public delegate void PlayingStatusChangedEvent();
     public delegate void MuteStatusChangedEvent();
     public delegate void VolumeValueChangedEvent();
+
+    /// <summary>
+    /// Klasse zum Ansteuern des Funktionen von UPnP-Wiedergabegeräten
+    /// </summary>
     public class PlayerControl
     {
-        // public int CurrentPosition() (-1 wenns net spielt, sonst die aktuelle sekundenzahl)
-        // public bool IsPlaying; Erledigt
-
         //Events fürs aus und einhängen
         private ResponseReceived ResponseReceivedPlaying = null;
         private bool PlayableResponseReceived { get; set; } = false;
@@ -34,8 +35,8 @@ namespace HomeMediaApp.Classes
         private string ListenPortAV = "5000";
         private string ListenPortRenderer = "5001";
         public event PlayingStatusChangedEvent PlayingStatusChanged;
-        public event MuteStatusChangedEvent MuteStatusChanged;
-        public event VolumeValueChangedEvent VolumeValueChanged;
+        //public event MuteStatusChangedEvent MuteStatusChanged;
+        //public event VolumeValueChangedEvent VolumeValueChanged;
         public UPnPDevice oDevice { get; set; }
         public List<MediaObject> MediaList { get; set; } = new List<MediaObject>();
         public MediaObject CurrentMedia { get; set; }
@@ -82,7 +83,11 @@ namespace HomeMediaApp.Classes
         private XDocument CurrentIDResponseDoc { get; set; }
         private string ConnectionID = null;
 
-
+        /// <summary>
+        /// Konstruktor
+        /// </summary>
+        /// <param name="RendererDevice">Netzwergerät</param>
+        /// <param name="Media">Item zur Wiedergabe</param>
         public PlayerControl(UPnPDevice RendererDevice, MediaObject Media)
         {
             this.CurrentMedia = Media;
@@ -186,6 +191,12 @@ namespace HomeMediaApp.Classes
             //
         }
 
+        /// <summary>
+        /// Konstruktor zum Springen an eine bestimmte Position
+        /// </summary>
+        /// <param name="RendererDevice">Netzwergerät</param>
+        /// <param name="Media">Item zur Wiedergabe</param>
+        /// <param name="Position">Wiedergabeposition</param>
         public PlayerControl(UPnPDevice RendererDevice, MediaObject Media, int Position)
         {
             this.CurrentMedia = Media;
@@ -290,6 +301,9 @@ namespace HomeMediaApp.Classes
             //
         }
 
+        /// <summary>
+        /// De-Init zum sicheren Trennen der Verbindung
+        /// </summary>
         public void DeInit()
         {
             oSocket.StopListeningAsync();
@@ -299,6 +313,7 @@ namespace HomeMediaApp.Classes
             oSocketRenderer.ConnectionReceived -= TCPRecRend;
             oSocketRenderer.Dispose();
         }
+
 
         public bool IsPlaying
         {
@@ -404,13 +419,14 @@ namespace HomeMediaApp.Classes
 
         private void TCPRecRend(object sender, TcpSocketListenerConnectEventArgs args)
         {
+            // Optional: XML-Antwort parsen
+            // FooBar2000 unterstüzt diese Funktion bspw. nicht
+            return;
+            /*
             ITcpSocketClient oClient = args.SocketClient;
             byte[] bytes = new byte[64 * 1024];
             oClient.ReadStream.Read(bytes, 0, bytes.Length);
             string Message = Encoding.UTF8.GetString(bytes, 0, bytes.Length);
-            return;
-            // TODO: XML-Antwort parsen
-            /*
             string xmlmessage = Message.Substring(Message.IndexOf("<?")).Trim(System.Convert.ToChar(System.Convert.ToUInt32("00", 16)));
             XDocument Response = XDocument.Parse(xmlmessage);
             XElement oElement = Response.Root.Elements().Elements().FirstOrDefault();

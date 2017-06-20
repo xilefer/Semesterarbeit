@@ -33,12 +33,15 @@ namespace HomeMediaApp.iOS.Pages
 
         public bool PlayFromFile(string FilePath)
         {
-            throw new NotImplementedException();
+            MusicSequence MusicSequence = new MusicSequence();
+            MusicSequence.LoadFile(NSUrl.CreateFileUrl(FilePath, null), MusicSequenceFileTypeID.Any);
+            MusicPlayerControl.MusicSequence = MusicSequence;
+            return true;
         }
 
         public void Pause()
         {
-            throw new NotImplementedException();
+            if (MusicPlayerControl.IsPlaying) MusicPlayerControl.Stop();
         }
 
         public void Play()
@@ -48,12 +51,21 @@ namespace HomeMediaApp.iOS.Pages
 
         public void SeekTo(int Position)
         {
-            throw new NotImplementedException();
+            MusicPlayerControl.Time = Position;
         }
 
         public PlayingState GetPlayingState()
         {
-            throw new NotImplementedException();
+            return new PlayingState()
+            {
+                Current = (int)MusicPlayerControl.Time,
+                Max = (int)MusicPlayerControl.MusicSequence.GetTrack(0).TrackLength
+            };
+        }
+
+        public void SetName(string ItemName)
+        {   //Hier gibt es keine Titelanzeige
+            return;
         }
 
         public Action OnFinishedPlaying { get; set; }

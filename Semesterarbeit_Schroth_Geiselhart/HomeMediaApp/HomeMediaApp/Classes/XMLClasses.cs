@@ -10,8 +10,12 @@ using Xamarin.Forms.Xaml;
 
 namespace HomeMediaApp.Classes
 {
+    //Hier werden die Klassen der UPnPMediaserver:1-Spezifikation abgebildet
 
 
+    /// <summary>
+    /// Basisklasse aller UPnP-Objekte
+    /// </summary>
     public abstract class UPnPObject
     {
         public string id = "";
@@ -35,6 +39,9 @@ namespace HomeMediaApp.Classes
         }
     }
 
+    /// <summary>
+    /// Klasse für UPnP-Items
+    /// </summary>
     public class UPnPItem : UPnPObject
     {
         public string RefID = "";
@@ -48,6 +55,9 @@ namespace HomeMediaApp.Classes
         }
     }
 
+    /// <summary>
+    /// Klasse für UPnP-Container
+    /// </summary>
     public class UPnPContainer : UPnPObject
     {
         public new T Create<T>(XElement Element, T ReturnElement) where T : UPnPContainer
@@ -70,7 +80,7 @@ namespace HomeMediaApp.Classes
             List<XElement> ResultNodes = MetaDocument.Descendants().Where(Node => Node.Name.LocalName.ToLower() == "result").ToList();
             if (ResultNodes.Count == 0 || ResultNodes.Count > 1)
             {
-                throw new Exception("Der Vorgang kann nicht durchgeführt werden!");
+                return new UPnPContainer();
             }
             XDocument Result = XDocument.Parse(ResultNodes[0].Value);
             // Handelt es sich um den äußersten Ordner?
@@ -112,10 +122,6 @@ namespace HomeMediaApp.Classes
                 if (Value != null) ReturnContainer.SearchClass = Value.Value;
                 // Keine Descendants auswerten, weil ganz aussen sind
             }
-            else
-            {
-                // TODO: Browse von Dateien
-            }
             return ReturnContainer;
         }
 
@@ -134,6 +140,9 @@ namespace HomeMediaApp.Classes
         public List<UPnPContainer> ChildContainers = new List<UPnPContainer>();
     }
 
+    /// <summary>
+    /// Klasse für UPnP-Audio-Items
+    /// </summary>
     public class UPnPAudioItem : UPnPItem
     {
         public string Genre = "";
@@ -151,6 +160,9 @@ namespace HomeMediaApp.Classes
         }
     }
 
+    /// <summary>
+    /// Klasse für UPnP-Music-Tracks
+    /// </summary>
     public class UPnPMusicTrack : UPnPAudioItem
     {
         public new T Create<T>(XElement Element, T ReturnElement) where T : UPnPMusicTrack
@@ -187,6 +199,9 @@ namespace HomeMediaApp.Classes
         public string AlbumArtURI = "";
     }
 
+    /// <summary>
+    /// Klasse für UPnP-Video-Items
+    /// </summary>
     public class UPnPVideoItem : UPnPItem
     {
         public string Genre = "";
@@ -220,6 +235,9 @@ namespace HomeMediaApp.Classes
         }
     }
 
+    /// <summary>
+    /// Klasse für UPnP-Movies
+    /// </summary>
     public class UPnPMovie : UPnPVideoItem
     {
         public string StorageMedium = "";
@@ -246,6 +264,9 @@ namespace HomeMediaApp.Classes
         }
     }
 
+    /// <summary>
+    /// Klasse für UPnP-Image-Items
+    /// </summary>
     public class UPnPImageItem : UPnPItem
     {
         public string LongDescription = "";
@@ -266,6 +287,9 @@ namespace HomeMediaApp.Classes
         }
     }
 
+    /// <summary>
+    /// Klasse für UPnP-Photos
+    /// </summary>
     public class UPnPPhoto : UPnPImageItem
     {
         public string Album = "";
@@ -286,6 +310,9 @@ namespace HomeMediaApp.Classes
         }
     }
 
+    /// <summary>
+    /// Klasse für UPnP-Storage-Folders
+    /// </summary>
     public class UPnPStorageFolder : UPnPContainer
     {
         public string storageUsed { get; set; } = "";
@@ -299,12 +326,19 @@ namespace HomeMediaApp.Classes
             return ReturnElement;
         }
     }
+
+    /// <summary>
+    /// UPnP-Browseflags für das Durchsuchen von Medienquellen
+    /// </summary>
     public static class UPnPBrowseFlag
     {
         public static string BrowseMetadata = "BrowseMetadata";
         public static string BrowseDirectChildren = "BrowseDirectChildren";
     }
 
+    /// <summary>
+    /// UPnP-State-Variabels für das Durhcsuchen von Medienquellen
+    /// </summary>
     public static class UPnPStateVariables
     {
         private static string mA_ARG_TYPE_ObjectID = "0";

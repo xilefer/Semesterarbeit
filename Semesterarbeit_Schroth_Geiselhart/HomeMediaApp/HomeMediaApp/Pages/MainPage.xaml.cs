@@ -16,11 +16,14 @@ using HomeMediaApp.Interfaces;
 
 namespace HomeMediaApp.Pages
 {
+    /// <summary>
+    /// Hintergrundprogrammcode der Startseite
+    /// </summary>
     public partial class MainPage : ContentPage
     {
         private bool BrowseResponseReceived = false;
         private bool SetRendererInfoResponseReceived = false;
-        private CSSPD oDeviceSearcher = new CSSPD();
+        private CSSDP oDeviceSearcher = new CSSDP();
 
         public ObservableCollection<UPnPDevice> UPnPServerList
         {
@@ -50,7 +53,9 @@ namespace HomeMediaApp.Pages
             }
         }
 
-
+        /// <summary>
+        /// Konstruktor
+        /// </summary>
         public MainPage()
         {
             InitializeComponent();
@@ -60,23 +65,39 @@ namespace HomeMediaApp.Pages
             OuterGrid.ForceLayout();
         }
 
+        /// <summary>
+        /// Wird vor dem Anzeigen ausgelöst
+        /// </summary>
         protected override void OnAppearing()
         {
             base.OnAppearing();
             oDeviceSearcher.StartSearch();
         }
 
+        /// <summary>
+        /// Wird vor dem Verschwinden ausgelöst
+        /// </summary>
         protected override void OnDisappearing()
         {
             base.OnDisappearing();
             oDeviceSearcher.StopSearch();
         }
 
+        /// <summary>
+        /// Wird ausgelöst wenn sich die Liste mit den Medienservern ändert
+        /// </summary>
+        /// <param name="sender">Das aufrufende Objekt</param>
+        /// <param name="notifyCollectionChangedEventArgs">Eventparameter</param>
         private void ItemsOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs notifyCollectionChangedEventArgs)
         {
-            OnPropertyChanged("Items");
+            OnPropertyChanged("UPnPServerList");
         }
 
+        /// <summary>
+        /// Wird aufgerufen um eine neue XML-Konfiguration zu verarbeiten
+        /// </summary>
+        /// <param name="oReceivedXML">Die erhaltenen XML-Konfiguration</param>
+        /// <param name="oDeviceAddress">Die URI zum Gerät</param>
         private void UpdateXMLConfigs(XDocument oReceivedXML, Uri oDeviceAddress)
         {
             string sUDN = oReceivedXML.Descendants().Where(e => e.Name.LocalName == "UDN").ToList().Count > 0
@@ -152,6 +173,11 @@ namespace HomeMediaApp.Pages
             }
         }
 
+        /// <summary>
+        /// Wird aufgerufen wenn eine XML-Konfiguration über das Netzwerk erhalten wurde
+        /// </summary>
+        /// <param name="oXmlConfig">Die erhaltene XML-Konfiguration</param>
+        /// <param name="oDeviceAddress">Die URI zum Gerät</param>
         private void OnReceivedXML(XDocument oXmlConfig, Uri oDeviceAddress)
         {
             Device.BeginInvokeOnMainThread(() =>
@@ -160,6 +186,12 @@ namespace HomeMediaApp.Pages
             });
         }
 
+        /// <summary>
+        /// Aktualisiert die Geräte und deren Funktionen
+        /// Callbackfunktion
+        /// </summary>
+        /// <param name="oDevice">Das betroffene Netzwerkgerät</param>
+        /// <param name="oService">Der neue Service</param>
         private async void OnDeviceFinished(UPnPDevice oDevice, UPnPService oService)
         {
             List<UPnPDevice> TempList = new List<UPnPDevice>();
@@ -176,7 +208,7 @@ namespace HomeMediaApp.Pages
                 try
                 {
                     do
-                    {   // TODO: Hier gibt es immerwieder eine Exception, Collection eventuell Sperren, aber an anderen Stellen!
+                    {
                         if (oDevice.Type.ToLower() == "mediaserver") TempList = UPnPServerList.Where(e => e.DeviceName == oDevice.DeviceName).ToList();
                         else if (oDevice.Type.ToLower() == "mediarenderer") TempList = UPnPMediaRendererList.Where(e => e.DeviceName == oDevice.DeviceName).ToList();
                     } while (TempList.Count == 0);
@@ -202,6 +234,11 @@ namespace HomeMediaApp.Pages
             });
         }
 
+        /// <summary>
+        /// Behandelt die Auswahl eines Medienservers aus der Listenansicht
+        /// </summary>
+        /// <param name="sender">Das aufrufende Objekt</param>
+        /// <param name="e">Eventparameter</param>
         private void ListViewDevices_OnItemTapped(object sender, ItemTappedEventArgs e)
         {
             foreach(UPnPDevice oRenderer in GlobalVariables.UPnPMediaRenderer) {  SetRendererInfo(oRenderer);}
@@ -255,6 +292,11 @@ namespace HomeMediaApp.Pages
             BrowseAction.OnResponseReceived -= Temp;
         }
 
+        /// <summary>
+        /// Callback-Funktion für die Ausgabegerät-Details
+        /// </summary>
+        /// <param name="oResponseDocument">XML Antwort</param>
+        /// <param name="oState">Status-Objekt der Anfrage</param>
         private void OnResponseReceived(XDocument oResponseDocument, ActionState oState)
         {
             try
@@ -287,11 +329,11 @@ namespace HomeMediaApp.Pages
             }
         }
 
-        private void Button_OnClicked(object sender, EventArgs e)
-        {
-            Navigation.PushAsync(new NavigationPage(new RemoteMediaPlayerPage()));
-        }
-
+        /// <summary>
+        /// Behandelt die Auswahl eines Ausgabegeräts aus der Listenansicht
+        /// </summary>
+        /// <param name="sender">Das aufrufende Objekt</param>
+        /// <param name="e">Eventparameter</param>
         private void ListViewRenderer_OnItemTapped(object sender, ItemTappedEventArgs e)
         {
             UPnPDevice TappedDevice = e.Item as UPnPDevice;
@@ -309,6 +351,10 @@ namespace HomeMediaApp.Pages
             DisplayAlert("Unterstützte Protokolle: " + TappedDevice.DeviceName, Message, "OK");
         }
         
+        /// <summary>
+        /// Ruft die Eigenschaften eines Wiedergabegeräts ab
+        /// </summary>
+        /// <param name="Renderer">Das Gerät für das Eigenschaften abgerufen werden sollen</param>
         private void SetRendererInfo(UPnPDevice Renderer)
         {
             if (Renderer.Type == "DUMMY") return;
@@ -331,6 +377,11 @@ namespace HomeMediaApp.Pages
             GetProtocolInfoAction.OnResponseReceived -= temp;
         }
 
+        /// <summary>
+        /// Callback-Funktion von SetRendererInfo
+        /// </summary>
+        /// <param name="oResponseDocument">XML Antwort</param>
+        /// <param name="oState">Eventparameter</param>
         private void SetRendererInfoResponse(XDocument oResponseDocument, ActionState oState)
         {
             try

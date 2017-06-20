@@ -8,15 +8,14 @@ using Xamarin.Forms;
 
 namespace HomeMediaApp.Pages
 {
-    
+    /// <summary>
+    /// Die Klasse für Detail-Seiten
+    /// </summary>
     public partial class NavigationDetailPage : ContentPage
     {
         private List<MasterPageItem> mPageItems = new List<MasterPageItem>();
-
         public ListView ListView { get { return listView; } }
-
         private MasterDetailPageHomeMediaApp mParent = null;
-
         public List<MasterPageItem> PageItems
         {
             get { return mPageItems; }
@@ -28,6 +27,9 @@ namespace HomeMediaApp.Pages
             }
         }
 
+        /// <summary>
+        /// Konstruktor
+        /// </summary>
         public NavigationDetailPage()
         {
             InitializeComponent();
@@ -39,18 +41,6 @@ namespace HomeMediaApp.Pages
                 Title = "Startseite",
                 TargetType = typeof(MainPage)
             });
-            //TempItems.Add(new MasterPageItem()
-            //{
-            //    IconSource = ImageSource.FromResource("HomeMediaApp.Icons.settings_icon.png"),
-            //    Title = "Einstellungen",
-            //    TargetType = typeof(SettingsPage)
-            //});
-            //TempItems.Add(new MasterPageItem()
-            //{
-            //    IconSource = ImageSource.FromResource("HomeMediaApp.Icons.folder_icon.png"),
-            //    Title = "Explorer",
-            //    TargetType = typeof(FileExplorerPage)
-            //});
             TempItems.Add(new MasterPageItem()
             {
                 IconSource = ImageSource.FromResource("HomeMediaApp.Icons.music_icon.png"),
@@ -61,11 +51,20 @@ namespace HomeMediaApp.Pages
             listView.ItemsSource = PageItems;
         }
 
+        /// <summary>
+        /// Individualkonstruktor
+        /// </summary>
+        /// <param name="Parent">Element welches die neue Seite enthält</param>
         public NavigationDetailPage(MasterDetailPageHomeMediaApp Parent) : this()
         {
             this.mParent = Parent;
         }
 
+        /// <summary>
+        /// Item-Tapped Behandlung des Navigationssmenüs
+        /// </summary>
+        /// <param name="sender">Das aufrufende Objekt</param>
+        /// <param name="e">Eventparameter</param>
         private void ListView_OnItemTapped(object sender, ItemTappedEventArgs e)
         {
             MasterPageItem temp = e.Item as MasterPageItem;

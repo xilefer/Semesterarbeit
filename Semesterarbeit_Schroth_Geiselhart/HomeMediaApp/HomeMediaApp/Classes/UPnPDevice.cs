@@ -7,6 +7,9 @@ using System.Xml.Linq;
 
 namespace HomeMediaApp.Classes
 {
+    /// <summary>
+    /// Klasse zum Speichern der Eigenschaften eines UPnP-Gerätes
+    /// </summary>
     public class UPnPDevice
     {
         public string               Type { get; set; }

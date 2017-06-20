@@ -35,7 +35,7 @@ namespace HomeMediaApp.Windows.Pages
 
         public void ShowVideoFromPath(string FilePath)
         {
-            throw new NotImplementedException();
+            MediaElementControl.Source = new Uri(FilePath);
         }
 
         public void Play()
@@ -45,17 +45,21 @@ namespace HomeMediaApp.Windows.Pages
 
         public void Pause()
         {
-            throw new NotImplementedException();
+            MediaElementControl.Pause();
         }
 
         public PlayingState GetPlayingState()
         {
-            throw new NotImplementedException();
+            return new PlayingState()
+            {
+                Current = (int)MediaElementControl.Position.TotalSeconds,
+                Max = (int)MediaElementControl.NaturalDuration.TimeSpan.TotalSeconds
+            };
         }
 
         public void SeekTo(int Position)
         {
-            throw new NotImplementedException();
+            if (MediaElementControl.CanSeek) MediaElementControl.Position = TimeSpan.FromSeconds(Position);
         }
     }
 }

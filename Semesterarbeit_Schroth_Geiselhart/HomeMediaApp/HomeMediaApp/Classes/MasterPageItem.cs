@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace HomeMediaApp.Classes
 {
+    /// <summary>
+    /// Klasse für Navigationselemente der MasterDetail-Page
+    /// </summary>
     public class MasterPageItem
     {
         public string Title { get; set; } = "";

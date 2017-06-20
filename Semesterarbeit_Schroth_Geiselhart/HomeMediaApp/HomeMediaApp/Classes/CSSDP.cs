@@ -24,7 +24,10 @@ namespace HomeMediaApp
         public HttpWebResponse oWebResponse;
     }
 
-    public class CSSPD
+    /// <summary>
+    /// Implementierung des SSDP-Protokolls
+    /// </summary>
+    public class CSSDP
     {
         private List<string> ReceivedUDN = new List<string>();
         private UdpSocketReceiver oSendSocket;
@@ -49,11 +52,17 @@ namespace HomeMediaApp
             }
         }
 
+        /// <summary>
+        /// Stoppt die Hintergrundsuche
+        /// </summary>
         public void StopSearch()
         {
             cancellationTokenSource.Cancel();
         }
 
+        /// <summary>
+        /// Startet die Netzwerksuche in einem Hintergrundthread
+        /// </summary>
         private void StartSearchBackground()
         {
             oSendSocket = new UdpSocketReceiver();

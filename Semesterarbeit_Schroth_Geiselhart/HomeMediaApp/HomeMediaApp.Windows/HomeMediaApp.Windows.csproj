@@ -21,6 +21,7 @@
     <PackageCertificateThumbprint>2EA7B70F75BFB21344A3A69F3133F50C92C5508B</PackageCertificateThumbprint>
     <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
     <AppxBundlePlatforms>neutral</AppxBundlePlatforms>
+    <AppxPackageDir>C:\Users\felix.FELIX-PC\Desktop\Semesterarbeit\Semesterarbeit_Schroth_Geiselhart\Installation_Archives\Windows\</AppxPackageDir>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -136,8 +137,19 @@
     <None Include="Windows_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Assets\app_icon_150.png" />
+    <Content Include="Assets\app_icon_210.png" />
+    <Content Include="Assets\app_icon_270.png" />
+    <Content Include="Assets\app_icon_50.png" />
+    <Content Include="Assets\app_icon_30.png" />
+    <Content Include="Assets\app_icon_512.png" />
+    <Content Include="Assets\app_icon_120.png" />
+    <Content Include="Assets\app_icon_splashscreen.scale-100.png" />
     <Content Include="Assets\folder_up_icon.png" />
     <Content Include="Assets\last_icon.png" />
+    <Content Include="Assets\Logo.scale-140.png" />
+    <Content Include="Assets\Logo.scale-180.png" />
+    <Content Include="Assets\Logo.scale-80.png" />
     <Content Include="Assets\next_icon.png" />
     <Content Include="Assets\pause_icon.png" />
     <Content Include="Assets\play_icon.png" />

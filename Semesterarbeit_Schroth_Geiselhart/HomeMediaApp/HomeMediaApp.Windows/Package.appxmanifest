@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest" xmlns:m2="http://schemas.microsoft.com/appx/2013/manifest">
-  <Identity Name="6e4cba78-0ede-46f8-a7c8-59d61a7aa588" Publisher="CN=felix" Version="1.0.0.1" />
+  <Identity Name="6e4cba78-0ede-46f8-a7c8-59d61a7aa588" Publisher="CN=felix" Version="1.0.0.2" />
   <Properties>
     <DisplayName>HomeMediaApp.Windows</DisplayName>
     <PublisherDisplayName>felix</PublisherDisplayName>
@@ -15,8 +15,13 @@
   </Resources>
   <Applications>
     <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="HomeMediaApp.Windows.App">
-      <m2:VisualElements DisplayName="HomeMediaApp.Windows" Square150x150Logo="Assets\Logo.png" Square30x30Logo="Assets\SmallLogo.png" Description="HomeMediaApp.Windows" ForegroundText="light" BackgroundColor="#464646">
-        <m2:SplashScreen Image="Assets\SplashScreen.png" />
+      <m2:VisualElements DisplayName="Homemedia Controller" Square150x150Logo="Assets\Logo.png" Square30x30Logo="Assets\SmallLogo.png" Description="HomeMediaApp.Windows" ForegroundText="light" BackgroundColor="#464646">
+        <m2:DefaultTile DefaultSize="square150x150Logo">
+          <m2:ShowNameOnTiles>
+            <m2:ShowOn Tile="square150x150Logo" />
+          </m2:ShowNameOnTiles>
+        </m2:DefaultTile>
+        <m2:SplashScreen Image="Assets\app_icon_splashscreen.png" BackgroundColor="black" />
       </m2:VisualElements>
     </Application>
   </Applications>

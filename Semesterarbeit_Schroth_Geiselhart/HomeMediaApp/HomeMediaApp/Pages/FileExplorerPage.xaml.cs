@@ -17,7 +17,9 @@ using HomeMediaApp.Interfaces;
 
 namespace HomeMediaApp.Pages
 {
-
+    /// <summary>
+    /// Hintergrundprogrammcode der FileExplorer-Oberfläche (in Dokumentation auch MediaExplorer)
+    /// </summary>
     public partial class FileExplorerPage : ContentPage
     {
         private FolderItem mMasterItem = new FolderItem("Master");
@@ -77,7 +79,7 @@ namespace HomeMediaApp.Pages
         {
             InitializeComponent();
             BindingContext = this;
-            GlobalVariables.GlobalMediaPlayerDevice = DependencyService.Get<IMediaPlayerControl>() as ContentView;
+            GlobalVariables.GlobalMediaPlayerDevice = DependencyService.Get<IMediaPlayer>() as ContentView;
             GlobalVariables.GlobalVideoViewerDevice = DependencyService.Get<IVideoViewer>() as ContentView; ;
             PlayerStackLayout.Children.Clear();
             PlayerStackLayout.Children.Add(GlobalVariables.GlobalMediaPlayerDevice);
@@ -864,18 +866,15 @@ namespace HomeMediaApp.Pages
                 #region Play Dieses Gerät
                 if (SelectedRenderer == "Dieses Gerät")
                 {   // Auf diesem Gerät wiedergeben
-                    if ((GlobalVariables.GlobalMediaPlayerDevice as IMediaPlayerControl).PlayFromUri(new Uri(MusicItem.RelatedTrack.Res)))
+                    if ((GlobalVariables.GlobalMediaPlayerDevice as IMediaPlayer).PlayFromUri(new Uri(MusicItem.RelatedTrack.Res)))
                     {
-                        Device.BeginInvokeOnMainThread(async () =>
+                        (GlobalVariables.GlobalMediaPlayerDevice as IMediaPlayer).SetName(MusicItem.RelatedTrack.Title);
+                        Device.BeginInvokeOnMainThread(() =>
                         {
                             PlayerStackLayout.Children.Clear();
                             PlayerStackLayout.Children.Add(GlobalVariables.GlobalMediaPlayerDevice);
                             PlayerStackLayout.ForceLayout();
-                            bool Answer = await DisplayAlert("Wiedergabe", "Möchten sie die Wiedergabe sofort starten?", "Ja", "Nein");
-                            if (Answer)
-                            {
-                                GlobalVariables.GlobalMediaPlayerControl.Play();
-                            }
+                            GlobalVariables.GlobalMediaPlayerControl.Play();
                         });
                     }
                 }
@@ -941,10 +940,6 @@ namespace HomeMediaApp.Pages
                 {
                     throw gEx;
                 }
-            }
-            else
-            {
-                throw new NotImplementedException();
             }
         }
 
@@ -1019,7 +1014,6 @@ namespace HomeMediaApp.Pages
                     MediaObject Video = new MediaObject()
                     {
                         Index = 0,
-                        // TODO: Metadaten definieren
                         MetaData = VideoItem.RelatedVideo.Res,
                         Path = VideoItem.RelatedVideo.Res
                     };

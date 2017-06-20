@@ -12,7 +12,7 @@ using Xamarin.Forms.Platform.WinRT;
 [assembly: Dependency(typeof(MediaControlView))]
 namespace HomeMediaApp.Windows.Pages
 {
-    public partial class MediaControlView : ContentView, IMediaPlayerControl
+    public partial class MediaControlView : ContentView, IMediaPlayer
     {
         MediaElement MediaElementControl = new MediaElement();
 
@@ -35,12 +35,13 @@ namespace HomeMediaApp.Windows.Pages
 
         public bool PlayFromFile(string FilePath)
         {
-            throw new NotImplementedException();
+            MediaElementControl.Source = new Uri(FilePath);
+            return true;
         }
 
         public void Pause()
         {
-            //throw new NotImplementedException();
+            MediaElementControl.Pause();
         }
 
         public void Play()
@@ -50,12 +51,21 @@ namespace HomeMediaApp.Windows.Pages
 
         public void SeekTo(int Position)
         {
-            throw new NotImplementedException();
+            if(MediaElementControl.CanSeek) MediaElementControl.Position = TimeSpan.FromSeconds(Position);
         }
 
         public PlayingState GetPlayingState()
         {
-            throw new NotImplementedException();
+            return new PlayingState()
+            {
+                Current = (int)MediaElementControl.Position.TotalSeconds,
+                Max = (int)MediaElementControl.NaturalDuration.TimeSpan.TotalSeconds
+            };
+        }
+
+        public void SetName(string ItemName)
+        {   //Hier gibt es keine Namensanzeige
+            return;
         }
 
         public Action OnFinishedPlaying { get; set; }

@@ -9,17 +9,13 @@
                 <RowDefinition Height="20"/>
                 <RowDefinition Height="50"/>
             </Grid.RowDefinitions>
-            <Slider x:Name="SongSlider" HeightRequest="20" Margin="10,0,10,0" />
-            <Grid Grid.Row="1">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="50"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <StackLayout Grid.Column="0" x:Name="StackLayoutPlayer" HorizontalOptions="StartAndExpand" Margin="1" VerticalOptions="FillAndExpand" Orientation="Horizontal" >
-                    <Label></Label>
-                </StackLayout>
-                <Label Grid.Column="1" Text="Kein Musiktitel ausgewählt"></Label>
-            </Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="70"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Slider VerticalOptions="CenterAndExpand" Value="{Binding SliderValue}" ValueChanged="SongSlider_OnValueChanged" Maximum="{Binding SliderMax}" Grid.Column="1" x:Name="SongSlider" HeightRequest="20" Margin="10,0,10,0" />
+            <Button x:Name="ButtonPlayPause" Grid.RowSpan="2" Image="play_icon_70.png" Clicked="PlayPauseButton_OnClicked"/>
+            <Label Grid.Row="1" Grid.Column="1" Text="{Binding SongName}" Margin="20,0,10,0"/>
         </Grid>
   </ContentView.Content>
 </ContentView>

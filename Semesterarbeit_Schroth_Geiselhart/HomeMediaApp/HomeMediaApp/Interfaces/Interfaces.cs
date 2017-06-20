@@ -5,38 +5,66 @@ using System.Text;
 using System.Threading.Tasks;
 using Xamarin.Forms;
 
-// ReSharper disable UnusedMember.Global
-// ReSharper disable UnusedMemberInSuper.Global
-
 namespace HomeMediaApp.Interfaces
 {
+    //Hier befinden sich die Interfaces zur plattformspezifischen Implementierung von Funktionen
+
     public interface IGetDeviceIPAddress
     {
+        /// <summary>
+        /// Gibt die aktuelle Geräte-IP-Adresse zurück
+        /// </summary>
+        /// <returns>Geräte IP-Adresse</returns>
         string GetDeviceIP();
     }
     public interface IMediaPlayer
     {
+        /// <summary>
+        /// Ermöglicht die Wiedergabe einer Datei aus einer Netzwerkquelle
+        /// </summary>
+        /// <param name="FileUri">Netzwerkpfad</param>
+        /// <returns>True: Pfad erfolgreich gesetzt</returns>
         bool PlayFromUri(Uri FileUri);
+        /// <summary>
+        /// Ermöglicht die Wiedergabe einer Datei auf dem lokalen System
+        /// </summary>
+        /// <param name="FilePath">Lokaler Dateipfad</param>
+        /// <returns>True: Pfad erfolgreich gesetzt</returns>
         bool PlayFromFile(string FilePath);
+        /// <summary>
+        /// Pausiert die Wiedergabe
+        /// </summary>
         void Pause();
+        /// <summary>
+        /// Startet die Wiedergabe
+        /// </summary>
         void Play();
         /// <summary>
         /// Setzt die aktuelle Wiedergabeposition auf Position-Wert in sec.
         /// </summary>
-        /// <param name="Position"></param>
+        /// <param name="Position">Wiedergabeposition</param>
         void SeekTo(int Position);
+        /// <summary>
+        /// Gibt den aktuellen Wiedergabestatus zurück
+        /// </summary>
+        /// <returns>Wiedergabestatus</returns>
         PlayingState GetPlayingState();
+        /// <summary>
+        /// Setzt den Name in der Wiedergabeanzeige
+        /// </summary>
+        /// <param name="ItemName">Wiedergabename</param>
+        void SetName(string ItemName);
     }
 
+    /// <summary>
+    /// Klasse zum speichern des Wiedergabestatus
+    /// </summary>
     public class PlayingState
     {
         public int Max;
         public int Current;
     }
 
-    public interface IMediaPlayerControl : IMediaPlayer
-    {
-    }
 
     public interface ICloseApplication
     {

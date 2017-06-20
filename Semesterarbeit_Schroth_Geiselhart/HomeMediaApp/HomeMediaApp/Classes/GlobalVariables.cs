@@ -11,6 +11,9 @@ using Xamarin.Forms;
 
 namespace HomeMediaApp.Classes
 {
+    /// <summary>
+    /// Statische Globale Klasse die gemeinsam genutzte Objekte enthält
+    /// </summary>
     public static class GlobalVariables
     {
         #region CONST Strings
@@ -57,9 +60,9 @@ namespace HomeMediaApp.Classes
 
         public static RemoteMediaPlayerPage GlobalRemoteMediaPlayerPage = null;
 
-        public static IMediaPlayerControl GlobalMediaPlayerControl
+        public static IMediaPlayer GlobalMediaPlayerControl
         {
-            get { return GlobalMediaPlayerDevice as IMediaPlayerControl; }
+            get { return GlobalMediaPlayerDevice as IMediaPlayer; }
         }
 
         public static IVideoViewer GlobalVideoViewer

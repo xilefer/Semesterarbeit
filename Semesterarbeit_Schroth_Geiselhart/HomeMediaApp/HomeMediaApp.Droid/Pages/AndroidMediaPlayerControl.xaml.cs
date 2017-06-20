@@ -17,16 +17,15 @@ using System.Diagnostics;
 [assembly: Dependency(typeof(AndroidMediaPlayerControl))]
 namespace HomeMediaApp.Droid.Pages
 {
-    public partial class AndroidMediaPlayerControl : ContentView, IMediaPlayerControl
+    public partial class AndroidMediaPlayerControl : ContentView, IMediaPlayer
     {
         MediaPlayer AndroidMediaPlayer = new MediaPlayer();
-        ImageView ImageViewPlayPause = new ImageView(Application.Context);
-        TapGestureRecognizer TapRecognizer = new TapGestureRecognizer();
-        private View TempView = null;
         private bool Prepared = false;
+        private bool RunTimer = false;
+        private int mSliderValue = 0;
+        private string mSongName = "Kein Titel ausgewählt!";
 
-        private string mSongName = "";
-
+        public string MediaPath = "";
         public string SongName
         {
             get { return mSongName; }
@@ -38,23 +37,43 @@ namespace HomeMediaApp.Droid.Pages
             }
         }
 
+        public int SliderValue
+        {
+            get
+            {
+                return AndroidMediaPlayer.CurrentPosition / 1000;
+            }
+            set
+            {
+                if (mSliderValue == value) return;
+                mSliderValue = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public int SliderMax
+        {
+            get
+            {
+                if (Prepared) return AndroidMediaPlayer.Duration / 1000;
+                else return 1;
+            }
+            set { }
+        }
+
+        public int SliderMin
+        {
+            get { return 0; }
+            set { }
+        }
+
         public AndroidMediaPlayerControl()
         {
             InitializeComponent();
             AndroidMediaPlayer.Prepared += AndroidMediaPlayerOnPrepared;
-            StackLayoutPlayer.Children.Clear();
-            TempView = ImageViewPlayPause.ToView();
-            TempView.VerticalOptions = LayoutOptions.FillAndExpand;
-            TempView.HorizontalOptions = LayoutOptions.FillAndExpand;
-            TempView.BackgroundColor = Color.White;
-            TapRecognizer.Command = new Command((sender) => View_OnClick(sender, null));
-            //TapRecognizer.TappedCallback = new Action<View, object>((sender, args) => View_OnClick(sender, null));
-            TempView.GestureRecognizers.Add(TapRecognizer);
-            StackLayoutPlayer.Children.Add(TempView);
-            ImageViewPlayPause.SetImageResource(Resource.Drawable.play_icon);
+            BindingContext = this;
             ForceLayout();
         }
-        
 
         private void AndroidMediaPlayerOnPrepared(object sender, EventArgs eventArgs)
         {
@@ -63,7 +82,12 @@ namespace HomeMediaApp.Droid.Pages
 
         public bool PlayFromUri(Uri FileUri)
         {
-            if (AndroidMediaPlayer.IsPlaying) AndroidMediaPlayer.Stop();
+            MediaPath = FileUri.ToString();
+            if (AndroidMediaPlayer.IsPlaying)
+            {
+                AndroidMediaPlayer.Stop();
+                AndroidMediaPlayer.Reset();
+            }
             AndroidMediaPlayer.SetAudioStreamType(Stream.Music);
             AndroidMediaPlayer.SetDataSource(Application.Context, Android.Net.Uri.Parse(FileUri.ToString()));
             AndroidMediaPlayer.Prepare();
@@ -72,6 +96,7 @@ namespace HomeMediaApp.Droid.Pages
 
         public bool PlayFromFile(string FilePath)
         {
+            MediaPath = FilePath;
             if (AndroidMediaPlayer.IsPlaying) AndroidMediaPlayer.Stop();
             AndroidMediaPlayer.SetAudioStreamType(Stream.Music);
             AndroidMediaPlayer.SetDataSource(FilePath);
@@ -84,6 +109,8 @@ namespace HomeMediaApp.Droid.Pages
             if (AndroidMediaPlayer.IsPlaying)
             {
                 AndroidMediaPlayer.Pause();
+                ButtonPlayPause.Image = (FileImageSource)ImageSource.FromFile("play_icon_70.png");
+                StopPositionTimer();
             }
         }
 
@@ -92,28 +119,28 @@ namespace HomeMediaApp.Droid.Pages
             if (Prepared)
             {
                 AndroidMediaPlayer.Start();
+                ButtonPlayPause.Image = (FileImageSource)ImageSource.FromFile("pause_icon_70.png");
+                StartPositionTimer();
             }
         }
 
-        private void NextSongTapGestureRecognizer_OnTapped(object sender, EventArgs e)
+        private void StartPositionTimer()
         {
-            throw new NotImplementedException();
+            if (!RunTimer)
+            {
+                RunTimer = true;
+                Device.StartTimer(TimeSpan.FromSeconds(1), () =>
+                {
+                    OnPropertyChanged("SliderValue");
+                    OnPropertyChanged("SliderMax");
+                    return RunTimer;
+                });
+            }
         }
 
-        private void PlayPauseTapGestureRecognizer_OnTapped(object sender, EventArgs e)
+        private void StopPositionTimer()
         {
-
-        }
-
-        private void LastSongTapGestureRecognizer_OnTapped(object sender, EventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
-        private void View_OnClick(object sender, EventArgs e)
-        {
-            if (AndroidMediaPlayer.IsPlaying) Pause();
-            Play();
+            RunTimer = false;
         }
 
         public PlayingState GetPlayingState()
@@ -123,6 +150,11 @@ namespace HomeMediaApp.Droid.Pages
                 Current = AndroidMediaPlayer.CurrentPosition,
                 Max = AndroidMediaPlayer.Duration
             };
+        }
+
+        public void SetName(string ItemName)
+        {
+            SongName = ItemName;
         }
 
         public void SeekTo(int Position)
@@ -135,6 +167,24 @@ namespace HomeMediaApp.Droid.Pages
             {
                 Exception BaseException = gEx.GetBaseException();
                 Debug.WriteLine("Fehler in SeekTo in AndroidMediaPlayerControl.xaml.cs" + BaseException.ToString());
+            }
+        }
+
+        private void PlayPauseButton_OnClicked(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(MediaPath)) return;
+            if (AndroidMediaPlayer.IsPlaying) Pause();
+            else
+            {
+                if (Prepared) Play();
+            }
+        }
+
+        private void SongSlider_OnValueChanged(object sender, ValueChangedEventArgs e)
+        {
+            if ((e.NewValue - e.OldValue) > 2 || (e.OldValue - e.NewValue) > 2)
+            {
+                AndroidMediaPlayer.SeekTo((int)e.NewValue * 1000);
             }
         }
     }
